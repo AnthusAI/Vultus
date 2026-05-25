@@ -12,7 +12,7 @@ export default defineConfig({
       fileName: (format) => (format === "es" ? "anthus-vultus.js" : "anthus-vultus.cjs")
     },
     rollupOptions: {
-      external: ["react", "react-dom", "gsap"]
+      external: (id) => /^react(\/|$)/.test(id) || id === "gsap"
     }
   }
 });
