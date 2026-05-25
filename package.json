@@ -1,0 +1,69 @@
+{
+  "name": "anthus-vultus",
+  "version": "0.1.0",
+  "description": "Reusable animated React avatar component with Storybook and demo surface.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/anthus-vultus.cjs",
+  "module": "./dist/anthus-vultus.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/anthus-vultus.js",
+      "require": "./dist/anthus-vultus.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "rimraf dist storybook-static",
+    "dev": "vite",
+    "build:types": "tsc -p tsconfig.build.json",
+    "build": "npm run clean && vite build && npm run build:types",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "prepublishOnly": "npm run build && npm run test && npm run build-storybook"
+  },
+  "keywords": [
+    "react",
+    "avatar",
+    "animation",
+    "gsap",
+    "storybook",
+    "component-library"
+  ],
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "gsap": "^3.13.0"
+  },
+  "devDependencies": {
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/react-vite": "^8.6.14",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.4.1",
+    "jsdom": "^26.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "storybook": "^8.6.14",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.0",
+    "vitest": "^3.0.8"
+  }
+}

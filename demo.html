@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bot Avatar - Standalone Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..800;1,6..72,300..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+  :root {
+    --bot-avatar-shadow-color: dimgray;
+    --bot-avatar-light-color: white;
+    --color-paper: white;
+    --color-ink: #1c1a18;
+    --color-rule: #1c1a18;
+    --color-muted: #6e6863;
+    --color-faint: #e8e3db;
+    --font-serif: "Newsreader", "Times New Roman", Times, serif;
+    --font-mono: "IBM Plex Mono", "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-serif);
+    font-feature-settings: "kern", "liga", "onum";
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  .editorial-frame {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 28px 96px;
+  }
+  .masthead-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1.5px solid var(--color-rule);
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .masthead-row .edition-label { font-weight: 500; }
+  .masthead-row .edition-meta { color: var(--color-muted); }
+  .double-rule {
+    border-top: 1px solid var(--color-rule);
+    margin-top: 4px;
+    margin-bottom: 36px;
+  }
+  .display-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-style: italic;
+    font-size: clamp(40px, 7vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    margin: 0 0 14px;
+    font-variation-settings: "opsz" 72;
+  }
+  .deck-subtitle {
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--color-muted);
+    margin: 0 0 48px;
+    max-width: 36em;
+    font-style: italic;
+  }
+  .stage-with-caption {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 44px;
+  }
+  .avatar-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    margin-bottom: 18px;
+  }
+  .state-caption {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: center;
+    border-top: 1px solid var(--color-rule);
+    border-bottom: 1px solid var(--color-rule);
+    padding: 8px 18px;
+    min-width: 240px;
+  }
+  .state-caption .caption-label { color: var(--color-muted); margin-right: 10px; }
+  .state-caption .caption-value { font-weight: 500; }
+  .section-heading {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0 0 14px;
+    border-bottom: 1px solid var(--color-faint);
+    padding-bottom: 8px;
+  }
+  .control-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border: 1px solid var(--color-rule);
+    background: var(--color-rule);
+    width: 100%;
+  }
+  @media (min-width: 560px) { .control-grid { grid-template-columns: repeat(3, 1fr); } }
+  .state-button {
+    appearance: none;
+    background: var(--color-paper);
+    border: 0;
+    color: var(--color-ink);
+    padding: 18px 14px 16px;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background-color 160ms ease, color 160ms ease;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+  }
+  .state-button:hover { background: #f5f1ea; }
+  .state-button.is-active { background: var(--color-ink); color: var(--color-paper); }
+  .state-button .button-index {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+  }
+  .state-button.is-active .button-index { color: var(--color-faint); }
+  .state-button .button-label { font-style: italic; font-size: 17px; line-height: 1.1; }
+  .sequence-row { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+  .sequence-button {
+    appearance: none;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    border: 1.5px solid var(--color-rule);
+    padding: 12px 20px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 160ms ease;
+  }
+  .sequence-button:hover { background: #f5f1ea; }
+  .sequence-button.is-running { background: var(--color-ink); color: var(--color-paper); }
+  .footer-note {
+    margin-top: 56px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-faint);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .footer-note .usage-snippet {
+    font-style: italic;
+    color: var(--color-ink);
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: var(--font-serif);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+"use strict";
+
+const createReactElement = React.createElement;
+const { useState, useEffect, useRef, useId } = React;
+
+const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray";
+const DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME = "white";
+const QUARTER_ARC_BEZIER_HANDLE = 0.5522847498;
+
+const buildFourSegmentEllipsePath = (centerX, centerY, radiusX, radiusY) => {
+  const horizontalHandle = radiusX * QUARTER_ARC_BEZIER_HANDLE;
+  const verticalHandle = radiusY * QUARTER_ARC_BEZIER_HANDLE;
+  return (
+    "M " + (centerX - radiusX) + " " + centerY + " " +
+    "C " + (centerX - radiusX) + " " + (centerY - verticalHandle) + " " + (centerX - horizontalHandle) + " " + (centerY - radiusY) + " " + centerX + " " + (centerY - radiusY) + " " +
+    "C " + (centerX + horizontalHandle) + " " + (centerY - radiusY) + " " + (centerX + radiusX) + " " + (centerY - verticalHandle) + " " + (centerX + radiusX) + " " + centerY + " " +
+    "C " + (centerX + radiusX) + " " + (centerY + verticalHandle) + " " + (centerX + horizontalHandle) + " " + (centerY + radiusY) + " " + centerX + " " + (centerY + radiusY) + " " +
+    "C " + (centerX - horizontalHandle) + " " + (centerY + radiusY) + " " + (centerX - radiusX) + " " + (centerY + verticalHandle) + " " + (centerX - radiusX) + " " + centerY + " Z"
+  );
+};
+
+const buildFourSegmentCurvedLensPath = (centerX, centerY, radiusX, radiusY, curveDirection) => {
+  const horizontalHandle = radiusX * QUARTER_ARC_BEZIER_HANDLE;
+  const flatSideRatio = 0.18;
+  const curvedSideRatio = 1.5;
+  const dipsDownward = curveDirection === "down";
+  const topOffset = dipsDownward ? radiusY * flatSideRatio : radiusY * curvedSideRatio;
+  const bottomOffset = dipsDownward ? radiusY * curvedSideRatio : radiusY * flatSideRatio;
+  const topY = centerY - topOffset;
+  const bottomY = centerY + bottomOffset;
+  const topVerticalHandle = topOffset * QUARTER_ARC_BEZIER_HANDLE;
+  const bottomVerticalHandle = bottomOffset * QUARTER_ARC_BEZIER_HANDLE;
+  return (
+    "M " + (centerX - radiusX) + " " + centerY + " " +
+    "C " + (centerX - radiusX) + " " + (centerY - topVerticalHandle) + " " + (centerX - horizontalHandle) + " " + topY + " " + centerX + " " + topY + " " +
+    "C " + (centerX + horizontalHandle) + " " + topY + " " + (centerX + radiusX) + " " + (centerY - topVerticalHandle) + " " + (centerX + radiusX) + " " + centerY + " " +
+    "C " + (centerX + radiusX) + " " + (centerY + bottomVerticalHandle) + " " + (centerX + horizontalHandle) + " " + bottomY + " " + centerX + " " + bottomY + " " +
+    "C " + (centerX - horizontalHandle) + " " + bottomY + " " + (centerX - radiusX) + " " + (centerY + bottomVerticalHandle) + " " + (centerX - radiusX) + " " + centerY + " Z"
+  );
+};
+
+const FACIAL_FEATURE_GEOMETRY = {
+  leftEyeCenterX: 70,
+  rightEyeCenterX: 130,
+  eyeBaselineCenterY: 90,
+  mouthCenterX: 100,
+  mouthBaselineCenterY: 122,
+};
+
+const eyeShapeDefinitionsByState = {
+  neutral:          { rx: 14, ry: 14, dy:  0, shape: "ellipse"    },
+  thinking:         { rx: 14, ry: 14, dy: -4, shape: "ellipse"    },
+  deepThinking:     { rx: 17, ry:  2, dy:  0, shape: "ellipse"    },
+  toolCalling:      { rx:  5, ry: 16, dy:  0, shape: "ellipse"    },
+  toolResponse:     { rx: 17, ry: 17, dy:  0, shape: "ellipse"    },
+  speakingOpen:     { rx: 14, ry: 14, dy:  0, shape: "ellipse"    },
+  speakingWide:     { rx: 14, ry: 14, dy:  0, shape: "ellipse"    },
+  speakingRound:    { rx: 14, ry: 14, dy:  0, shape: "ellipse"    },
+  speakingComplete: { rx: 16, ry:  5, dy: -1, shape: "curvedLens", curveDirection: "up" },
+};
+
+const mouthShapeDefinitionsByState = {
+  neutral:          { rx: 25, ry: 10, dy: 0, shape: "curvedLens", curveDirection: "down" },
+  thinking:         { rx:  6, ry:  6, dy: 0, shape: "ellipse"    },
+  deepThinking:     { rx: 24, ry:  2, dy: 0, shape: "ellipse"    },
+  toolCalling:      { rx:  7, ry:  7, dy: 0, shape: "ellipse"    },
+  toolResponse:     { rx:  9, ry: 14, dy: 0, shape: "ellipse"    },
+  speakingOpen:     { rx: 13, ry: 18, dy: 5, shape: "ellipse"    },
+  speakingWide:     { rx: 22, ry:  7, dy: 0, shape: "ellipse"    },
+  speakingRound:    { rx: 10, ry: 13, dy: 0, shape: "ellipse"    },
+  speakingComplete: { rx: 25, ry: 11, dy: 0, shape: "curvedLens", curveDirection: "down" },
+};
+
+const buildPathStringFromDefinition = (centerX, centerY, definition) => {
+  const adjustedCenterY = centerY + definition.dy;
+  if (definition.shape === "curvedLens") {
+    return buildFourSegmentCurvedLensPath(centerX, adjustedCenterY, definition.rx, definition.ry, definition.curveDirection);
+  }
+  return buildFourSegmentEllipsePath(centerX, adjustedCenterY, definition.rx, definition.ry);
+};
+
+const computeAllFacialPathsForState = (stateName) => {
+  const eyeDefinition = eyeShapeDefinitionsByState[stateName];
+  const mouthDefinition = mouthShapeDefinitionsByState[stateName];
+  return {
+    leftEyePathString:  buildPathStringFromDefinition(FACIAL_FEATURE_GEOMETRY.leftEyeCenterX,  FACIAL_FEATURE_GEOMETRY.eyeBaselineCenterY, eyeDefinition),
+    rightEyePathString: buildPathStringFromDefinition(FACIAL_FEATURE_GEOMETRY.rightEyeCenterX, FACIAL_FEATURE_GEOMETRY.eyeBaselineCenterY, eyeDefinition),
+    mouthPathString:    buildPathStringFromDefinition(FACIAL_FEATURE_GEOMETRY.mouthCenterX,    FACIAL_FEATURE_GEOMETRY.mouthBaselineCenterY, mouthDefinition),
+  };
+};
+
+const SIGNED_DECIMAL_NUMBER_PATTERN = /-?\d+(?:\.\d+)?/g;
+
+const interpolateNumericValuesBetweenPathStrings = (fromPathString, toPathString, easedProgress) => {
+  const fromPathNumbers = fromPathString.match(SIGNED_DECIMAL_NUMBER_PATTERN).map(Number);
+  const toPathNumbers = toPathString.match(SIGNED_DECIMAL_NUMBER_PATTERN).map(Number);
+  let consumedNumberIndex = 0;
+  return fromPathString.replace(SIGNED_DECIMAL_NUMBER_PATTERN, () => {
+    const interpolatedValue =
+      fromPathNumbers[consumedNumberIndex] +
+      (toPathNumbers[consumedNumberIndex] - fromPathNumbers[consumedNumberIndex]) * easedProgress;
+    consumedNumberIndex += 1;
+    return interpolatedValue.toFixed(3);
+  });
+};
+
+const ellipsePathAtPosition = (centerX, centerY, radiusX, radiusY) => buildFourSegmentEllipsePath(centerX, centerY, radiusX, radiusY);
+
+const buildNeutralBlinkIdleAnimation = (animationContext) => {
+  const basePaths = computeAllFacialPathsForState("neutral");
+  const closedLeftEyePath = ellipsePathAtPosition(FACIAL_FEATURE_GEOMETRY.leftEyeCenterX, FACIAL_FEATURE_GEOMETRY.eyeBaselineCenterY, 13, 1.5);
+  const closedRightEyePath = ellipsePathAtPosition(FACIAL_FEATURE_GEOMETRY.rightEyeCenterX, FACIAL_FEATURE_GEOMETRY.eyeBaselineCenterY, 13, 1.5);
+  const blinkTimeline = gsap.timeline({ repeat: -1, repeatDelay: 3.2 });
+  const blinkProgress = { value: 0 };
+  const renderBlinkAtCurrentProgress = () => {
+    const p = blinkProgress.value;
+    animationContext.leftEyePathElementRef.current.setAttribute("d",
+      interpolateNumericValuesBetweenPathStrings(basePaths.leftEyePathString, closedLeftEyePath, p));
+    animationContext.rightEyePathElementRef.current.setAttribute("d",
+      interpolateNumericValuesBetweenPathStrings(basePaths.rightEyePathString, closedRightEyePath, p));
+  };
+  blinkTimeline.to(blinkProgress, { value: 1, duration: 0.1, ease: "power2.in", onUpdate: renderBlinkAtCurrentProgress });
+  blinkTimeline.to(blinkProgress, { value: 0, duration: 0.16, ease: "power2.out", onUpdate: renderBlinkAtCurrentProgress });
+  return blinkTimeline;
+};
+
+const buildEyeWanderIdleAnimation = (animationContext, wanderEyeCenterPositions, transitionDuration, restDurationFunction) => {
+  const wanderRadius = 14;
+  const positionPathSets = wanderEyeCenterPositions.map((position) => ({
+    leftEyePath: ellipsePathAtPosition(position.leftEyeCenter[0], position.leftEyeCenter[1], wanderRadius, wanderRadius),
+    rightEyePath: ellipsePathAtPosition(position.rightEyeCenter[0], position.rightEyeCenter[1], wanderRadius, wanderRadius),
+  }));
+  const wanderTimeline = gsap.timeline({ repeat: -1 });
+  for (let positionIndex = 0; positionIndex < positionPathSets.length; positionIndex += 1) {
+    const fromPathSet = positionPathSets[positionIndex];
+    const toPathSet = positionPathSets[(positionIndex + 1) % positionPathSets.length];
+    const stepProgress = { value: 0 };
+    wanderTimeline.to(stepProgress, {
+      value: 1,
+      duration: transitionDuration,
+      ease: "power2.inOut",
+      onUpdate: () => {
+        const p = stepProgress.value;
+        animationContext.leftEyePathElementRef.current.setAttribute("d",
+          interpolateNumericValuesBetweenPathStrings(fromPathSet.leftEyePath, toPathSet.leftEyePath, p));
+        animationContext.rightEyePathElementRef.current.setAttribute("d",
+          interpolateNumericValuesBetweenPathStrings(fromPathSet.rightEyePath, toPathSet.rightEyePath, p));
+      },
+    });
+    wanderTimeline.to({}, { duration: restDurationFunction(positionIndex) });
+  }
+  return wanderTimeline;
+};
+
+const buildThinkingWanderIdleAnimation = (animationContext) => buildEyeWanderIdleAnimation(
+  animationContext,
+  [
+    { leftEyeCenter: [70, 86], rightEyeCenter: [130, 86] },
+    { leftEyeCenter: [66, 84], rightEyeCenter: [126, 84] },
+    { leftEyeCenter: [70, 82], rightEyeCenter: [130, 82] },
+    { leftEyeCenter: [74, 84], rightEyeCenter: [134, 84] },
+  ],
+  0.5,
+  () => 1.1 + Math.random() * 0.6
+);
+
+const buildToolResponseReadingIdleAnimation = (animationContext) => buildEyeWanderIdleAnimation(
+  animationContext,
+  [
+    { leftEyeCenter: [66, 90], rightEyeCenter: [126, 90] },
+    { leftEyeCenter: [70, 90], rightEyeCenter: [130, 90] },
+    { leftEyeCenter: [74, 90], rightEyeCenter: [134, 90] },
+    { leftEyeCenter: [70, 90], rightEyeCenter: [130, 90] },
+  ],
+  0.16,
+  () => 0.35
+);
+
+const buildSimpleTransformIdleAnimation = (targetElement, tweenProperties) => {
+  const animationTween = gsap.to(targetElement, tweenProperties);
+  return {
+    kill: () => {
+      animationTween.kill();
+      gsap.set(targetElement, { clearProps: "transform" });
+    },
+  };
+};
+
+const buildDeepThinkingBreathingIdleAnimation = (animationContext) => buildSimpleTransformIdleAnimation(
+  animationContext.innerHeadGroupElementRef.current,
+  { scale: 1.025, transformOrigin: "100px 100px", duration: 2.6, yoyo: true, repeat: -1, ease: "sine.inOut" }
+);
+
+const buildToolCallingAntennaPulseIdleAnimation = (animationContext) => buildSimpleTransformIdleAnimation(
+  animationContext.antennaCircleElementRef.current,
+  { scale: 1.45, transformOrigin: "100px 20px", duration: 0.42, yoyo: true, repeat: -1, ease: "sine.inOut" }
+);
+
+const buildSpeakingCompleteHappyBounceIdleAnimation = (animationContext) => buildSimpleTransformIdleAnimation(
+  animationContext.innerHeadGroupElementRef.current,
+  { y: -2, duration: 0.7, yoyo: true, repeat: -1, ease: "sine.inOut" }
+);
+
+const buildSpeakingVariantPulseIdleAnimation = (animationContext, primaryStateKey, secondaryStateKey) => {
+  const primaryMouthPathString = computeAllFacialPathsForState(primaryStateKey).mouthPathString;
+  const secondaryMouthPathString = computeAllFacialPathsForState(secondaryStateKey).mouthPathString;
+  const pulseProgress = { value: 0 };
+  const pulseTween = gsap.to(pulseProgress, {
+    value: 1,
+    duration: 0.18,
+    yoyo: true,
+    repeat: -1,
+    ease: "sine.inOut",
+    onUpdate: () => {
+      animationContext.mouthPathElementRef.current.setAttribute("d",
+        interpolateNumericValuesBetweenPathStrings(primaryMouthPathString, secondaryMouthPathString, pulseProgress.value));
+    },
+  });
+  return pulseTween;
+};
+
+const idleAnimationBuildersByStateKey = {
+  neutral: (ctx) => buildNeutralBlinkIdleAnimation(ctx),
+  thinking: (ctx) => buildThinkingWanderIdleAnimation(ctx),
+  deepThinking: (ctx) => buildDeepThinkingBreathingIdleAnimation(ctx),
+  toolCalling: (ctx) => buildToolCallingAntennaPulseIdleAnimation(ctx),
+  toolResponse: (ctx) => buildToolResponseReadingIdleAnimation(ctx),
+  speakingOpen: (ctx) => buildSpeakingVariantPulseIdleAnimation(ctx, "speakingOpen", "speakingRound"),
+  speakingWide: (ctx) => buildSpeakingVariantPulseIdleAnimation(ctx, "speakingWide", "speakingOpen"),
+  speakingRound: (ctx) => buildSpeakingVariantPulseIdleAnimation(ctx, "speakingRound", "speakingWide"),
+  speakingComplete: (ctx) => buildSpeakingCompleteHappyBounceIdleAnimation(ctx),
+};
+
+const BotAvatar = (incomingProps) => {
+  const currentState = incomingProps.state || "neutral";
+  const renderedPixelSize = incomingProps.size || 240;
+  const transitionDurationSeconds = typeof incomingProps.transitionDurationSeconds === "number" ? incomingProps.transitionDurationSeconds : 0.55;
+  const shadowColor = incomingProps.shadowColor || DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME;
+  const lightColor = incomingProps.lightColor || DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME;
+
+  const generatedRawId = useId();
+  const headClipPathId = "bot-avatar-head-clip-" + generatedRawId.replace(/:/g, "");
+
+  const leftEyePathElementRef = useRef(null);
+  const rightEyePathElementRef = useRef(null);
+  const mouthPathElementRef = useRef(null);
+  const antennaCircleElementRef = useRef(null);
+  const innerHeadGroupElementRef = useRef(null);
+  const activeMorphTweenRef = useRef(null);
+  const activeIdleAnimationRef = useRef(null);
+  const initialPathSetRef = useRef(computeAllFacialPathsForState(currentState));
+
+  useEffect(() => {
+    const animationContext = {
+      leftEyePathElementRef,
+      rightEyePathElementRef,
+      mouthPathElementRef,
+      antennaCircleElementRef,
+      innerHeadGroupElementRef,
+    };
+    if (!animationContext.leftEyePathElementRef.current
+      || !animationContext.rightEyePathElementRef.current
+      || !animationContext.mouthPathElementRef.current) {
+      return undefined;
+    }
+
+    if (activeMorphTweenRef.current) activeMorphTweenRef.current.kill();
+    if (activeIdleAnimationRef.current) activeIdleAnimationRef.current.kill();
+
+    if (animationContext.innerHeadGroupElementRef.current) {
+      gsap.set(animationContext.innerHeadGroupElementRef.current, { clearProps: "transform" });
+    }
+    if (animationContext.antennaCircleElementRef.current) {
+      gsap.set(animationContext.antennaCircleElementRef.current, { clearProps: "transform" });
+    }
+
+    const currentlyRenderedPaths = {
+      leftEyePathString: animationContext.leftEyePathElementRef.current.getAttribute("d"),
+      rightEyePathString: animationContext.rightEyePathElementRef.current.getAttribute("d"),
+      mouthPathString: animationContext.mouthPathElementRef.current.getAttribute("d"),
+    };
+    const targetPathsForNextState = computeAllFacialPathsForState(currentState);
+
+    const startIdleAnimationForCurrentState = () => {
+      const idleBuilder = idleAnimationBuildersByStateKey[currentState];
+      if (idleBuilder) {
+        activeIdleAnimationRef.current = idleBuilder(animationContext);
+      }
+    };
+
+    const allFacialPathsAlreadyMatchTarget = (
+      currentlyRenderedPaths.leftEyePathString === targetPathsForNextState.leftEyePathString &&
+      currentlyRenderedPaths.rightEyePathString === targetPathsForNextState.rightEyePathString &&
+      currentlyRenderedPaths.mouthPathString === targetPathsForNextState.mouthPathString
+    );
+
+    if (allFacialPathsAlreadyMatchTarget) {
+      startIdleAnimationForCurrentState();
+    } else {
+      const morphProgressContainer = { easedProgress: 0 };
+      activeMorphTweenRef.current = gsap.to(morphProgressContainer, {
+        easedProgress: 1,
+        duration: transitionDurationSeconds,
+        ease: "power3.inOut",
+        onUpdate: () => {
+          const progress = morphProgressContainer.easedProgress;
+          animationContext.leftEyePathElementRef.current.setAttribute("d",
+            interpolateNumericValuesBetweenPathStrings(currentlyRenderedPaths.leftEyePathString, targetPathsForNextState.leftEyePathString, progress));
+          animationContext.rightEyePathElementRef.current.setAttribute("d",
+            interpolateNumericValuesBetweenPathStrings(currentlyRenderedPaths.rightEyePathString, targetPathsForNextState.rightEyePathString, progress));
+          animationContext.mouthPathElementRef.current.setAttribute("d",
+            interpolateNumericValuesBetweenPathStrings(currentlyRenderedPaths.mouthPathString, targetPathsForNextState.mouthPathString, progress));
+        },
+        onComplete: startIdleAnimationForCurrentState,
+      });
+    }
+
+    return () => {
+      if (activeMorphTweenRef.current) activeMorphTweenRef.current.kill();
+      if (activeIdleAnimationRef.current) activeIdleAnimationRef.current.kill();
+    };
+  }, [currentState, transitionDurationSeconds]);
+
+  const initialPaths = initialPathSetRef.current;
+
+  return createReactElement("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      viewBox: "0 0 200 200",
+      width: renderedPixelSize,
+      height: renderedPixelSize,
+      role: "img",
+      "aria-label": "Bot avatar - " + currentState + " state",
+      style: { display: "block" },
+    },
+    createReactElement("defs", null,
+      createReactElement("clipPath", { id: headClipPathId },
+        createReactElement("circle", { cx: 100, cy: 100, r: 90 })
+      )
+    ),
+    createReactElement("rect", { width: 200, height: 200, fill: lightColor }),
+    createReactElement("g", { ref: innerHeadGroupElementRef },
+      createReactElement("circle", { cx: 100, cy: 100, r: 90, fill: shadowColor }),
+      createReactElement("g", { clipPath: "url(#" + headClipPathId + ")" },
+        createReactElement("circle", { ref: antennaCircleElementRef, cx: 100, cy: 20, r: 10, fill: lightColor }),
+        createReactElement("rect", { x: 95, y: 25, width: 10, height: 25, fill: lightColor }),
+        createReactElement("rect", { x: 15, y: 80, width: 30, height: 40, rx: 8, fill: lightColor }),
+        createReactElement("rect", { x: 155, y: 80, width: 30, height: 40, rx: 8, fill: lightColor }),
+        createReactElement("rect", { x: 35, y: 45, width: 130, height: 100, rx: 30, fill: lightColor }),
+        createReactElement("rect", { x: 80, y: 140, width: 40, height: 20, fill: lightColor }),
+        createReactElement("path", { d: "M 20 200 Q 100 150 180 200 Z", fill: lightColor }),
+        createReactElement("path", { ref: leftEyePathElementRef, d: initialPaths.leftEyePathString, fill: shadowColor }),
+        createReactElement("path", { ref: rightEyePathElementRef, d: initialPaths.rightEyePathString, fill: shadowColor }),
+        createReactElement("path", { ref: mouthPathElementRef, d: initialPaths.mouthPathString, fill: shadowColor })
+      )
+    )
+  );
+};
+
+const orderedStateButtonDescriptors = [
+  { stateKey: "neutral", buttonLabel: "Neutral", romanNumeralIndex: "I" },
+  { stateKey: "thinking", buttonLabel: "Thinking", romanNumeralIndex: "II" },
+  { stateKey: "deepThinking", buttonLabel: "Deep Thinking", romanNumeralIndex: "III" },
+  { stateKey: "toolCalling", buttonLabel: "Tool Calling", romanNumeralIndex: "IV" },
+  { stateKey: "toolResponse", buttonLabel: "Tool Response", romanNumeralIndex: "V" },
+  { stateKey: "speakingOpen", buttonLabel: "Speaking - Open", romanNumeralIndex: "VI" },
+  { stateKey: "speakingWide", buttonLabel: "Speaking - Wide", romanNumeralIndex: "VII" },
+  { stateKey: "speakingRound", buttonLabel: "Speaking - Round", romanNumeralIndex: "VIII" },
+  { stateKey: "speakingComplete", buttonLabel: "Speaking Complete", romanNumeralIndex: "IX" },
+];
+
+const automatedSpeakingPlaybackSequence = [
+  { stateKey: "speakingOpen", holdMilliseconds: 280 },
+  { stateKey: "speakingRound", holdMilliseconds: 220 },
+  { stateKey: "speakingWide", holdMilliseconds: 260 },
+  { stateKey: "speakingOpen", holdMilliseconds: 220 },
+  { stateKey: "speakingRound", holdMilliseconds: 200 },
+  { stateKey: "speakingWide", holdMilliseconds: 260 },
+  { stateKey: "speakingComplete", holdMilliseconds: 900 },
+  { stateKey: "neutral", holdMilliseconds: 0 },
+];
+
+const formatStateKeyAsReadableLabel = (stateKey) => stateKey
+  .replace(/([A-Z])/g, " $1")
+  .replace(/^./, (firstCharacter) => firstCharacter.toUpperCase())
+  .trim();
+
+const BotAvatarMorphingDemoPage = () => {
+  const [currentlyDisplayedState, setCurrentlyDisplayedState] = useState("neutral");
+  const [isPlayingAutomatedSpeechSequence, setIsPlayingAutomatedSpeechSequence] = useState(false);
+  const scheduledPlaybackTimeoutHandlesRef = useRef([]);
+
+  const cancelAllScheduledPlaybackTimeouts = () => {
+    scheduledPlaybackTimeoutHandlesRef.current.forEach(clearTimeout);
+    scheduledPlaybackTimeoutHandlesRef.current = [];
+  };
+
+  useEffect(() => () => cancelAllScheduledPlaybackTimeouts(), []);
+
+  const handleManualStateButtonPress = (stateKey) => {
+    cancelAllScheduledPlaybackTimeouts();
+    setIsPlayingAutomatedSpeechSequence(false);
+    setCurrentlyDisplayedState(stateKey);
+  };
+
+  const startAutomatedSpeakingPlayback = () => {
+    cancelAllScheduledPlaybackTimeouts();
+    setIsPlayingAutomatedSpeechSequence(true);
+    let cumulativeDelayMilliseconds = 0;
+    automatedSpeakingPlaybackSequence.forEach((sequenceFrame, frameIndex) => {
+      const scheduledHandle = setTimeout(() => {
+        setCurrentlyDisplayedState(sequenceFrame.stateKey);
+        if (frameIndex === automatedSpeakingPlaybackSequence.length - 1) {
+          setIsPlayingAutomatedSpeechSequence(false);
+        }
+      }, cumulativeDelayMilliseconds);
+      scheduledPlaybackTimeoutHandlesRef.current.push(scheduledHandle);
+      cumulativeDelayMilliseconds += sequenceFrame.holdMilliseconds;
+    });
+  };
+
+  const currentEditionDate = new Date().toLocaleDateString("en-US", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+  });
+
+  const renderedStateButtons = orderedStateButtonDescriptors.map((descriptor) => {
+    const isCurrentlyActive = currentlyDisplayedState === descriptor.stateKey;
+    return createReactElement("button", {
+        key: descriptor.stateKey,
+        type: "button",
+        className: "state-button" + (isCurrentlyActive ? " is-active" : ""),
+        onClick: () => handleManualStateButtonPress(descriptor.stateKey),
+        "aria-pressed": isCurrentlyActive,
+      },
+      createReactElement("span", { className: "button-index" }, descriptor.romanNumeralIndex),
+      createReactElement("span", { className: "button-label" }, descriptor.buttonLabel)
+    );
+  });
+
+  return createReactElement("div", { className: "editorial-frame" },
+    createReactElement("div", { className: "masthead-row" },
+      createReactElement("span", { className: "edition-label" }, "The Avatar Almanac - Vol. III"),
+      createReactElement("span", { className: "edition-meta" }, currentEditionDate)
+    ),
+    createReactElement("div", { className: "double-rule" }),
+    createReactElement("h1", { className: "display-title" },
+      "A ",
+      createReactElement("em", null, "Living"),
+      " Countenance,",
+      createReactElement("br", null),
+      "in Nine Acts"
+    ),
+    createReactElement("p", { className: "deck-subtitle" },
+      "Each state is animated on its own - the bot blinks when neutral, lets its eyes wander while thinking, breathes when deep in thought, pulses its antenna while calling tools, scans like it is reading when handling a response, and chatters its mouth when speaking. Press any state to call it forth."
+    ),
+    createReactElement("div", { className: "stage-with-caption" },
+      createReactElement("div", { className: "avatar-stage" },
+        createReactElement(BotAvatar, { state: currentlyDisplayedState, size: 300 })
+      ),
+      createReactElement("div", { className: "state-caption" },
+        createReactElement("span", { className: "caption-label" }, "Now showing"),
+        createReactElement("span", { className: "caption-value" }, formatStateKeyAsReadableLabel(currentlyDisplayedState))
+      )
+    ),
+    createReactElement("h2", { className: "section-heading" }, "States - choose one"),
+    createReactElement("div", { className: "control-grid", role: "group", "aria-label": "Bot avatar state selector" },
+      renderedStateButtons
+    ),
+    createReactElement("div", { className: "sequence-row" },
+      createReactElement("button", {
+          type: "button",
+          className: "sequence-button" + (isPlayingAutomatedSpeechSequence ? " is-running" : ""),
+          onClick: startAutomatedSpeakingPlayback,
+        },
+        isPlayingAutomatedSpeechSequence ? "Playing speech sequence..." : "> Play full speech sequence"
+      )
+    ),
+    createReactElement("div", { className: "footer-note" },
+      createReactElement("span", null, "Reusable React component"),
+      createReactElement("span", { className: "usage-snippet" }, "<BotAvatar state=\"thinking\" shadowColor=\"dimgray\" lightColor=\"white\" />"),
+      createReactElement("span", null, "Idle animations - per state")
+    )
+  );
+};
+
+const reactDomRoot = ReactDOM.createRoot(document.getElementById("root"));
+reactDomRoot.render(createReactElement(BotAvatarMorphingDemoPage));
+</script>
+</body>
+</html>
