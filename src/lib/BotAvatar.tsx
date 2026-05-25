@@ -42,17 +42,22 @@ const ellipsePathAtPosition = (
   radiusY: number
 ): string => buildFourSegmentEllipsePath(centerX, centerY, radiusX, radiusY);
 
-const buildNeutralBlinkBoredAnimation = (
+const appendBlinkToTimeline = (
+  timeline: gsap.core.Timeline,
   animationContext: AnimationContext,
-  totalDurationMilliseconds: number
-): gsap.core.Timeline => {
+  options?: {
+    closeDuration?: number;
+    closedHoldDuration?: number;
+    openDuration?: number;
+  }
+) => {
   const basePaths = computeAllFacialPathsForState("neutral");
   const closedLeftEyePath = ellipsePathAtPosition(70, 90, 13, 1.5);
   const closedRightEyePath = ellipsePathAtPosition(130, 90, 13, 1.5);
-  const totalDurationSeconds = Math.max(totalDurationMilliseconds / 1000, 1);
-  const holdDuration = Math.max(0.3, totalDurationSeconds - 0.52);
-  const blinkTimeline = gsap.timeline();
   const blinkProgress = { value: 0 };
+  const closeDuration = options?.closeDuration ?? 0.09;
+  const closedHoldDuration = options?.closedHoldDuration ?? 0.03;
+  const openDuration = options?.openDuration ?? 0.13;
 
   const renderBlinkAtCurrentProgress = () => {
     const p = blinkProgress.value;
@@ -66,30 +71,40 @@ const buildNeutralBlinkBoredAnimation = (
     );
   };
 
-  blinkTimeline.to(blinkProgress, {
+  timeline.to(blinkProgress, {
     value: 1,
-    duration: 0.1,
+    duration: closeDuration,
     ease: "power2.in",
     onUpdate: renderBlinkAtCurrentProgress
   });
-  blinkTimeline.to(blinkProgress, {
+  if (closedHoldDuration > 0) {
+    timeline.to({}, { duration: closedHoldDuration });
+  }
+  timeline.to(blinkProgress, {
     value: 0,
-    duration: 0.16,
+    duration: openDuration,
     ease: "power2.out",
     onUpdate: renderBlinkAtCurrentProgress
+  });
+};
+
+const buildNeutralBlinkBoredAnimation = (
+  animationContext: AnimationContext,
+  totalDurationMilliseconds: number
+): gsap.core.Timeline => {
+  const totalDurationSeconds = Math.max(totalDurationMilliseconds / 1000, 1);
+  const holdDuration = Math.max(0.24, totalDurationSeconds - 0.58);
+  const blinkTimeline = gsap.timeline();
+  appendBlinkToTimeline(blinkTimeline, animationContext, {
+    closeDuration: 0.1,
+    closedHoldDuration: 0.03,
+    openDuration: 0.16
   });
   blinkTimeline.to({}, { duration: holdDuration * 0.45 });
-  blinkTimeline.to(blinkProgress, {
-    value: 1,
-    duration: 0.08,
-    ease: "power2.in",
-    onUpdate: renderBlinkAtCurrentProgress
-  });
-  blinkTimeline.to(blinkProgress, {
-    value: 0,
-    duration: 0.12,
-    ease: "power2.out",
-    onUpdate: renderBlinkAtCurrentProgress
+  appendBlinkToTimeline(blinkTimeline, animationContext, {
+    closeDuration: 0.08,
+    closedHoldDuration: 0.02,
+    openDuration: 0.12
   });
   blinkTimeline.to({}, { duration: holdDuration * 0.55 });
   return blinkTimeline;
@@ -137,11 +152,23 @@ const buildNeutralEyeGlanceBoredAnimation = (
   };
 
   animateEyePathMorph(centerLeftEyePath, glanceLeftEyePath, centerRightEyePath, glanceRightEyePath, stepDuration);
-  glanceTimeline.to({}, { duration: holdDuration });
+  glanceTimeline.to({}, { duration: holdDuration * 0.6 });
+  appendBlinkToTimeline(glanceTimeline, animationContext, {
+    closeDuration: 0.08,
+    closedHoldDuration: 0.02,
+    openDuration: 0.1
+  });
+  glanceTimeline.to({}, { duration: holdDuration * 0.4 });
   animateEyePathMorph(glanceLeftEyePath, glanceBackLeftEyePath, glanceRightEyePath, glanceBackRightEyePath, stepDuration);
-  glanceTimeline.to({}, { duration: holdDuration });
+  glanceTimeline.to({}, { duration: holdDuration * 0.6 });
+  appendBlinkToTimeline(glanceTimeline, animationContext, {
+    closeDuration: 0.07,
+    closedHoldDuration: 0.01,
+    openDuration: 0.09
+  });
+  glanceTimeline.to({}, { duration: holdDuration * 0.4 });
   animateEyePathMorph(glanceBackLeftEyePath, centerLeftEyePath, glanceBackRightEyePath, centerRightEyePath, stepDuration);
-  glanceTimeline.to({}, { duration: Math.max(0.08, totalDurationSeconds - (stepDuration * 3 + holdDuration * 2)) });
+  glanceTimeline.to({}, { duration: Math.max(0.08, totalDurationSeconds - (stepDuration * 3 + holdDuration * 2 + 0.37)) });
   return glanceTimeline;
 };
 
@@ -172,6 +199,12 @@ const buildNeutralAntennaFidgetBoredAnimation = (
       ease: "sine.inOut"
     }, 0);
   }
+
+  appendBlinkToTimeline(fidgetTimeline, animationContext, {
+    closeDuration: 0.08,
+    closedHoldDuration: 0.02,
+    openDuration: 0.1
+  });
 
   fidgetTimeline.to({}, { duration: Math.max(0.08, totalDurationSeconds * 0.12) });
   return fidgetTimeline;

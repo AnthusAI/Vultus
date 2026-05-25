@@ -1,21 +1,21 @@
-import { jsxs as D, jsx as m } from "react/jsx-runtime";
-import { useId as Y, useRef as S, useEffect as X } from "react";
-import { gsap as f } from "gsap";
-const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
-  const o = n * _, a = r * _;
-  return "M " + (e - n) + " " + t + " C " + (e - n) + " " + (t - a) + " " + (e - o) + " " + (t - r) + " " + e + " " + (t - r) + " C " + (e + o) + " " + (t - r) + " " + (e + n) + " " + (t - a) + " " + (e + n) + " " + t + " C " + (e + n) + " " + (t + a) + " " + (e + o) + " " + (t + r) + " " + e + " " + (t + r) + " C " + (e - o) + " " + (t + r) + " " + (e - n) + " " + (t + a) + " " + (e - n) + " " + t + " Z";
-}, ee = (e, t, n, r, o) => {
-  const a = n * _, s = 0.18, i = 1.5, u = o === "down", c = u ? r * s : r * i, h = u ? r * i : r * s, d = t - c, p = t + h, E = c * _, b = h * _;
-  return "M " + (e - n) + " " + t + " C " + (e - n) + " " + (t - E) + " " + (e - a) + " " + d + " " + e + " " + d + " C " + (e + a) + " " + d + " " + (e + n) + " " + (t - E) + " " + (e + n) + " " + t + " C " + (e + n) + " " + (t + b) + " " + (e + a) + " " + p + " " + e + " " + p + " C " + (e - a) + " " + p + " " + (e - n) + " " + (t + b) + " " + (e - n) + " " + t + " Z";
-}, k = (e, t, n) => {
-  var s, i;
-  const r = ((s = e.match(U)) == null ? void 0 : s.map(Number)) ?? [], o = ((i = t.match(U)) == null ? void 0 : i.map(Number)) ?? [];
+import { jsxs as H, jsx as y } from "react/jsx-runtime";
+import { useId as X, useRef as S, useEffect as ee } from "react";
+import { gsap as E } from "gsap";
+const N = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, z = (e, n, t, r) => {
+  const o = t * N, a = r * N;
+  return "M " + (e - t) + " " + n + " C " + (e - t) + " " + (n - a) + " " + (e - o) + " " + (n - r) + " " + e + " " + (n - r) + " C " + (e + o) + " " + (n - r) + " " + (e + t) + " " + (n - a) + " " + (e + t) + " " + n + " C " + (e + t) + " " + (n + a) + " " + (e + o) + " " + (n + r) + " " + e + " " + (n + r) + " C " + (e - o) + " " + (n + r) + " " + (e - t) + " " + (n + a) + " " + (e - t) + " " + n + " Z";
+}, te = (e, n, t, r, o) => {
+  const a = t * N, u = 0.18, i = 1.5, h = o === "down", p = h ? r * u : r * i, c = h ? r * i : r * u, l = n - p, d = n + c, g = p * N, b = c * N;
+  return "M " + (e - t) + " " + n + " C " + (e - t) + " " + (n - g) + " " + (e - a) + " " + l + " " + e + " " + l + " C " + (e + a) + " " + l + " " + (e + t) + " " + (n - g) + " " + (e + t) + " " + n + " C " + (e + t) + " " + (n + b) + " " + (e + a) + " " + d + " " + e + " " + d + " C " + (e - a) + " " + d + " " + (e - t) + " " + (n + b) + " " + (e - t) + " " + n + " Z";
+}, k = (e, n, t) => {
+  var u, i;
+  const r = ((u = e.match(U)) == null ? void 0 : u.map(Number)) ?? [], o = ((i = n.match(U)) == null ? void 0 : i.map(Number)) ?? [];
   let a = 0;
   return e.replace(U, () => {
-    const u = r[a] ?? 0, c = o[a] ?? 0, h = u + (c - u) * n;
-    return a += 1, h.toFixed(3);
+    const h = r[a] ?? 0, p = o[a] ?? 0, c = h + (p - h) * t;
+    return a += 1, c.toFixed(3);
   });
-}, te = [
+}, ne = [
   "neutral",
   "thinking",
   "deepThinking",
@@ -25,13 +25,13 @@ const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
   "speakingWide",
   "speakingRound",
   "speakingComplete"
-], I = {
+], x = {
   leftEyeCenterX: 70,
   rightEyeCenterX: 130,
   eyeBaselineCenterY: 90,
   mouthCenterX: 100,
   mouthBaselineCenterY: 122
-}, ne = {
+}, re = {
   neutral: { rx: 14, ry: 14, dy: 0, shape: "ellipse" },
   thinking: { rx: 14, ry: 14, dy: -4, shape: "ellipse" },
   deepThinking: { rx: 17, ry: 2, dy: 0, shape: "ellipse" },
@@ -41,7 +41,7 @@ const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
   speakingWide: { rx: 14, ry: 14, dy: 0, shape: "ellipse" },
   speakingRound: { rx: 14, ry: 14, dy: 0, shape: "ellipse" },
   speakingComplete: { rx: 16, ry: 5, dy: -1, shape: "curvedLens", curveDirection: "up" }
-}, re = {
+}, ae = {
   neutral: { rx: 25, ry: 10, dy: 0, shape: "curvedLens", curveDirection: "down" },
   thinking: { rx: 6, ry: 6, dy: 0, shape: "ellipse" },
   deepThinking: { rx: 24, ry: 2, dy: 0, shape: "ellipse" },
@@ -51,35 +51,35 @@ const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
   speakingWide: { rx: 22, ry: 7, dy: 0, shape: "ellipse" },
   speakingRound: { rx: 10, ry: 13, dy: 0, shape: "ellipse" },
   speakingComplete: { rx: 25, ry: 11, dy: 0, shape: "curvedLens", curveDirection: "down" }
-}, V = (e, t, n) => {
-  const r = t + n.dy;
-  return n.shape === "curvedLens" ? ee(
+}, V = (e, n, t) => {
+  const r = n + t.dy;
+  return t.shape === "curvedLens" ? te(
     e,
     r,
-    n.rx,
-    n.ry,
-    n.curveDirection ?? "down"
-  ) : q(e, r, n.rx, n.ry);
-}, w = (e) => {
-  const t = ne[e], n = re[e];
+    t.rx,
+    t.ry,
+    t.curveDirection ?? "down"
+  ) : z(e, r, t.rx, t.ry);
+}, _ = (e) => {
+  const n = re[e], t = ae[e];
   return {
     leftEyePathString: V(
-      I.leftEyeCenterX,
-      I.eyeBaselineCenterY,
-      t
+      x.leftEyeCenterX,
+      x.eyeBaselineCenterY,
+      n
     ),
     rightEyePathString: V(
-      I.rightEyeCenterX,
-      I.eyeBaselineCenterY,
-      t
+      x.rightEyeCenterX,
+      x.eyeBaselineCenterY,
+      n
     ),
     mouthPathString: V(
-      I.mouthCenterX,
-      I.mouthBaselineCenterY,
-      n
+      x.mouthCenterX,
+      x.mouthBaselineCenterY,
+      t
     )
   };
-}, Te = [
+}, Ce = [
   { stateKey: "neutral", buttonLabel: "Neutral", romanNumeralIndex: "I" },
   { stateKey: "thinking", buttonLabel: "Thinking", romanNumeralIndex: "II" },
   { stateKey: "deepThinking", buttonLabel: "Deep Thinking", romanNumeralIndex: "III" },
@@ -98,78 +98,91 @@ const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
   { stateKey: "speakingWide", holdMilliseconds: 260 },
   { stateKey: "speakingComplete", holdMilliseconds: 900 },
   { stateKey: "neutral", holdMilliseconds: 0 }
-], Ie = (e) => e.replace(/([A-Z])/g, " $1").replace(/^./, (t) => t.toUpperCase()).trim(), ae = "dimgray", ie = "white", oe = 1e4, le = 2e4, se = 1e3, ue = 2e3, A = (e, t, n, r) => q(e, t, n, r), ce = (e, t) => {
-  const n = w("neutral"), r = A(70, 90, 13, 1.5), o = A(130, 90, 13, 1.5), a = Math.max(t / 1e3, 1), s = Math.max(0.3, a - 0.52), i = f.timeline(), u = { value: 0 }, c = () => {
-    var d, p;
-    const h = u.value;
-    (d = e.leftEyePathElementRef.current) == null || d.setAttribute(
+], Ie = (e) => e.replace(/([A-Z])/g, " $1").replace(/^./, (n) => n.toUpperCase()).trim(), oe = "dimgray", ie = "white", le = 1e4, se = 2e4, ue = 1e3, ce = 2e3, A = (e, n, t, r) => z(e, n, t, r), L = (e, n, t) => {
+  const r = _("neutral"), o = A(70, 90, 13, 1.5), a = A(130, 90, 13, 1.5), u = { value: 0 }, i = (t == null ? void 0 : t.closeDuration) ?? 0.09, h = (t == null ? void 0 : t.closedHoldDuration) ?? 0.03, p = (t == null ? void 0 : t.openDuration) ?? 0.13, c = () => {
+    var d, g;
+    const l = u.value;
+    (d = n.leftEyePathElementRef.current) == null || d.setAttribute(
       "d",
-      k(n.leftEyePathString, r, h)
-    ), (p = e.rightEyePathElementRef.current) == null || p.setAttribute(
+      k(r.leftEyePathString, o, l)
+    ), (g = n.rightEyePathElementRef.current) == null || g.setAttribute(
       "d",
-      k(n.rightEyePathString, o, h)
+      k(r.rightEyePathString, a, l)
     );
   };
-  return i.to(u, {
+  e.to(u, {
     value: 1,
-    duration: 0.1,
+    duration: i,
     ease: "power2.in",
     onUpdate: c
-  }), i.to(u, {
+  }), h > 0 && e.to({}, { duration: h }), e.to(u, {
     value: 0,
-    duration: 0.16,
+    duration: p,
     ease: "power2.out",
     onUpdate: c
-  }), i.to({}, { duration: s * 0.45 }), i.to(u, {
-    value: 1,
-    duration: 0.08,
-    ease: "power2.in",
-    onUpdate: c
-  }), i.to(u, {
-    value: 0,
-    duration: 0.12,
-    ease: "power2.out",
-    onUpdate: c
-  }), i.to({}, { duration: s * 0.55 }), i;
-}, de = (e, t) => {
-  const n = Math.max(t / 1e3, 1), r = n * 0.24, o = n * 0.14, a = A(70, 90, 14, 14), s = A(130, 90, 14, 14), i = A(75, 90, 14, 14), u = A(135, 90, 14, 14), c = A(65, 90, 14, 14), h = A(125, 90, 14, 14), d = f.timeline(), p = (E, b, M, R, y) => {
-    const v = { value: 0 };
-    d.to(v, {
+  });
+}, de = (e, n) => {
+  const t = Math.max(n / 1e3, 1), r = Math.max(0.24, t - 0.58), o = E.timeline();
+  return L(o, e, {
+    closeDuration: 0.1,
+    closedHoldDuration: 0.03,
+    openDuration: 0.16
+  }), o.to({}, { duration: r * 0.45 }), L(o, e, {
+    closeDuration: 0.08,
+    closedHoldDuration: 0.02,
+    openDuration: 0.12
+  }), o.to({}, { duration: r * 0.55 }), o;
+}, he = (e, n) => {
+  const t = Math.max(n / 1e3, 1), r = t * 0.24, o = t * 0.14, a = A(70, 90, 14, 14), u = A(130, 90, 14, 14), i = A(75, 90, 14, 14), h = A(135, 90, 14, 14), p = A(65, 90, 14, 14), c = A(125, 90, 14, 14), l = E.timeline(), d = (g, b, I, R, m) => {
+    const O = { value: 0 };
+    l.to(O, {
       value: 1,
-      duration: y,
+      duration: m,
       ease: "sine.inOut",
       onUpdate: () => {
-        var L, l;
-        const C = v.value;
-        (L = e.leftEyePathElementRef.current) == null || L.setAttribute(
+        var w, s;
+        const T = O.value;
+        (w = e.leftEyePathElementRef.current) == null || w.setAttribute(
           "d",
-          k(E, b, C)
-        ), (l = e.rightEyePathElementRef.current) == null || l.setAttribute(
+          k(g, b, T)
+        ), (s = e.rightEyePathElementRef.current) == null || s.setAttribute(
           "d",
-          k(M, R, C)
+          k(I, R, T)
         );
       }
     });
   };
-  return p(a, i, s, u, r), d.to({}, { duration: o }), p(i, c, u, h, r), d.to({}, { duration: o }), p(c, a, h, s, r), d.to({}, { duration: Math.max(0.08, n - (r * 3 + o * 2)) }), d;
-}, he = (e, t) => {
-  const n = Math.max(t / 1e3, 1), r = f.timeline();
+  return d(a, i, u, h, r), l.to({}, { duration: o * 0.6 }), L(l, e, {
+    closeDuration: 0.08,
+    closedHoldDuration: 0.02,
+    openDuration: 0.1
+  }), l.to({}, { duration: o * 0.4 }), d(i, p, h, c, r), l.to({}, { duration: o * 0.6 }), L(l, e, {
+    closeDuration: 0.07,
+    closedHoldDuration: 0.01,
+    openDuration: 0.09
+  }), l.to({}, { duration: o * 0.4 }), d(p, a, c, u, r), l.to({}, { duration: Math.max(0.08, t - (r * 3 + o * 2 + 0.37)) }), l;
+}, pe = (e, n) => {
+  const t = Math.max(n / 1e3, 1), r = E.timeline();
   return e.antennaCircleElementRef.current && r.to(e.antennaCircleElementRef.current, {
     scale: 1.36,
     transformOrigin: "100px 20px",
-    duration: n * 0.18,
+    duration: t * 0.18,
     yoyo: !0,
     repeat: 3,
     ease: "sine.inOut"
   }, 0), e.innerHeadGroupElementRef.current && r.to(e.innerHeadGroupElementRef.current, {
     y: -1.5,
-    duration: n * 0.22,
+    duration: t * 0.22,
     yoyo: !0,
     repeat: 3,
     ease: "sine.inOut"
-  }, 0), r.to({}, { duration: Math.max(0.08, n * 0.12) }), r;
-}, z = (e, t, n, r) => {
-  const a = t.map((i) => ({
+  }, 0), L(r, e, {
+    closeDuration: 0.08,
+    closedHoldDuration: 0.02,
+    openDuration: 0.1
+  }), r.to({}, { duration: Math.max(0.08, t * 0.12) }), r;
+}, J = (e, n, t, r) => {
+  const a = n.map((i) => ({
     leftEyePath: A(i.leftEyeCenter[0], i.leftEyeCenter[1], 14, 14),
     rightEyePath: A(
       i.rightEyeCenter[0],
@@ -177,28 +190,28 @@ const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
       14,
       14
     )
-  })), s = f.timeline({ repeat: -1 });
+  })), u = E.timeline({ repeat: -1 });
   for (let i = 0; i < a.length; i += 1) {
-    const u = a[i], c = a[(i + 1) % a.length], h = { value: 0 };
-    s.to(h, {
+    const h = a[i], p = a[(i + 1) % a.length], c = { value: 0 };
+    u.to(c, {
       value: 1,
-      duration: n,
+      duration: t,
       ease: "power2.inOut",
       onUpdate: () => {
-        var p, E;
-        const d = h.value;
-        (p = e.leftEyePathElementRef.current) == null || p.setAttribute(
+        var d, g;
+        const l = c.value;
+        (d = e.leftEyePathElementRef.current) == null || d.setAttribute(
           "d",
-          k(u.leftEyePath, c.leftEyePath, d)
-        ), (E = e.rightEyePathElementRef.current) == null || E.setAttribute(
+          k(h.leftEyePath, p.leftEyePath, l)
+        ), (g = e.rightEyePathElementRef.current) == null || g.setAttribute(
           "d",
-          k(u.rightEyePath, c.rightEyePath, d)
+          k(h.rightEyePath, p.rightEyePath, l)
         );
       }
-    }), s.to({}, { duration: r(i) });
+    }), u.to({}, { duration: r(i) });
   }
-  return s;
-}, pe = (e) => z(
+  return u;
+}, ye = (e) => J(
   e,
   [
     { leftEyeCenter: [70, 86], rightEyeCenter: [130, 86] },
@@ -208,7 +221,7 @@ const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
   ],
   0.5,
   () => 1.1 + Math.random() * 0.6
-), me = (e) => z(
+), ge = (e) => J(
   e,
   [
     { leftEyeCenter: [66, 90], rightEyeCenter: [126, 90] },
@@ -218,195 +231,195 @@ const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
   ],
   0.16,
   () => 0.35
-), K = (e, t) => {
+), K = (e, n) => {
   if (!e)
     return { kill: () => {
     } };
-  const n = f.to(e, t);
+  const t = E.to(e, n);
   return {
     kill: () => {
-      n.kill(), f.set(e, { clearProps: "transform" });
+      t.kill(), E.set(e, { clearProps: "transform" });
     }
   };
-}, ye = (e) => K(e.innerHeadGroupElementRef.current, {
+}, me = (e) => K(e.innerHeadGroupElementRef.current, {
   scale: 1.025,
   transformOrigin: "100px 100px",
   duration: 2.6,
   yoyo: !0,
   repeat: -1,
   ease: "sine.inOut"
-}), ge = (e) => K(e.antennaCircleElementRef.current, {
+}), fe = (e) => K(e.antennaCircleElementRef.current, {
   scale: 1.45,
   transformOrigin: "100px 20px",
   duration: 0.42,
   yoyo: !0,
   repeat: -1,
   ease: "sine.inOut"
-}), fe = (e) => K(e.innerHeadGroupElementRef.current, {
+}), Ee = (e) => K(e.innerHeadGroupElementRef.current, {
   y: -2,
   duration: 0.7,
   yoyo: !0,
   repeat: -1,
   ease: "sine.inOut"
-}), F = (e, t, n) => {
-  const r = w(t).mouthPathString, o = w(n).mouthPathString, a = { value: 0 };
-  return f.to(a, {
+}), F = (e, n, t) => {
+  const r = _(n).mouthPathString, o = _(t).mouthPathString, a = { value: 0 };
+  return E.to(a, {
     value: 1,
     duration: 0.18,
     yoyo: !0,
     repeat: -1,
     ease: "sine.inOut",
     onUpdate: () => {
-      var s;
-      (s = e.mouthPathElementRef.current) == null || s.setAttribute(
+      var u;
+      (u = e.mouthPathElementRef.current) == null || u.setAttribute(
         "d",
         k(r, o, a.value)
       );
     }
   });
-}, j = [
-  ce,
+}, Q = [
   de,
-  he
-], Ee = {
-  thinking: (e) => pe(e),
-  deepThinking: (e) => ye(e),
-  toolCalling: (e) => ge(e),
-  toolResponse: (e) => me(e),
+  he,
+  pe
+], Re = {
+  thinking: (e) => ye(e),
+  deepThinking: (e) => me(e),
+  toolCalling: (e) => fe(e),
+  toolResponse: (e) => ge(e),
   speakingOpen: (e) => F(e, "speakingOpen", "speakingRound"),
   speakingWide: (e) => F(e, "speakingWide", "speakingOpen"),
   speakingRound: (e) => F(e, "speakingRound", "speakingWide"),
-  speakingComplete: (e) => fe(e)
-}, Re = (e) => te.includes(e), Q = (e, t) => e + Math.floor(Math.random() * (t - e + 1)), Pe = () => j[Math.floor(Math.random() * j.length)], Ae = () => typeof window > "u" || typeof window.matchMedia != "function" ? !1 : window.matchMedia("(prefers-reduced-motion: reduce)").matches, Me = ({
+  speakingComplete: (e) => Ee(e)
+}, Pe = (e) => ne.includes(e), q = (e, n) => e + Math.floor(Math.random() * (n - e + 1)), Ae = () => Q[Math.floor(Math.random() * Q.length)], ke = () => typeof window > "u" || typeof window.matchMedia != "function" ? !1 : window.matchMedia("(prefers-reduced-motion: reduce)").matches, Me = ({
   state: e = "neutral",
-  neutralIdleMode: t = "bored-random",
-  size: n = 240,
+  neutralIdleMode: n = "bored-random",
+  size: t = 240,
   transitionDurationSeconds: r = 0.55,
-  shadowColor: o = ae,
+  shadowColor: o = oe,
   lightColor: a = ie,
-  ariaLabel: s
+  ariaLabel: u
 }) => {
-  const i = Re(e) ? e : "neutral", c = `bot-avatar-head-clip-${Y().replace(/:/g, "")}`, h = S(null), d = S(null), p = S(null), E = S(null), b = S(null), M = S(null), R = S(null), y = S(null), v = S(w(i));
-  X(() => {
-    var W, Z;
-    const l = {
-      leftEyePathElementRef: h,
-      rightEyePathElementRef: d,
-      mouthPathElementRef: p,
-      antennaCircleElementRef: E,
+  const i = Pe(e) ? e : "neutral", p = `bot-avatar-head-clip-${X().replace(/:/g, "")}`, c = S(null), l = S(null), d = S(null), g = S(null), b = S(null), I = S(null), R = S(null), m = S(null), O = S(_(i));
+  ee(() => {
+    var Z, $;
+    const s = {
+      leftEyePathElementRef: c,
+      rightEyePathElementRef: l,
+      mouthPathElementRef: d,
+      antennaCircleElementRef: g,
       innerHeadGroupElementRef: b
     };
-    if (!l.leftEyePathElementRef.current || !l.rightEyePathElementRef.current || !l.mouthPathElementRef.current)
+    if (!s.leftEyePathElementRef.current || !s.rightEyePathElementRef.current || !s.mouthPathElementRef.current)
       return;
-    (W = M.current) == null || W.kill(), (Z = R.current) == null || Z.kill(), y.current && (clearTimeout(y.current), y.current = null), l.innerHeadGroupElementRef.current && f.set(l.innerHeadGroupElementRef.current, { clearProps: "transform" }), l.antennaCircleElementRef.current && f.set(l.antennaCircleElementRef.current, { clearProps: "transform" });
-    const T = {
-      leftEyePathString: l.leftEyePathElementRef.current.getAttribute("d") ?? "",
-      rightEyePathString: l.rightEyePathElementRef.current.getAttribute("d") ?? "",
-      mouthPathString: l.mouthPathElementRef.current.getAttribute("d") ?? ""
-    }, x = w(i), H = (g, P) => {
-      y.current && clearTimeout(y.current), y.current = setTimeout(() => {
-        y.current = null, P();
-      }, g);
-    }, J = () => {
-      const g = () => {
-        const P = Q(
-          oe,
-          le
+    (Z = I.current) == null || Z.kill(), ($ = R.current) == null || $.kill(), m.current && (clearTimeout(m.current), m.current = null), s.innerHeadGroupElementRef.current && E.set(s.innerHeadGroupElementRef.current, { clearProps: "transform" }), s.antennaCircleElementRef.current && E.set(s.antennaCircleElementRef.current, { clearProps: "transform" });
+    const D = {
+      leftEyePathString: s.leftEyePathElementRef.current.getAttribute("d") ?? "",
+      rightEyePathString: s.rightEyePathElementRef.current.getAttribute("d") ?? "",
+      mouthPathString: s.mouthPathElementRef.current.getAttribute("d") ?? ""
+    }, C = _(i), G = (f, P) => {
+      m.current && clearTimeout(m.current), m.current = setTimeout(() => {
+        m.current = null, P();
+      }, f);
+    }, Y = () => {
+      const f = () => {
+        const P = q(
+          le,
+          se
         );
-        H(P, () => {
-          var N;
-          const B = Q(
-            se,
-            ue
-          ), O = Pe();
-          (N = R.current) == null || N.kill(), R.current = O(l, B), H(B, () => {
-            var $;
-            ($ = R.current) == null || $.kill(), R.current = null, l.innerHeadGroupElementRef.current && f.set(l.innerHeadGroupElementRef.current, { clearProps: "transform" }), l.antennaCircleElementRef.current && f.set(l.antennaCircleElementRef.current, { clearProps: "transform" }), g();
+        G(P, () => {
+          var B;
+          const M = q(
+            ue,
+            ce
+          ), v = Ae();
+          (B = R.current) == null || B.kill(), R.current = v(s, M), G(M, () => {
+            var j;
+            (j = R.current) == null || j.kill(), R.current = null, s.innerHeadGroupElementRef.current && E.set(s.innerHeadGroupElementRef.current, { clearProps: "transform" }), s.antennaCircleElementRef.current && E.set(s.antennaCircleElementRef.current, { clearProps: "transform" }), f();
           });
         });
       };
-      g();
-    }, G = () => {
+      f();
+    }, W = () => {
       if (i === "neutral") {
-        if (t === "static" || Ae()) {
+        if (n === "static" || ke()) {
           R.current = null;
           return;
         }
-        J();
+        Y();
         return;
       }
-      const g = Ee[i];
-      R.current = g(l);
+      const f = Re[i];
+      R.current = f(s);
     };
-    if (T.leftEyePathString === x.leftEyePathString && T.rightEyePathString === x.rightEyePathString && T.mouthPathString === x.mouthPathString)
-      G();
+    if (D.leftEyePathString === C.leftEyePathString && D.rightEyePathString === C.rightEyePathString && D.mouthPathString === C.mouthPathString)
+      W();
     else {
-      const g = { easedProgress: 0 };
-      M.current = f.to(g, {
+      const f = { easedProgress: 0 };
+      I.current = E.to(f, {
         easedProgress: 1,
         duration: r,
         ease: "power3.inOut",
         onUpdate: () => {
-          var B, O, N;
-          const P = g.easedProgress;
-          (B = l.leftEyePathElementRef.current) == null || B.setAttribute(
+          var M, v, B;
+          const P = f.easedProgress;
+          (M = s.leftEyePathElementRef.current) == null || M.setAttribute(
             "d",
             k(
-              T.leftEyePathString,
-              x.leftEyePathString,
+              D.leftEyePathString,
+              C.leftEyePathString,
               P
             )
-          ), (O = l.rightEyePathElementRef.current) == null || O.setAttribute(
+          ), (v = s.rightEyePathElementRef.current) == null || v.setAttribute(
             "d",
             k(
-              T.rightEyePathString,
-              x.rightEyePathString,
+              D.rightEyePathString,
+              C.rightEyePathString,
               P
             )
-          ), (N = l.mouthPathElementRef.current) == null || N.setAttribute(
+          ), (B = s.mouthPathElementRef.current) == null || B.setAttribute(
             "d",
             k(
-              T.mouthPathString,
-              x.mouthPathString,
+              D.mouthPathString,
+              C.mouthPathString,
               P
             )
           );
         },
-        onComplete: G
+        onComplete: W
       });
     }
     return () => {
-      var g, P;
-      (g = M.current) == null || g.kill(), (P = R.current) == null || P.kill(), y.current && (clearTimeout(y.current), y.current = null);
+      var f, P;
+      (f = I.current) == null || f.kill(), (P = R.current) == null || P.kill(), m.current && (clearTimeout(m.current), m.current = null);
     };
-  }, [i, t, r]);
-  const C = v.current, L = s ?? `Bot avatar - ${i} state`;
-  return /* @__PURE__ */ D(
+  }, [i, n, r]);
+  const T = O.current, w = u ?? `Bot avatar - ${i} state`;
+  return /* @__PURE__ */ H(
     "svg",
     {
       xmlns: "http://www.w3.org/2000/svg",
       viewBox: "0 0 200 200",
-      width: n,
-      height: n,
+      width: t,
+      height: t,
       role: "img",
-      "aria-label": L,
+      "aria-label": w,
       style: { display: "block" },
       children: [
-        /* @__PURE__ */ m("defs", { children: /* @__PURE__ */ m("clipPath", { id: c, children: /* @__PURE__ */ m("circle", { cx: 100, cy: 100, r: 90 }) }) }),
-        /* @__PURE__ */ m("rect", { width: 200, height: 200, fill: a }),
-        /* @__PURE__ */ D("g", { ref: b, children: [
-          /* @__PURE__ */ m("circle", { cx: 100, cy: 100, r: 90, fill: o }),
-          /* @__PURE__ */ D("g", { clipPath: `url(#${c})`, children: [
-            /* @__PURE__ */ m("circle", { ref: E, cx: 100, cy: 20, r: 10, fill: a }),
-            /* @__PURE__ */ m("rect", { x: 95, y: 25, width: 10, height: 25, fill: a }),
-            /* @__PURE__ */ m("rect", { x: 15, y: 80, width: 30, height: 40, rx: 8, fill: a }),
-            /* @__PURE__ */ m("rect", { x: 155, y: 80, width: 30, height: 40, rx: 8, fill: a }),
-            /* @__PURE__ */ m("rect", { x: 35, y: 45, width: 130, height: 100, rx: 30, fill: a }),
-            /* @__PURE__ */ m("rect", { x: 80, y: 140, width: 40, height: 20, fill: a }),
-            /* @__PURE__ */ m("path", { d: "M 20 200 Q 100 150 180 200 Z", fill: a }),
-            /* @__PURE__ */ m("path", { ref: h, d: C.leftEyePathString, fill: o }),
-            /* @__PURE__ */ m("path", { ref: d, d: C.rightEyePathString, fill: o }),
-            /* @__PURE__ */ m("path", { ref: p, d: C.mouthPathString, fill: o })
+        /* @__PURE__ */ y("defs", { children: /* @__PURE__ */ y("clipPath", { id: p, children: /* @__PURE__ */ y("circle", { cx: 100, cy: 100, r: 90 }) }) }),
+        /* @__PURE__ */ y("rect", { width: 200, height: 200, fill: a }),
+        /* @__PURE__ */ H("g", { ref: b, children: [
+          /* @__PURE__ */ y("circle", { cx: 100, cy: 100, r: 90, fill: o }),
+          /* @__PURE__ */ H("g", { clipPath: `url(#${p})`, children: [
+            /* @__PURE__ */ y("circle", { ref: g, cx: 100, cy: 20, r: 10, fill: a }),
+            /* @__PURE__ */ y("rect", { x: 95, y: 25, width: 10, height: 25, fill: a }),
+            /* @__PURE__ */ y("rect", { x: 15, y: 80, width: 30, height: 40, rx: 8, fill: a }),
+            /* @__PURE__ */ y("rect", { x: 155, y: 80, width: 30, height: 40, rx: 8, fill: a }),
+            /* @__PURE__ */ y("rect", { x: 35, y: 45, width: 130, height: 100, rx: 30, fill: a }),
+            /* @__PURE__ */ y("rect", { x: 80, y: 140, width: 40, height: 20, fill: a }),
+            /* @__PURE__ */ y("path", { d: "M 20 200 Q 100 150 180 200 Z", fill: a }),
+            /* @__PURE__ */ y("path", { ref: c, d: T.leftEyePathString, fill: o }),
+            /* @__PURE__ */ y("path", { ref: l, d: T.rightEyePathString, fill: o }),
+            /* @__PURE__ */ y("path", { ref: d, d: T.mouthPathString, fill: o })
           ] })
         ] })
       ]
@@ -414,10 +427,10 @@ const _ = 0.5522847498, U = /-?\d+(?:\.\d+)?/g, q = (e, t, n, r) => {
   );
 };
 export {
-  te as BOT_AVATAR_STATES,
+  ne as BOT_AVATAR_STATES,
   Me as BotAvatar,
   xe as automatedSpeakingPlaybackSequence,
-  w as computeAllFacialPathsForState,
+  _ as computeAllFacialPathsForState,
   Ie as formatStateKeyAsReadableLabel,
-  Te as orderedStateButtonDescriptors
+  Ce as orderedStateButtonDescriptors
 };
