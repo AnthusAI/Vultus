@@ -1,4 +1,4 @@
-# anthus-vultus
+# Vultus
 
 Reusable animated React avatar component extracted from the original `demo.html`, with Storybook stories and a local standalone demo.
 
