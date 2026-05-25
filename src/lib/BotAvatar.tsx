@@ -6,9 +6,14 @@ import { BOT_AVATAR_STATES, BotAvatarState, computeAllFacialPathsForState } from
 
 const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray";
 const DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME = "white";
+const DEFAULT_NEUTRAL_BORED_INTERVAL_MIN_MS = 10_000;
+const DEFAULT_NEUTRAL_BORED_INTERVAL_MAX_MS = 20_000;
+const DEFAULT_NEUTRAL_BORED_VARIANT_DURATION_MIN_MS = 1_000;
+const DEFAULT_NEUTRAL_BORED_VARIANT_DURATION_MAX_MS = 2_000;
 
 export type BotAvatarProps = {
   state?: BotAvatarState;
+  neutralIdleMode?: "bored-random" | "static";
   size?: number;
   transitionDurationSeconds?: number;
   shadowColor?: string;
@@ -28,6 +33,8 @@ type Killable = {
   kill: () => void;
 };
 
+type NonNeutralBotAvatarState = Exclude<BotAvatarState, "neutral">;
+
 const ellipsePathAtPosition = (
   centerX: number,
   centerY: number,
@@ -35,11 +42,16 @@ const ellipsePathAtPosition = (
   radiusY: number
 ): string => buildFourSegmentEllipsePath(centerX, centerY, radiusX, radiusY);
 
-const buildNeutralBlinkIdleAnimation = (animationContext: AnimationContext): gsap.core.Timeline => {
+const buildNeutralBlinkBoredAnimation = (
+  animationContext: AnimationContext,
+  totalDurationMilliseconds: number
+): gsap.core.Timeline => {
   const basePaths = computeAllFacialPathsForState("neutral");
   const closedLeftEyePath = ellipsePathAtPosition(70, 90, 13, 1.5);
   const closedRightEyePath = ellipsePathAtPosition(130, 90, 13, 1.5);
-  const blinkTimeline = gsap.timeline({ repeat: -1, repeatDelay: 3.2 });
+  const totalDurationSeconds = Math.max(totalDurationMilliseconds / 1000, 1);
+  const holdDuration = Math.max(0.3, totalDurationSeconds - 0.52);
+  const blinkTimeline = gsap.timeline();
   const blinkProgress = { value: 0 };
 
   const renderBlinkAtCurrentProgress = () => {
@@ -66,7 +78,103 @@ const buildNeutralBlinkIdleAnimation = (animationContext: AnimationContext): gsa
     ease: "power2.out",
     onUpdate: renderBlinkAtCurrentProgress
   });
+  blinkTimeline.to({}, { duration: holdDuration * 0.45 });
+  blinkTimeline.to(blinkProgress, {
+    value: 1,
+    duration: 0.08,
+    ease: "power2.in",
+    onUpdate: renderBlinkAtCurrentProgress
+  });
+  blinkTimeline.to(blinkProgress, {
+    value: 0,
+    duration: 0.12,
+    ease: "power2.out",
+    onUpdate: renderBlinkAtCurrentProgress
+  });
+  blinkTimeline.to({}, { duration: holdDuration * 0.55 });
   return blinkTimeline;
+};
+
+const buildNeutralEyeGlanceBoredAnimation = (
+  animationContext: AnimationContext,
+  totalDurationMilliseconds: number
+): gsap.core.Timeline => {
+  const totalDurationSeconds = Math.max(totalDurationMilliseconds / 1000, 1);
+  const stepDuration = totalDurationSeconds * 0.24;
+  const holdDuration = totalDurationSeconds * 0.14;
+  const centerLeftEyePath = ellipsePathAtPosition(70, 90, 14, 14);
+  const centerRightEyePath = ellipsePathAtPosition(130, 90, 14, 14);
+  const glanceLeftEyePath = ellipsePathAtPosition(75, 90, 14, 14);
+  const glanceRightEyePath = ellipsePathAtPosition(135, 90, 14, 14);
+  const glanceBackLeftEyePath = ellipsePathAtPosition(65, 90, 14, 14);
+  const glanceBackRightEyePath = ellipsePathAtPosition(125, 90, 14, 14);
+  const glanceTimeline = gsap.timeline();
+
+  const animateEyePathMorph = (
+    fromLeftEyePath: string,
+    toLeftEyePath: string,
+    fromRightEyePath: string,
+    toRightEyePath: string,
+    duration: number
+  ) => {
+    const stepProgress = { value: 0 };
+    glanceTimeline.to(stepProgress, {
+      value: 1,
+      duration,
+      ease: "sine.inOut",
+      onUpdate: () => {
+        const p = stepProgress.value;
+        animationContext.leftEyePathElementRef.current?.setAttribute(
+          "d",
+          interpolateNumericValuesBetweenPathStrings(fromLeftEyePath, toLeftEyePath, p)
+        );
+        animationContext.rightEyePathElementRef.current?.setAttribute(
+          "d",
+          interpolateNumericValuesBetweenPathStrings(fromRightEyePath, toRightEyePath, p)
+        );
+      }
+    });
+  };
+
+  animateEyePathMorph(centerLeftEyePath, glanceLeftEyePath, centerRightEyePath, glanceRightEyePath, stepDuration);
+  glanceTimeline.to({}, { duration: holdDuration });
+  animateEyePathMorph(glanceLeftEyePath, glanceBackLeftEyePath, glanceRightEyePath, glanceBackRightEyePath, stepDuration);
+  glanceTimeline.to({}, { duration: holdDuration });
+  animateEyePathMorph(glanceBackLeftEyePath, centerLeftEyePath, glanceBackRightEyePath, centerRightEyePath, stepDuration);
+  glanceTimeline.to({}, { duration: Math.max(0.08, totalDurationSeconds - (stepDuration * 3 + holdDuration * 2)) });
+  return glanceTimeline;
+};
+
+const buildNeutralAntennaFidgetBoredAnimation = (
+  animationContext: AnimationContext,
+  totalDurationMilliseconds: number
+): gsap.core.Timeline => {
+  const totalDurationSeconds = Math.max(totalDurationMilliseconds / 1000, 1);
+  const fidgetTimeline = gsap.timeline();
+
+  if (animationContext.antennaCircleElementRef.current) {
+    fidgetTimeline.to(animationContext.antennaCircleElementRef.current, {
+      scale: 1.36,
+      transformOrigin: "100px 20px",
+      duration: totalDurationSeconds * 0.18,
+      yoyo: true,
+      repeat: 3,
+      ease: "sine.inOut"
+    }, 0);
+  }
+
+  if (animationContext.innerHeadGroupElementRef.current) {
+    fidgetTimeline.to(animationContext.innerHeadGroupElementRef.current, {
+      y: -1.5,
+      duration: totalDurationSeconds * 0.22,
+      yoyo: true,
+      repeat: 3,
+      ease: "sine.inOut"
+    }, 0);
+  }
+
+  fidgetTimeline.to({}, { duration: Math.max(0.08, totalDurationSeconds * 0.12) });
+  return fidgetTimeline;
 };
 
 const buildEyeWanderIdleAnimation = (
@@ -210,8 +318,13 @@ const buildSpeakingVariantPulseIdleAnimation = (
   });
 };
 
-const idleAnimationBuildersByStateKey: Record<BotAvatarState, (ctx: AnimationContext) => Killable> = {
-  neutral: (ctx) => buildNeutralBlinkIdleAnimation(ctx),
+const neutralBoredAnimationBuilders = [
+  buildNeutralBlinkBoredAnimation,
+  buildNeutralEyeGlanceBoredAnimation,
+  buildNeutralAntennaFidgetBoredAnimation
+] as const;
+
+const idleAnimationBuildersByStateKey: Record<NonNeutralBotAvatarState, (ctx: AnimationContext) => Killable> = {
   thinking: (ctx) => buildThinkingWanderIdleAnimation(ctx),
   deepThinking: (ctx) => buildDeepThinkingBreathingIdleAnimation(ctx),
   toolCalling: (ctx) => buildToolCallingAntennaPulseIdleAnimation(ctx),
@@ -225,8 +338,22 @@ const idleAnimationBuildersByStateKey: Record<BotAvatarState, (ctx: AnimationCon
 const isBotAvatarState = (value: string): value is BotAvatarState =>
   BOT_AVATAR_STATES.includes(value as BotAvatarState);
 
+const pickRandomDurationMilliseconds = (minMilliseconds: number, maxMilliseconds: number): number =>
+  minMilliseconds + Math.floor(Math.random() * (maxMilliseconds - minMilliseconds + 1));
+
+const pickRandomNeutralBoredAnimationBuilder = () =>
+  neutralBoredAnimationBuilders[Math.floor(Math.random() * neutralBoredAnimationBuilders.length)];
+
+const browserPrefersReducedMotion = (): boolean => {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return false;
+  }
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+};
+
 export const BotAvatar = ({
   state = "neutral",
+  neutralIdleMode = "bored-random",
   size = 240,
   transitionDurationSeconds = 0.55,
   shadowColor = DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME,
@@ -244,6 +371,7 @@ export const BotAvatar = ({
   const innerHeadGroupElementRef = useRef<SVGGElement>(null);
   const activeMorphTweenRef = useRef<Killable | null>(null);
   const activeIdleAnimationRef = useRef<Killable | null>(null);
+  const activeNeutralBoredTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialPathSetRef = useRef(computeAllFacialPathsForState(currentState));
 
   useEffect(() => {
@@ -265,6 +393,10 @@ export const BotAvatar = ({
 
     activeMorphTweenRef.current?.kill();
     activeIdleAnimationRef.current?.kill();
+    if (activeNeutralBoredTimeoutRef.current) {
+      clearTimeout(activeNeutralBoredTimeoutRef.current);
+      activeNeutralBoredTimeoutRef.current = null;
+    }
 
     if (animationContext.innerHeadGroupElementRef.current) {
       gsap.set(animationContext.innerHeadGroupElementRef.current, { clearProps: "transform" });
@@ -281,7 +413,61 @@ export const BotAvatar = ({
 
     const targetPathsForNextState = computeAllFacialPathsForState(currentState);
 
+    const scheduleNeutralBoredTimeout = (delayMilliseconds: number, callback: () => void) => {
+      if (activeNeutralBoredTimeoutRef.current) {
+        clearTimeout(activeNeutralBoredTimeoutRef.current);
+      }
+      activeNeutralBoredTimeoutRef.current = setTimeout(() => {
+        activeNeutralBoredTimeoutRef.current = null;
+        callback();
+      }, delayMilliseconds);
+    };
+
+    const startNeutralBoredIdleLoop = () => {
+      const scheduleNextBoredAnimation = () => {
+        const randomIntervalMilliseconds = pickRandomDurationMilliseconds(
+          DEFAULT_NEUTRAL_BORED_INTERVAL_MIN_MS,
+          DEFAULT_NEUTRAL_BORED_INTERVAL_MAX_MS
+        );
+
+        scheduleNeutralBoredTimeout(randomIntervalMilliseconds, () => {
+          const randomVariantDurationMilliseconds = pickRandomDurationMilliseconds(
+            DEFAULT_NEUTRAL_BORED_VARIANT_DURATION_MIN_MS,
+            DEFAULT_NEUTRAL_BORED_VARIANT_DURATION_MAX_MS
+          );
+          const boredAnimationBuilder = pickRandomNeutralBoredAnimationBuilder();
+          activeIdleAnimationRef.current?.kill();
+          activeIdleAnimationRef.current = boredAnimationBuilder(animationContext, randomVariantDurationMilliseconds);
+
+          scheduleNeutralBoredTimeout(randomVariantDurationMilliseconds, () => {
+            activeIdleAnimationRef.current?.kill();
+            activeIdleAnimationRef.current = null;
+
+            if (animationContext.innerHeadGroupElementRef.current) {
+              gsap.set(animationContext.innerHeadGroupElementRef.current, { clearProps: "transform" });
+            }
+            if (animationContext.antennaCircleElementRef.current) {
+              gsap.set(animationContext.antennaCircleElementRef.current, { clearProps: "transform" });
+            }
+
+            scheduleNextBoredAnimation();
+          });
+        });
+      };
+
+      scheduleNextBoredAnimation();
+    };
+
     const startIdleAnimationForCurrentState = () => {
+      if (currentState === "neutral") {
+        if (neutralIdleMode === "static" || browserPrefersReducedMotion()) {
+          activeIdleAnimationRef.current = null;
+          return;
+        }
+        startNeutralBoredIdleLoop();
+        return;
+      }
+
       const idleBuilder = idleAnimationBuildersByStateKey[currentState];
       activeIdleAnimationRef.current = idleBuilder(animationContext);
     };
@@ -333,8 +519,12 @@ export const BotAvatar = ({
     return () => {
       activeMorphTweenRef.current?.kill();
       activeIdleAnimationRef.current?.kill();
+      if (activeNeutralBoredTimeoutRef.current) {
+        clearTimeout(activeNeutralBoredTimeoutRef.current);
+        activeNeutralBoredTimeoutRef.current = null;
+      }
     };
-  }, [currentState, transitionDurationSeconds]);
+  }, [currentState, neutralIdleMode, transitionDurationSeconds]);
 
   const initialPaths = initialPathSetRef.current;
   const computedAriaLabel = ariaLabel ?? `Bot avatar - ${currentState} state`;

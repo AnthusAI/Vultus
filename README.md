@@ -22,6 +22,7 @@ export function Example() {
   return (
     <BotAvatar
       state="thinking"
+      neutralIdleMode="bored-random"
       size={280}
       shadowColor="dimgray"
       lightColor="white"
@@ -36,11 +37,14 @@ export function Example() {
 ### `BotAvatarProps`
 
 - `state?: BotAvatarState`
+- `neutralIdleMode?: "bored-random" | "static"` (default: `"bored-random"`; applies only for `state="neutral"`)
 - `size?: number`
 - `transitionDurationSeconds?: number`
 - `shadowColor?: string`
 - `lightColor?: string`
 - `ariaLabel?: string`
+
+Neutral idle behavior is static by default with optional random bored micro-animations. When `neutralIdleMode` is `"static"` or the OS prefers reduced motion, neutral idle remains fully still.
 
 ### Exports
 
