@@ -28,6 +28,7 @@ export function LottieBotAvatar({
 }: LottieBotAvatarProps) {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const [reducedMotion, setReducedMotion] = useState(browserPrefersReducedMotion);
+  const [animationReady, setAnimationReady] = useState(false);
   const segment = model.stateSegments[state] ?? model.fallbackSegment;
 
   useEffect(() => {
@@ -41,12 +42,15 @@ export function LottieBotAvatar({
   }, []);
 
   useEffect(() => {
+    if (!animationReady) {
+      return;
+    }
     if (reducedMotion) {
       lottieRef.current?.goToAndStop(segment[0], true);
       return;
     }
     lottieRef.current?.playSegments([segment[0], segment[1]], true);
-  }, [reducedMotion, segment]);
+  }, [animationReady, reducedMotion, segment]);
 
   return (
     <div
@@ -67,6 +71,7 @@ export function LottieBotAvatar({
         animationData={model.animationData}
         autoplay={false}
         loop={!reducedMotion}
+        onDOMLoaded={() => setAnimationReady(true)}
         aria-hidden="true"
         style={{ width: "100%", height: "100%" }}
       />
