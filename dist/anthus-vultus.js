@@ -8135,20 +8135,22 @@ function LottieBotAvatar({
   lightColor: i,
   ariaLabel: s
 }) {
-  const n = useRef(null), [a, l] = useState(browserPrefersReducedMotion$1), o = t.stateSegments[e] ?? t.fallbackSegment;
+  const n = useRef(null), [a, l] = useState(browserPrefersReducedMotion$1), [o, f] = useState(!1), c = t.stateSegments[e] ?? t.fallbackSegment;
   return useEffect(() => {
     if (typeof window > "u" || typeof window.matchMedia != "function")
       return;
-    const f = window.matchMedia("(prefers-reduced-motion: reduce)"), c = () => l(f.matches);
-    return f.addEventListener("change", c), () => f.removeEventListener("change", c);
+    const P = window.matchMedia("(prefers-reduced-motion: reduce)"), p = () => l(P.matches);
+    return P.addEventListener("change", p), () => P.removeEventListener("change", p);
   }, []), useEffect(() => {
-    var f, c;
-    if (a) {
-      (f = n.current) == null || f.goToAndStop(o[0], !0);
-      return;
+    var P, p;
+    if (o) {
+      if (a) {
+        (P = n.current) == null || P.goToAndStop(c[0], !0);
+        return;
+      }
+      (p = n.current) == null || p.playSegments([c[0], c[1]], !0);
     }
-    (c = n.current) == null || c.playSegments([o[0], o[1]], !0);
-  }, [a, o]), /* @__PURE__ */ jsx(
+  }, [o, a, c]), /* @__PURE__ */ jsx(
     "div",
     {
       role: "img",
@@ -8169,6 +8171,7 @@ function LottieBotAvatar({
           animationData: t.animationData,
           autoplay: !1,
           loop: !a,
+          onDOMLoaded: () => f(!0),
           "aria-hidden": "true",
           style: { width: "100%", height: "100%" }
         }
