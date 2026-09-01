@@ -70,6 +70,11 @@ describe("BotAvatar", () => {
     expect(container.querySelector("svg")).toBeTruthy();
   });
 
+  it("forwards the paused motion state to a Lottie model", () => {
+    render(<BotAvatar model={lottieModel} state="thinking" paused />);
+    expect(screen.getByRole("img")).toHaveAttribute("data-vultus-paused", "true");
+  });
+
   it("schedules neutral bored idle in the 10-20s interval window", () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
     vi.spyOn(Math, "random").mockReturnValue(0);

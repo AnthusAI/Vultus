@@ -65,6 +65,7 @@ export function LottieBotAvatar({
       aria-label={ariaLabel ?? `Bot avatar - ${state} state - ${model.name} model`}
       data-vultus-model={model.id}
       data-vultus-renderer="lottie"
+      data-vultus-paused={paused ? "true" : "false"}
       style={{
         width: size,
         height: size,

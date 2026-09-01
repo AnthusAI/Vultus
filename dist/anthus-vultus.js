@@ -8162,6 +8162,7 @@ function LottieBotAvatar({
       "aria-label": s ?? `Bot avatar - ${e} state - ${t.name} model`,
       "data-vultus-model": t.id,
       "data-vultus-renderer": "lottie",
+      "data-vultus-paused": n ? "true" : "false",
       style: {
         width: r,
         height: r,
