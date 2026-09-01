@@ -7,6 +7,8 @@ import {
   orderedStateButtonDescriptors
 } from "../lib/avatarStates";
 import type { BotAvatarState } from "../lib/avatarStates";
+import { creativeDeskModelForRole } from "../lib/creativeDeskModels";
+import type { CreativeRole } from "../lib/creativeDeskModels";
 import { BotAvatarDemo } from "../demo/BotAvatarDemo";
 import "../demo/editorial.css";
 
@@ -51,6 +53,32 @@ export const States: Story = {
         >
           <BotAvatar {...args} state={stateKey} size={150} />
           <code>{stateKey}</code>
+        </div>
+      ))}
+    </div>
+  )
+};
+
+const creativeDeskRoles: CreativeRole[] = ["Editor", "Reporter", "Copy Writer", "Illustrator"];
+
+export const ModelZoo: Story = {
+  render: (args) => (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 20 }}>
+      {creativeDeskRoles.map((role) => (
+        <div
+          key={role}
+          style={{
+            border: "1px solid #d7d1c8",
+            padding: 16,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 10
+          }}
+        >
+          <BotAvatar {...args} model={creativeDeskModelForRole(role)} state="toolCalling" size={170} />
+          <strong>{role}</strong>
+          <code>{creativeDeskModelForRole(role).id}</code>
         </div>
       ))}
     </div>

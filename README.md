@@ -94,8 +94,11 @@ Neutral idle behavior is static by default with optional random bored micro-anim
 - `createBotAvatarModelZoo`
 - `avatarModelFromZoo`
 - `VULTUS_CLASSIC_MODEL`
+- `CREATIVE_DESK_MODEL_ZOO`
+- `creativeDeskModelForRole`
 - `type BotAvatarModel`
 - `type LottieAvatarModel`
+- `type CreativeRole`
 
 ## Development
 

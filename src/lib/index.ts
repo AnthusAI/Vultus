@@ -22,3 +22,9 @@ export type {
   LottieFrameSegment,
   ProceduralAvatarModel
 } from "./avatarModels";
+export {
+  CREATIVE_DESK_MODEL_ZOO,
+  creativeDeskModelForRole,
+  creativeMotionAnimation
+} from "./creativeDeskModels";
+export type { CreativeMotionState, CreativeRole } from "./creativeDeskModels";

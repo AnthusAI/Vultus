@@ -1,0 +1,30 @@
+import type { BotAvatarModel } from "./avatarModels";
+export type CreativeRole = "Editor" | "Reporter" | "Copy Writer" | "Illustrator";
+export type CreativeMotionState = "ready" | "gathering" | "drafting" | "drawing" | "editing" | "complete";
+export declare function creativeMotionAnimation(role: CreativeRole, state: CreativeMotionState): {
+    v: string;
+    fr: number;
+    ip: number;
+    op: number;
+    w: number;
+    h: number;
+    nm: string;
+    ddd: number;
+    assets: never[];
+    layers: {
+        ddd: number;
+        ind: number;
+        ty: number;
+        nm: string;
+        sr: number;
+        ks: object;
+        ao: number;
+        shapes: object[];
+        ip: number;
+        op: number;
+        st: number;
+        bm: number;
+    }[];
+};
+export declare const CREATIVE_DESK_MODEL_ZOO: Readonly<Record<string, BotAvatarModel>>;
+export declare function creativeDeskModelForRole(role: CreativeRole): BotAvatarModel;
