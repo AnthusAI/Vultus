@@ -1,6 +1,7 @@
 # Vultus
 
-Reusable animated React avatar component extracted from the original `demo.html`, with Storybook stories and a local standalone demo.
+Extensible animated React avatar system with one state contract and a model zoo
+of procedural and Lottie renderers.
 
 ## Install
 
@@ -32,6 +33,42 @@ export function Example() {
 }
 ```
 
+## Lottie models and model zoos
+
+Vultus treats the original procedural face as one model, not the product
+identity. A Lottie model maps the same Vultus states to frame segments, so an
+application can mix very different character designs without rewriting its
+turn-state logic.
+
+```tsx
+import {
+  BotAvatar,
+  createBotAvatarModelZoo,
+  defineLottieAvatarModel,
+  VULTUS_CLASSIC_MODEL,
+} from "anthus-vultus";
+import reporterAnimation from "./reporter.json";
+
+const reporter = defineLottieAvatarModel({
+  id: "newsroom-reporter",
+  name: "Newsroom Reporter",
+  animationData: reporterAnimation,
+  fallbackSegment: [0, 90],
+  stateSegments: {
+    neutral: [0, 45],
+    thinking: [45, 90],
+    toolCalling: [90, 135],
+    speakingOpen: [135, 180],
+  },
+});
+
+const zoo = createBotAvatarModelZoo([VULTUS_CLASSIC_MODEL, reporter]);
+
+export function ReporterAvatar() {
+  return <BotAvatar model={zoo[reporter.id]} state="thinking" />;
+}
+```
+
 ## Public API
 
 ### `BotAvatarProps`
@@ -43,6 +80,7 @@ export function Example() {
 - `shadowColor?: string`
 - `lightColor?: string`
 - `ariaLabel?: string`
+- `model?: BotAvatarModel` (default: `VULTUS_CLASSIC_MODEL`)
 
 Neutral idle behavior is static by default with optional random bored micro-animations. When `neutralIdleMode` is `"static"` or the OS prefers reduced motion, neutral idle remains fully still.
 
@@ -52,6 +90,15 @@ Neutral idle behavior is static by default with optional random bored micro-anim
 - `type BotAvatarProps`
 - `type BotAvatarState`
 - `BOT_AVATAR_STATES`
+- `defineLottieAvatarModel`
+- `createBotAvatarModelZoo`
+- `avatarModelFromZoo`
+- `VULTUS_CLASSIC_MODEL`
+- `CREATIVE_DESK_MODEL_ZOO`
+- `creativeDeskModelForRole`
+- `type BotAvatarModel`
+- `type LottieAvatarModel`
+- `type CreativeRole`
 
 ## Development
 
