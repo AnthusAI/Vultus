@@ -1,7 +1,7 @@
 {
   "name": "anthus-vultus",
   "version": "0.1.0",
-  "description": "Reusable animated React avatar component with Storybook and demo surface.",
+  "description": "Extensible React avatar model zoo with procedural and Lottie renderers.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/anthus-vultus.cjs",
@@ -38,6 +38,8 @@
     "react",
     "avatar",
     "animation",
+    "lottie",
+    "model-zoo",
     "gsap",
     "storybook",
     "component-library"
@@ -47,7 +49,8 @@
     "react-dom": ">=18"
   },
   "dependencies": {
-    "gsap": "^3.13.0"
+    "gsap": "^3.13.0",
+    "lottie-react": "^2.4.2"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^8.6.14",

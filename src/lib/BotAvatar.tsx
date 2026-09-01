@@ -3,6 +3,9 @@ import type { RefObject } from "react";
 import { gsap } from "gsap";
 import { buildFourSegmentEllipsePath, interpolateNumericValuesBetweenPathStrings } from "./avatarMath";
 import { BOT_AVATAR_STATES, BotAvatarState, computeAllFacialPathsForState } from "./avatarStates";
+import { LottieBotAvatar } from "./LottieBotAvatar";
+import { VULTUS_CLASSIC_MODEL } from "./avatarModels";
+import type { BotAvatarModel } from "./avatarModels";
 
 const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray";
 const DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME = "white";
@@ -12,6 +15,7 @@ const DEFAULT_NEUTRAL_BORED_VARIANT_DURATION_MIN_MS = 1_000;
 const DEFAULT_NEUTRAL_BORED_VARIANT_DURATION_MAX_MS = 2_000;
 
 export type BotAvatarProps = {
+  model?: BotAvatarModel;
   state?: BotAvatarState;
   neutralIdleMode?: "bored-random" | "static";
   size?: number;
@@ -384,7 +388,7 @@ const browserPrefersReducedMotion = (): boolean => {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 };
 
-export const BotAvatar = ({
+const ProceduralBotAvatar = ({
   state = "neutral",
   neutralIdleMode = "bored-random",
   size = 240,
@@ -392,7 +396,7 @@ export const BotAvatar = ({
   shadowColor = DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME,
   lightColor = DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME,
   ariaLabel
-}: BotAvatarProps) => {
+}: Omit<BotAvatarProps, "model">) => {
   const currentState: BotAvatarState = isBotAvatarState(state) ? state : "neutral";
   const generatedRawId = useId();
   const headClipPathId = `bot-avatar-head-clip-${generatedRawId.replace(/:/g, "")}`;
@@ -594,5 +598,36 @@ export const BotAvatar = ({
         </g>
       </g>
     </svg>
+  );
+};
+
+export const BotAvatar = ({
+  model = VULTUS_CLASSIC_MODEL,
+  state = "neutral",
+  size = 240,
+  lightColor = DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME,
+  ariaLabel,
+  ...proceduralProps
+}: BotAvatarProps) => {
+  const currentState: BotAvatarState = isBotAvatarState(state) ? state : "neutral";
+  if (model.renderer === "lottie") {
+    return (
+      <LottieBotAvatar
+        model={model}
+        state={currentState}
+        size={size}
+        lightColor={lightColor}
+        ariaLabel={ariaLabel}
+      />
+    );
+  }
+  return (
+    <ProceduralBotAvatar
+      {...proceduralProps}
+      state={currentState}
+      size={size}
+      lightColor={lightColor}
+      ariaLabel={ariaLabel}
+    />
   );
 };

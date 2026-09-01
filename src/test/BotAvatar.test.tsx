@@ -2,6 +2,24 @@ import { act, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BotAvatar } from "../lib/BotAvatar";
 import { BOT_AVATAR_STATES } from "../lib/avatarStates";
+import { defineLottieAvatarModel } from "../lib/avatarModels";
+
+const lottieModel = defineLottieAvatarModel({
+  id: "test-lottie",
+  name: "Test Lottie",
+  animationData: {
+    v: "5.12.2",
+    fr: 60,
+    ip: 0,
+    op: 60,
+    w: 100,
+    h: 100,
+    assets: [],
+    layers: []
+  },
+  fallbackSegment: [0, 60],
+  stateSegments: { thinking: [10, 30] }
+});
 
 describe("BotAvatar", () => {
   beforeEach(() => {
@@ -40,6 +58,16 @@ describe("BotAvatar", () => {
     const { rerender } = render(<BotAvatar state="neutral" transitionDurationSeconds={0.01} />);
     rerender(<BotAvatar state="toolResponse" transitionDurationSeconds={0.01} />);
     expect(screen.getByRole("img", { name: "Bot avatar - toolResponse state" })).toBeInTheDocument();
+  });
+
+  it("renders a Lottie model through the same state contract", () => {
+    const { container } = render(
+      <BotAvatar model={lottieModel} state="thinking" size={180} ariaLabel="Reporter is gathering" />
+    );
+    const avatar = screen.getByRole("img", { name: "Reporter is gathering" });
+    expect(avatar).toHaveAttribute("data-vultus-model", "test-lottie");
+    expect(avatar).toHaveAttribute("data-vultus-renderer", "lottie");
+    expect(container.querySelector("svg")).toBeTruthy();
   });
 
   it("schedules neutral bored idle in the 10-20s interval window", () => {
