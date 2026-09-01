@@ -69,7 +69,7 @@ export function LottieBotAvatar({
       <Lottie
         lottieRef={lottieRef}
         animationData={model.animationData}
-        autoplay={false}
+        autoplay={!reducedMotion}
         loop={!reducedMotion}
         onDOMLoaded={() => setAnimationReady(true)}
         aria-hidden="true"

@@ -8169,7 +8169,7 @@ function LottieBotAvatar({
         {
           lottieRef: n,
           animationData: t.animationData,
-          autoplay: !1,
+          autoplay: !a,
           loop: !a,
           onDOMLoaded: () => f(!0),
           "aria-hidden": "true",
