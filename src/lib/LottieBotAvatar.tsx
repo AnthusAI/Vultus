@@ -10,6 +10,7 @@ export type LottieBotAvatarProps = {
   size: number;
   lightColor: string;
   ariaLabel?: string;
+  paused?: boolean;
 };
 
 const browserPrefersReducedMotion = (): boolean => {
@@ -24,7 +25,8 @@ export function LottieBotAvatar({
   state,
   size,
   lightColor,
-  ariaLabel
+  ariaLabel,
+  paused = false
 }: LottieBotAvatarProps) {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const [reducedMotion, setReducedMotion] = useState(browserPrefersReducedMotion);
@@ -49,9 +51,13 @@ export function LottieBotAvatar({
       lottieRef.current?.goToAndStop(segment[0], true);
       return;
     }
+    if (paused) {
+      lottieRef.current?.pause();
+      return;
+    }
     lottieRef.current?.animationItem?.setSegment(segment[0], segment[1]);
     lottieRef.current?.goToAndPlay(segment[0], true);
-  }, [animationReady, reducedMotion, segment]);
+  }, [animationReady, paused, reducedMotion, segment]);
 
   return (
     <div
@@ -70,7 +76,7 @@ export function LottieBotAvatar({
       <Lottie
         lottieRef={lottieRef}
         animationData={model.animationData}
-        autoplay={!reducedMotion}
+        autoplay={!reducedMotion && !paused}
         loop={!reducedMotion}
         onDOMLoaded={() => setAnimationReady(true)}
         aria-hidden="true"

@@ -108,6 +108,12 @@ describe("BotAvatar", () => {
     expect(setTimeoutSpy).not.toHaveBeenCalled();
   });
 
+  it("does not start procedural idle motion when paused", () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+    render(<BotAvatar state="neutral" paused />);
+    expect(setTimeoutSpy).not.toHaveBeenCalled();
+  });
+
   it("disables neutral bored idle when reduced-motion is preferred", () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
     Object.defineProperty(window, "matchMedia", {

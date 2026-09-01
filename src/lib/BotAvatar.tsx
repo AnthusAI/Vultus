@@ -23,6 +23,7 @@ export type BotAvatarProps = {
   shadowColor?: string;
   lightColor?: string;
   ariaLabel?: string;
+  paused?: boolean;
 };
 
 type AnimationContext = {
@@ -395,7 +396,8 @@ const ProceduralBotAvatar = ({
   transitionDurationSeconds = 0.55,
   shadowColor = DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME,
   lightColor = DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME,
-  ariaLabel
+  ariaLabel,
+  paused = false
 }: Omit<BotAvatarProps, "model">) => {
   const currentState: BotAvatarState = isBotAvatarState(state) ? state : "neutral";
   const generatedRawId = useId();
@@ -440,6 +442,10 @@ const ProceduralBotAvatar = ({
     }
     if (animationContext.antennaCircleElementRef.current) {
       gsap.set(animationContext.antennaCircleElementRef.current, { clearProps: "transform" });
+    }
+
+    if (paused) {
+      return undefined;
     }
 
     const currentlyRenderedPaths = {
@@ -561,7 +567,7 @@ const ProceduralBotAvatar = ({
         activeNeutralBoredTimeoutRef.current = null;
       }
     };
-  }, [currentState, neutralIdleMode, transitionDurationSeconds]);
+  }, [currentState, neutralIdleMode, paused, transitionDurationSeconds]);
 
   const initialPaths = initialPathSetRef.current;
   const computedAriaLabel = ariaLabel ?? `Bot avatar - ${currentState} state`;
@@ -607,6 +613,7 @@ export const BotAvatar = ({
   size = 240,
   lightColor = DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME,
   ariaLabel,
+  paused = false,
   ...proceduralProps
 }: BotAvatarProps) => {
   const currentState: BotAvatarState = isBotAvatarState(state) ? state : "neutral";
@@ -618,6 +625,7 @@ export const BotAvatar = ({
         size={size}
         lightColor={lightColor}
         ariaLabel={ariaLabel}
+        paused={paused}
       />
     );
   }
@@ -628,6 +636,7 @@ export const BotAvatar = ({
       size={size}
       lightColor={lightColor}
       ariaLabel={ariaLabel}
+      paused={paused}
     />
   );
 };

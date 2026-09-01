@@ -9,5 +9,6 @@ export type BotAvatarProps = {
     shadowColor?: string;
     lightColor?: string;
     ariaLabel?: string;
+    paused?: boolean;
 };
-export declare const BotAvatar: ({ model, state, size, lightColor, ariaLabel, ...proceduralProps }: BotAvatarProps) => import("react/jsx-runtime").JSX.Element;
+export declare const BotAvatar: ({ model, state, size, lightColor, ariaLabel, paused, ...proceduralProps }: BotAvatarProps) => import("react/jsx-runtime").JSX.Element;

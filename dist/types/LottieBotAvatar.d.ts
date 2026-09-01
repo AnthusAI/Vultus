@@ -6,5 +6,6 @@ export type LottieBotAvatarProps = {
     size: number;
     lightColor: string;
     ariaLabel?: string;
+    paused?: boolean;
 };
-export declare function LottieBotAvatar({ model, state, size, lightColor, ariaLabel }: LottieBotAvatarProps): import("react/jsx-runtime").JSX.Element;
+export declare function LottieBotAvatar({ model, state, size, lightColor, ariaLabel, paused }: LottieBotAvatarProps): import("react/jsx-runtime").JSX.Element;
