@@ -49,7 +49,8 @@ export function LottieBotAvatar({
       lottieRef.current?.goToAndStop(segment[0], true);
       return;
     }
-    lottieRef.current?.playSegments([segment[0], segment[1]], true);
+    lottieRef.current?.animationItem?.setSegment(segment[0], segment[1]);
+    lottieRef.current?.goToAndPlay(segment[0], true);
   }, [animationReady, reducedMotion, segment]);
 
   return (

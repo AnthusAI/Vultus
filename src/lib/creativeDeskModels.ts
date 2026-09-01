@@ -107,6 +107,21 @@ function shapeLayer(
   };
 }
 
+function keyframe(t: number, s: number[], e?: number[]) {
+  if (!e) {
+    return { t, s };
+  }
+  const dimensions = e.map(() => 1);
+  const origins = e.map(() => 0);
+  return {
+    t,
+    s,
+    e,
+    i: { x: dimensions, y: dimensions },
+    o: { x: origins, y: origins },
+  };
+}
+
 function bodyShape(design: RoleDesign) {
   if (design.shape === "circle") {
     return ellipse([128, 128]);
@@ -202,8 +217,8 @@ export function creativeMotionAnimation(
           r: {
             a: 1,
             k: [
-              { t: 0, s: [0], e: [orbitDirection] },
-              { t: 180, s: [orbitDirection] },
+              keyframe(0, [0], [orbitDirection]),
+              keyframe(180, [orbitDirection]),
             ],
           },
           p: { a: 0, k: [120, 120, 0] },
@@ -221,9 +236,9 @@ export function creativeMotionAnimation(
           p: {
             a: 1,
             k: [
-              { t: 0, s: [120, 120, 0], e: [120, 120 - amplitude, 0] },
-              { t: 90, s: [120, 120 - amplitude, 0], e: [120, 120, 0] },
-              { t: 180, s: [120, 120, 0] },
+              keyframe(0, [120, 120, 0], [120, 120 - amplitude, 0]),
+              keyframe(90, [120, 120 - amplitude, 0], [120, 120, 0]),
+              keyframe(180, [120, 120, 0]),
             ],
           },
           a: { a: 0, k: [0, 0, 0] },
@@ -235,9 +250,9 @@ export function creativeMotionAnimation(
         r: {
           a: 1,
           k: [
-            { t: 0, s: [-3], e: [3] },
-            { t: 90, s: [3], e: [-3] },
-            { t: 180, s: [-3] },
+            keyframe(0, [-3], [3]),
+            keyframe(90, [3], [-3]),
+            keyframe(180, [-3]),
           ],
         },
         p: { a: 0, k: [120, 120, 0] },
@@ -261,10 +276,10 @@ export function creativeMotionAnimation(
           s: {
             a: 1,
             k: [
-              { t: 0, s: [100, 100, 100], e: [100, 100, 100] },
-              { t: 68, s: [100, 100, 100], e: [100, 12, 100] },
-              { t: 72, s: [100, 12, 100], e: [100, 100, 100] },
-              { t: 180, s: [100, 100, 100] },
+              keyframe(0, [100, 100, 100], [100, 100, 100]),
+              keyframe(68, [100, 100, 100], [100, 12, 100]),
+              keyframe(72, [100, 12, 100], [100, 100, 100]),
+              keyframe(180, [100, 100, 100]),
             ],
           },
         },
@@ -279,9 +294,9 @@ export function creativeMotionAnimation(
           p: {
             a: 1,
             k: [
-              { t: 0, s: [120, 18, 0], e: [204, 120, 0] },
-              { t: 90, s: [204, 120, 0], e: [120, 222, 0] },
-              { t: 180, s: [120, 222, 0] },
+              keyframe(0, [120, 18, 0], [204, 120, 0]),
+              keyframe(90, [204, 120, 0], [120, 222, 0]),
+              keyframe(180, [120, 222, 0]),
             ],
           },
           a: { a: 0, k: [0, 0, 0] },
