@@ -66,12 +66,17 @@ export function useGazeBehavior({
     let reducedMotion = browserPrefersReducedMotion();
     let hasFinePointer = browserHasFinePointer();
     let pointerPosition: { x: number; y: number } | null = null;
+    // True only while actively tracking a moving pointer (i.e. within
+    // pointerRestMs of the last move). Once the pointer rests and drifts
+    // back to neutral, this goes false and autonomous "bored" wander
+    // takes over — on any device, not just ones without a pointer at all.
+    let pointerEngaged = false;
     let intersecting = true;
     let documentHidden = typeof document !== "undefined" && document.hidden;
     let restTimeoutId: ReturnType<typeof setTimeout> | null = null;
     let wanderTimeoutId: ReturnType<typeof setTimeout> | null = null;
     let pendingFrameId: number | null = null;
-    let wanderState = createGazeWanderState(Date.now());
+    let wanderState = createGazeWanderState(Date.now(), Math.random, configRef.current);
 
     const applyVector = (vector: GazeVector, durationMs: number) => {
       if (!geometry) {
@@ -104,9 +109,12 @@ export function useGazeBehavior({
       clearRestTimeout();
       restTimeoutId = setTimeout(() => {
         restTimeoutId = null;
+        pointerEngaged = false;
         if (!isSuspended()) {
           goNeutral(configRef.current.driftBackMs);
         }
+        // The pointer has been idle for a while now — let it get bored.
+        startOrStopWander();
       }, configRef.current.pointerRestMs);
     };
 
@@ -117,6 +125,7 @@ export function useGazeBehavior({
       }
       const rect = svgElement.getBoundingClientRect();
       applyVector(computePointerGazeVector(rect, pointerPosition), configRef.current.trackMs);
+      pointerEngaged = true;
       scheduleDriftBack();
     };
 
@@ -126,18 +135,18 @@ export function useGazeBehavior({
       }
       hasFinePointer = true;
       pointerPosition = { x: event.clientX, y: event.clientY };
+      // A real pointer just moved; autonomous wander stands down in favor
+      // of tracking (applyPointerNow re-arms it once the pointer rests).
+      clearWanderTimeout();
       if (pendingFrameId === null) {
         pendingFrameId =
           typeof requestAnimationFrame === "function" ? requestAnimationFrame(applyPointerNow) : setTimeout(applyPointerNow, 16) as unknown as number;
-      }
-      if (wanderTimeoutId !== null) {
-        // A real pointer has appeared; autonomous wander stands down.
-        clearWanderTimeout();
       }
     };
 
     const handlePointerLeaveDocument = () => {
       pointerPosition = null;
+      pointerEngaged = false;
       clearRestTimeout();
       if (!isSuspended() && gaze === "pointer") {
         goNeutral(configRef.current.driftBackMs);
@@ -160,9 +169,12 @@ export function useGazeBehavior({
       if (isFixedVector(gaze) || isSuspended()) {
         return;
       }
-      const shouldWander = gaze === "auto" || (gaze === "pointer" && !hasFinePointer && !pointerPosition);
+      // "pointer" mode wanders whenever it isn't actively tracking a
+      // moving pointer right now — whether that's because no fine
+      // pointer exists, or because one exists but has gone idle.
+      const shouldWander = gaze === "auto" || (gaze === "pointer" && !pointerEngaged);
       if (shouldWander) {
-        wanderState = createGazeWanderState(Date.now());
+        wanderState = createGazeWanderState(Date.now(), Math.random, configRef.current);
         runWanderTick();
       }
     }

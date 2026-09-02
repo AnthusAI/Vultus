@@ -68,6 +68,32 @@ describe("gaze wiring on BotAvatar", () => {
     expect(setTimeoutSpy).toHaveBeenCalled();
   });
 
+  it('starts autonomous "bored" wander for gaze="pointer" even when a fine pointer exists but has never moved', () => {
+    // Regression test: this previously only wandered when NO fine pointer
+    // existed at all (e.g. touch-only devices), leaving desktop visitors
+    // with a mark that tracked the mouse and then just sat frozen at
+    // neutral forever once it stopped moving — never getting "bored".
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: (query: string): MediaQueryList => ({
+        matches: query === "(pointer: fine)",
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false
+      })
+    });
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+
+    render(<BotAvatar model={gazeModel} gaze="pointer" neutralIdleMode="static" />);
+
+    expect(setTimeoutSpy).toHaveBeenCalled();
+  });
+
   it("applies a fixed gaze vector immediately, scaled by the model's travel budget", () => {
     const { container } = render(
       <BotAvatar model={gazeModel} gaze={{ x: 1, y: 0 }} neutralIdleMode="static" />

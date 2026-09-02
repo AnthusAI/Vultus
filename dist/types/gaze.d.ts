@@ -78,7 +78,7 @@ export type GazeWanderState = {
     /** Absolute timestamp (same clock as `now`) when this phase ends. */
     nextChangeAt: number;
 };
-export declare function createGazeWanderState(now: number): GazeWanderState;
+export declare function createGazeWanderState(now: number, random: () => number, config?: GazeConfig): GazeWanderState;
 /**
  * Pure step function for autonomous "bored, looks around" wander. Returns
  * the same state (by value) when `now < state.nextChangeAt`. Alternates a

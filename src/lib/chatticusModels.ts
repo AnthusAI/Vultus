@@ -7,26 +7,31 @@ import type { BotAvatarState } from "./avatarStates";
 /**
  * The Chatticus wordmark's logo bubbles. Coordinates are CSS px at the
  * mark's native 28px size (viewBox is [0,0,28,28], so 1 user unit = 1px
- * there); the corner radii are the *clamped* values the browser actually
- * renders for the original CSS mark
- * (`rounded-[0.65rem_0.65rem_0.65rem_0.15rem]` etc. on a 20x16 box), not
- * the nominal 0.65rem/0.15rem figures — the box's radii sum to more than
- * its own height, so CSS scales all four down by 16/20.8 ≈ 0.7692 before
- * rendering them. Using the nominal values here would visibly diverge
- * from the mark as it renders today.
+ * there); the corner radii are the *clamped* values a browser actually
+ * renders for radii like `0.65rem 0.65rem 0.65rem 0.15rem` on a 20x16
+ * box, not the nominal rem figures — the box's radii sum to more than its
+ * own height, so CSS scales all four down by 16/20.8 ≈ 0.7692 before
+ * rendering them.
+ *
+ * Mirrored left-to-right from the original CSS mark's layout (ink capped
+ * on the right, clay capped on the left) so the mark's front-facing
+ * (clay) bubble caps toward the left — matching the product's chat UI,
+ * where the bot's messages sit on the left. The eye positions (10,14) and
+ * (18,14) are unchanged: they're symmetric around the mark's center
+ * (x=14), so mirroring just swaps two identical eyes onto each other.
  */
-const INK_BUBBLE_PATH = buildRoundedRectPath(0, 4, 20, 16, {
-  topLeft: 8,
-  topRight: 8,
-  bottomRight: 8,
-  bottomLeft: 1.85
-});
-
-const CLAY_BUBBLE_PATH = buildRoundedRectPath(8, 8, 20, 16, {
+const INK_BUBBLE_PATH = buildRoundedRectPath(8, 4, 20, 16, {
   topLeft: 8,
   topRight: 8,
   bottomRight: 1.85,
   bottomLeft: 8
+});
+
+const CLAY_BUBBLE_PATH = buildRoundedRectPath(0, 8, 20, 16, {
+  topLeft: 8,
+  topRight: 8,
+  bottomRight: 8,
+  bottomLeft: 1.85
 });
 
 /**

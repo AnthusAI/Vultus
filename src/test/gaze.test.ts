@@ -120,38 +120,46 @@ describe("applyGazeTravel", () => {
 });
 
 describe("gaze wander state machine", () => {
-  it("starts at rest", () => {
-    const state = createGazeWanderState(1000);
+  it("starts at rest, with a randomized initial gap before the first glance", () => {
+    const random = makeSeededRandom(5);
+    const state = createGazeWanderState(1000, random);
     expect(state.phase).toBe("resting");
     expect(state.vector).toEqual({ x: 0, y: 0 });
+    // Must NOT be due immediately (nextChangeAt === now) — a freshly
+    // (re)started wander should sit still for a natural gap first,
+    // exactly like the mid-cycle rest-then-glance transition below.
+    expect(state.nextChangeAt).toBeGreaterThanOrEqual(1000 + DEFAULT_GAZE_CONFIG.wanderMinMs);
+    expect(state.nextChangeAt).toBeLessThanOrEqual(1000 + DEFAULT_GAZE_CONFIG.wanderMaxMs);
   });
 
   it("does not change before nextChangeAt", () => {
-    const state = createGazeWanderState(1000);
     const random = makeSeededRandom(1);
-    const advanced = advanceGazeWander(state, 999, random);
+    const state = createGazeWanderState(1000, random);
+    const advanced = advanceGazeWander(state, state.nextChangeAt - 1, random);
     expect(advanced).toBe(state);
   });
 
   it("moves rest -> glance -> rest, staying within the configured hold/gap windows", () => {
     const random = makeSeededRandom(3);
-    let state = createGazeWanderState(0);
-    // First transition happens immediately since nextChangeAt starts at `now`.
-    state = advanceGazeWander(state, 0, random);
+    let state = createGazeWanderState(0, random);
+    const firstRestEnd = state.nextChangeAt;
+
+    state = advanceGazeWander(state, firstRestEnd, random);
     expect(state.phase).toBe("glancing");
     expect(state.vector).not.toEqual({ x: 0, y: 0 });
-    expect(state.nextChangeAt).toBe(DEFAULT_GAZE_CONFIG.wanderHoldMs);
+    expect(state.nextChangeAt).toBe(firstRestEnd + DEFAULT_GAZE_CONFIG.wanderHoldMs);
 
     state = advanceGazeWander(state, state.nextChangeAt, random);
     expect(state.phase).toBe("resting");
     expect(state.vector).toEqual({ x: 0, y: 0 });
-    expect(state.nextChangeAt).toBeGreaterThanOrEqual(DEFAULT_GAZE_CONFIG.wanderHoldMs + DEFAULT_GAZE_CONFIG.wanderMinMs);
-    expect(state.nextChangeAt).toBeLessThanOrEqual(DEFAULT_GAZE_CONFIG.wanderHoldMs + DEFAULT_GAZE_CONFIG.wanderMaxMs);
+    const secondRestDuration = state.nextChangeAt - (firstRestEnd + DEFAULT_GAZE_CONFIG.wanderHoldMs);
+    expect(secondRestDuration).toBeGreaterThanOrEqual(DEFAULT_GAZE_CONFIG.wanderMinMs);
+    expect(secondRestDuration).toBeLessThanOrEqual(DEFAULT_GAZE_CONFIG.wanderMaxMs);
   });
 
   it("keeps glance magnitude within [0.5, 1] of wanderMagnitude", () => {
     const random = makeSeededRandom(99);
-    let state = createGazeWanderState(0);
+    let state = createGazeWanderState(0, random);
     for (let i = 0; i < 50; i += 1) {
       state = advanceGazeWander(state, state.nextChangeAt, random);
       if (state.phase === "glancing") {
@@ -165,7 +173,7 @@ describe("gaze wander state machine", () => {
   it("is deterministic for a fixed seed", () => {
     const runOnce = () => {
       const random = makeSeededRandom(2024);
-      let state = createGazeWanderState(0);
+      let state = createGazeWanderState(0, random);
       const phases: string[] = [];
       for (let i = 0; i < 10; i += 1) {
         state = advanceGazeWander(state, state.nextChangeAt, random);

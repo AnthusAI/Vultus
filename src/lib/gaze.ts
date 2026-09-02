@@ -116,8 +116,22 @@ export type GazeWanderState = {
   nextChangeAt: number;
 };
 
-export function createGazeWanderState(now: number): GazeWanderState {
-  return { phase: "resting", vector: { ...NEUTRAL_GAZE_VECTOR }, nextChangeAt: now };
+/**
+ * Starts "resting" with a randomized initial gap before the first glance
+ * — the same wanderMinMs..wanderMaxMs window used between every later
+ * glance — so a freshly (re)started wander sits still like a plain
+ * logo for a while before it first looks around, rather than glancing
+ * immediately.
+ */
+const randomRestGapMs = (random: () => number, config: GazeConfig): number =>
+  config.wanderMinMs + random() * (config.wanderMaxMs - config.wanderMinMs);
+
+export function createGazeWanderState(
+  now: number,
+  random: () => number,
+  config: GazeConfig = DEFAULT_GAZE_CONFIG
+): GazeWanderState {
+  return { phase: "resting", vector: { ...NEUTRAL_GAZE_VECTOR }, nextChangeAt: now + randomRestGapMs(random, config) };
 }
 
 /**
@@ -145,6 +159,5 @@ export function advanceGazeWander(
       nextChangeAt: now + config.wanderHoldMs
     };
   }
-  const gapMs = config.wanderMinMs + random() * (config.wanderMaxMs - config.wanderMinMs);
-  return { phase: "resting", vector: { ...NEUTRAL_GAZE_VECTOR }, nextChangeAt: now + gapMs };
+  return { phase: "resting", vector: { ...NEUTRAL_GAZE_VECTOR }, nextChangeAt: now + randomRestGapMs(random, config) };
 }
