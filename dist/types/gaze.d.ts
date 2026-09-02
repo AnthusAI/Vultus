@@ -67,10 +67,16 @@ export type GazeConfig = {
     /**
      * Idle blink: an independent, always-running rhythm (like a person's),
      * decoupled from wander's glance timing so it can't get "crowded out"
-     * by a run of glances — gap between blinks, min/max.
+     * by a run of glances. blinkMinMs/MaxMs governs only the very first
+     * blink after mount (kept snappy — the initial "waking up" beat);
+     * every blink after that uses blinkSubsequentMinMs/MaxMs instead,
+     * which is deliberately slower on average *and* wider (more variance)
+     * so the rhythm doesn't read as a metronome.
      */
     blinkMinMs: number;
     blinkMaxMs: number;
+    blinkSubsequentMinMs: number;
+    blinkSubsequentMaxMs: number;
     /** Blink close/hold/open durations (the motion itself, not the gap). */
     blinkCloseMs: number;
     blinkHoldMs: number;
@@ -150,6 +156,10 @@ export type BlinkState = {
  * timer, so a run of glances (or a long stretch of pointer tracking)
  * can never crowd out blinking the way a person's eyes wouldn't stop
  * blinking just because they're looking around or watching something.
+ * The very first gap (created here) is snappier than every gap after
+ * it (scheduled by advanceBlinkState's "opening" -> "open" transition)
+ * — a quick first blink reads as "waking up"; a uniform cadence after
+ * that reads as mechanical.
  */
 export declare function createBlinkState(now: number, random: () => number, config?: GazeConfig): BlinkState;
 export declare function advanceBlinkState(state: BlinkState, now: number, random: () => number, config?: GazeConfig): BlinkState;

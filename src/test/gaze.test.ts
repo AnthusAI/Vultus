@@ -176,12 +176,14 @@ describe("blink state machine (independent of wander)", () => {
     expect(state.eyelid).toBe(0);
     expect(state.nextChangeAt).toBe(closingEnds + DEFAULT_GAZE_CONFIG.blinkOpenMs);
 
+    // The gap scheduled *after* the first blink uses the slower,
+    // wider "subsequent" range, not the initial one.
     const openingEnds = state.nextChangeAt;
     state = advanceBlinkState(state, openingEnds, random);
     expect(state.phase).toBe("open");
     expect(state.eyelid).toBe(0);
-    expect(state.nextChangeAt).toBeGreaterThanOrEqual(openingEnds + DEFAULT_GAZE_CONFIG.blinkMinMs);
-    expect(state.nextChangeAt).toBeLessThanOrEqual(openingEnds + DEFAULT_GAZE_CONFIG.blinkMaxMs);
+    expect(state.nextChangeAt).toBeGreaterThanOrEqual(openingEnds + DEFAULT_GAZE_CONFIG.blinkSubsequentMinMs);
+    expect(state.nextChangeAt).toBeLessThanOrEqual(openingEnds + DEFAULT_GAZE_CONFIG.blinkSubsequentMaxMs);
   });
 
   it("blinks at a human-like cadence (a few seconds, not tens of seconds)", () => {
@@ -191,6 +193,15 @@ describe("blink state machine (independent of wander)", () => {
     // (4-9s) which was further diluted by a coin-flip against glancing.
     expect(DEFAULT_GAZE_CONFIG.blinkMinMs).toBeLessThanOrEqual(3000);
     expect(DEFAULT_GAZE_CONFIG.blinkMaxMs).toBeLessThanOrEqual(7000);
+  });
+
+  it("is slower on average and more spread out after the first blink (less regular)", () => {
+    const initialAvg = (DEFAULT_GAZE_CONFIG.blinkMinMs + DEFAULT_GAZE_CONFIG.blinkMaxMs) / 2;
+    const initialRange = DEFAULT_GAZE_CONFIG.blinkMaxMs - DEFAULT_GAZE_CONFIG.blinkMinMs;
+    const subsequentAvg = (DEFAULT_GAZE_CONFIG.blinkSubsequentMinMs + DEFAULT_GAZE_CONFIG.blinkSubsequentMaxMs) / 2;
+    const subsequentRange = DEFAULT_GAZE_CONFIG.blinkSubsequentMaxMs - DEFAULT_GAZE_CONFIG.blinkSubsequentMinMs;
+    expect(subsequentAvg).toBeGreaterThan(initialAvg);
+    expect(subsequentRange).toBeGreaterThan(initialRange);
   });
 
   it("is deterministic for a fixed seed", () => {
