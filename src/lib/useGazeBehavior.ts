@@ -6,6 +6,7 @@ import {
   advanceGazeWander,
   applyBlinkScale,
   applyGazeTravel,
+  buildDefensiveBlinkSteps,
   computePointerGazeVector,
   createGazeWanderState
 } from "./gaze";
@@ -76,13 +77,17 @@ export function useGazeBehavior({
     let documentHidden = typeof document !== "undefined" && document.hidden;
     let restTimeoutId: ReturnType<typeof setTimeout> | null = null;
     let wanderTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let defensiveBlinkTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let defensiveBlinkActive = false;
     let pendingFrameId: number | null = null;
     let wanderState = createGazeWanderState(Date.now(), Math.random, configRef.current);
+    let lastVector: GazeVector = { ...NEUTRAL_GAZE_VECTOR };
 
     const applyPose = (vector: GazeVector, eyelid: number, durationMs: number) => {
       if (!geometry) {
         return;
       }
+      lastVector = vector;
       const { dx, dy } = applyGazeTravel(vector, geometry.travel);
       const scaleY = applyBlinkScale(eyelid, geometry.blinkClosedScaleY);
       gazeGroupElement.style.transition = reducedMotion ? "none" : `transform ${durationMs}ms ${configRef.current.easing}`;
@@ -185,7 +190,7 @@ export function useGazeBehavior({
 
     function startOrStopWander() {
       clearWanderTimeout();
-      if (isFixedVector(gaze) || isSuspended()) {
+      if (defensiveBlinkActive || isFixedVector(gaze) || isSuspended()) {
         return;
       }
       // "pointer" mode wanders whenever it isn't actively tracking a
@@ -198,11 +203,60 @@ export function useGazeBehavior({
       }
     }
 
+    const clearDefensiveBlinkTimeout = () => {
+      if (defensiveBlinkTimeoutId !== null) {
+        clearTimeout(defensiveBlinkTimeoutId);
+        defensiveBlinkTimeoutId = null;
+      }
+    };
+
+    /**
+     * A sharp, fast, doubled blink triggered by the pointer directly
+     * rolling over the mark — a distinct "defensive" reaction, not just
+     * another idle blink. Interrupts autonomous wander (but leaves active
+     * pointer tracking's own drift-back timer alone — it resumes showing
+     * the tracked position once the blink finishes), keeps whatever gaze
+     * position was last shown, and doesn't re-trigger while already mid-blink.
+     */
+    const runDefensiveBlink = () => {
+      if (defensiveBlinkActive || isSuspended()) {
+        return;
+      }
+      clearWanderTimeout();
+      defensiveBlinkActive = true;
+      const steps = buildDefensiveBlinkSteps(configRef.current);
+      const runStep = (index: number) => {
+        if (index >= steps.length) {
+          defensiveBlinkActive = false;
+          startOrStopWander();
+          return;
+        }
+        const step = steps[index];
+        if (!isSuspended()) {
+          applyPose(lastVector, step.eyelid, step.durationMs);
+        }
+        defensiveBlinkTimeoutId = setTimeout(() => {
+          defensiveBlinkTimeoutId = null;
+          runStep(index + 1);
+        }, step.waitMs);
+      };
+      runStep(0);
+    };
+
+    const handlePointerEnterMark = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" && event.pointerType !== "pen") {
+        return;
+      }
+      runDefensiveBlink();
+    };
+
     const handleReducedMotionChange = (event: MediaQueryListEvent) => {
       reducedMotion = event.matches;
       if (reducedMotion) {
         clearRestTimeout();
         clearWanderTimeout();
+        clearDefensiveBlinkTimeout();
+        defensiveBlinkActive = false;
         gazeGroupElement.style.transition = "none";
         gazeGroupElement.style.transform = "translate(0px, 0px) scaleY(1)";
       } else {
@@ -220,6 +274,8 @@ export function useGazeBehavior({
       if (documentHidden) {
         clearRestTimeout();
         clearWanderTimeout();
+        clearDefensiveBlinkTimeout();
+        defensiveBlinkActive = false;
       } else {
         startOrStopWander();
       }
@@ -234,6 +290,8 @@ export function useGazeBehavior({
           if (!intersecting) {
             clearRestTimeout();
             clearWanderTimeout();
+            clearDefensiveBlinkTimeout();
+            defensiveBlinkActive = false;
           } else {
             startOrStopWander();
           }
@@ -250,6 +308,7 @@ export function useGazeBehavior({
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     document.addEventListener("mouseleave", handlePointerLeaveDocument);
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    svgElement.addEventListener("pointerenter", handlePointerEnterMark);
 
     if (isFixedVector(gaze)) {
       applyPose(gaze, 0, configRef.current.trackMs);
@@ -263,6 +322,7 @@ export function useGazeBehavior({
       disposed = true;
       clearRestTimeout();
       clearWanderTimeout();
+      clearDefensiveBlinkTimeout();
       if (pendingFrameId !== null) {
         if (typeof cancelAnimationFrame === "function") {
           cancelAnimationFrame(pendingFrameId);
@@ -276,6 +336,7 @@ export function useGazeBehavior({
       window.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("mouseleave", handlePointerLeaveDocument);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      svgElement.removeEventListener("pointerenter", handlePointerEnterMark);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fixedVectorKey stands in for gaze's object identity
   }, [gaze === "none" ? "none" : gaze === "auto" ? "auto" : gaze === "pointer" ? "pointer" : fixedVectorKey, geometry, gazeGroupElementRef, svgElementRef]);

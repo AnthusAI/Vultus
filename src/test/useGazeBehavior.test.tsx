@@ -163,3 +163,102 @@ describe("gaze wiring on BotAvatar", () => {
     expect(() => unmount()).not.toThrow();
   });
 });
+
+/** jsdom has no PointerEvent constructor; a plain Event with pointerType set works for dispatch. */
+const makePointerEnterEvent = (pointerType: string) => {
+  const event = new Event("pointerenter");
+  Object.defineProperty(event, "pointerType", { value: pointerType });
+  return event;
+};
+
+describe("defensive blink (pointer rollover)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(window, "matchMedia");
+  });
+
+  it("closes the eyes immediately when the pointer rolls over the mark", () => {
+    const { container } = render(<BotAvatar model={gazeModel} gaze="auto" neutralIdleMode="static" />);
+    const svgElement = container.querySelector("svg") as SVGSVGElement;
+    const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement;
+
+    act(() => {
+      svgElement.dispatchEvent(makePointerEnterEvent("mouse"));
+    });
+
+    const scaleY = Number(gazeGroup.style.transform.match(/scaleY\(([\d.]+)\)/)?.[1]);
+    expect(scaleY).toBeCloseTo(0.15, 5); // gazeModel's blinkClosedScaleY
+    // Uses the defensive (fast) close duration, not the slower idle one.
+    expect(gazeGroup.style.transition).toContain(`${DEFAULT_GAZE_CONFIG.defensiveBlinkCloseMs}ms`);
+    expect(DEFAULT_GAZE_CONFIG.defensiveBlinkCloseMs).toBeLessThan(DEFAULT_GAZE_CONFIG.blinkCloseMs);
+  });
+
+  it("ignores touch rollover (only mouse/pen trigger it)", () => {
+    const { container } = render(<BotAvatar model={gazeModel} gaze="auto" neutralIdleMode="static" />);
+    const svgElement = container.querySelector("svg") as SVGSVGElement;
+    const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement;
+
+    act(() => {
+      svgElement.dispatchEvent(makePointerEnterEvent("touch"));
+    });
+
+    expect(gazeGroup.style.transform).not.toMatch(/scaleY\(0\.1/);
+  });
+
+  it("runs the full doubled close/open sequence and ends back open", () => {
+    const { container } = render(<BotAvatar model={gazeModel} gaze="auto" neutralIdleMode="static" />);
+    const svgElement = container.querySelector("svg") as SVGSVGElement;
+    const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement;
+
+    act(() => {
+      svgElement.dispatchEvent(makePointerEnterEvent("mouse"));
+    });
+    const totalMs =
+      DEFAULT_GAZE_CONFIG.defensiveBlinkRepeats *
+        (DEFAULT_GAZE_CONFIG.defensiveBlinkCloseMs +
+          DEFAULT_GAZE_CONFIG.defensiveBlinkHoldMs +
+          DEFAULT_GAZE_CONFIG.defensiveBlinkOpenMs) +
+      (DEFAULT_GAZE_CONFIG.defensiveBlinkRepeats - 1) * DEFAULT_GAZE_CONFIG.defensiveBlinkGapMs;
+
+    act(() => {
+      vi.advanceTimersByTime(totalMs + 1);
+    });
+
+    const scaleY = Number(gazeGroup.style.transform.match(/scaleY\(([\d.]+)\)/)?.[1]);
+    expect(scaleY).toBeCloseTo(1, 5);
+  });
+
+  it("does not restart the sequence if the pointer re-enters mid-blink", () => {
+    const { container } = render(<BotAvatar model={gazeModel} gaze="auto" neutralIdleMode="static" />);
+    const svgElement = container.querySelector("svg") as SVGSVGElement;
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+
+    act(() => {
+      svgElement.dispatchEvent(makePointerEnterEvent("mouse"));
+    });
+    const callsAfterFirst = setTimeoutSpy.mock.calls.length;
+
+    act(() => {
+      svgElement.dispatchEvent(makePointerEnterEvent("mouse"));
+    });
+    expect(setTimeoutSpy.mock.calls.length).toBe(callsAfterFirst);
+  });
+
+  it("interrupts autonomous wander without throwing, even if wander was mid-blink itself", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0.99); // wander would also pick blink
+    const { container } = render(<BotAvatar model={gazeModel} gaze="auto" neutralIdleMode="static" />);
+    const svgElement = container.querySelector("svg") as SVGSVGElement;
+
+    expect(() => {
+      act(() => {
+        svgElement.dispatchEvent(makePointerEnterEvent("mouse"));
+      });
+    }).not.toThrow();
+  });
+});

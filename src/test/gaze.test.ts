@@ -4,6 +4,7 @@ import {
   advanceGazeWander,
   applyBlinkScale,
   applyGazeTravel,
+  buildDefensiveBlinkSteps,
   clampUnit,
   computePointerGazeVector,
   createGazeWanderState,
@@ -117,6 +118,55 @@ describe("applyGazeTravel", () => {
 
   it("is proportional, not just clamped, for partial vectors", () => {
     expect(applyGazeTravel({ x: 0.5, y: -0.5 }, travel)).toEqual({ dx: 0.75, dy: -0.6 });
+  });
+});
+
+describe("buildDefensiveBlinkSteps", () => {
+  it("produces close/open pairs, one per repeat", () => {
+    const steps = buildDefensiveBlinkSteps({ ...DEFAULT_GAZE_CONFIG, defensiveBlinkRepeats: 2 });
+    expect(steps).toHaveLength(4);
+    expect(steps.map((s) => s.eyelid)).toEqual([1, 0, 1, 0]);
+  });
+
+  it("is faster than the idle blink by default", () => {
+    expect(DEFAULT_GAZE_CONFIG.defensiveBlinkCloseMs).toBeLessThan(DEFAULT_GAZE_CONFIG.blinkCloseMs);
+    expect(DEFAULT_GAZE_CONFIG.defensiveBlinkOpenMs).toBeLessThan(DEFAULT_GAZE_CONFIG.blinkOpenMs);
+  });
+
+  it("repeats more than once by default (reads as distinct from the single idle blink)", () => {
+    expect(DEFAULT_GAZE_CONFIG.defensiveBlinkRepeats).toBeGreaterThan(1);
+  });
+
+  it("has no trailing gap after the final open", () => {
+    const config = { ...DEFAULT_GAZE_CONFIG, defensiveBlinkRepeats: 2, defensiveBlinkGapMs: 999 };
+    const steps = buildDefensiveBlinkSteps(config);
+    const lastStep = steps[steps.length - 1];
+    expect(lastStep.eyelid).toBe(0);
+    expect(lastStep.waitMs).toBe(config.defensiveBlinkOpenMs); // not +999
+  });
+
+  it("inserts the gap between repeats but not elsewhere", () => {
+    const config = { ...DEFAULT_GAZE_CONFIG, defensiveBlinkRepeats: 2, defensiveBlinkGapMs: 999 };
+    const steps = buildDefensiveBlinkSteps(config);
+    // steps: [close, open(+gap), close, open(no gap)]
+    expect(steps[1].waitMs).toBe(config.defensiveBlinkOpenMs + 999);
+    expect(steps[3].waitMs).toBe(config.defensiveBlinkOpenMs);
+  });
+
+  it("supports a single repeat with no gap at all", () => {
+    const steps = buildDefensiveBlinkSteps({ ...DEFAULT_GAZE_CONFIG, defensiveBlinkRepeats: 1 });
+    expect(steps).toHaveLength(2);
+    expect(steps[1].waitMs).toBe(DEFAULT_GAZE_CONFIG.defensiveBlinkOpenMs);
+  });
+
+  it("total duration matches the sum of all step waits", () => {
+    const config = DEFAULT_GAZE_CONFIG;
+    const steps = buildDefensiveBlinkSteps(config);
+    const total = steps.reduce((sum, s) => sum + s.waitMs, 0);
+    const expected =
+      config.defensiveBlinkRepeats * (config.defensiveBlinkCloseMs + config.defensiveBlinkHoldMs + config.defensiveBlinkOpenMs) +
+      (config.defensiveBlinkRepeats - 1) * config.defensiveBlinkGapMs;
+    expect(total).toBe(expected);
   });
 });
 

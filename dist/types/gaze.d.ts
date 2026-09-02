@@ -55,6 +55,17 @@ export type GazeConfig = {
     blinkCloseMs: number;
     blinkHoldMs: number;
     blinkOpenMs: number;
+    /**
+     * Defensive blink: a sharper, faster, repeated blink triggered by the
+     * pointer directly rolling over the mark — distinct from the slower,
+     * single idle blink so the two read as different reactions.
+     */
+    defensiveBlinkCloseMs: number;
+    defensiveBlinkHoldMs: number;
+    defensiveBlinkOpenMs: number;
+    /** Gap between repeats (not used after the last one). */
+    defensiveBlinkGapMs: number;
+    defensiveBlinkRepeats: number;
     easing: string;
 };
 export declare const DEFAULT_GAZE_CONFIG: GazeConfig;
@@ -93,6 +104,22 @@ export declare function applyGazeTravel(vector: GazeVector, travel: GazeGeometry
  * applyGazeTravel) — the same split `applyGazeTravel` already uses.
  */
 export declare function applyBlinkScale(eyelid: number, blinkClosedScaleY: number): number;
+export type DefensiveBlinkStep = {
+    eyelid: 0 | 1;
+    /** CSS transition duration to reach this eyelid value. */
+    durationMs: number;
+    /** Total time from this step firing until the next one fires. */
+    waitMs: number;
+};
+/**
+ * A quick, sharp, repeated blink — the "defensive" reaction to the
+ * pointer directly rolling over the mark, deliberately faster and
+ * doubled so it doesn't read as just another idle blink. Pure data (like
+ * the classic model's automatedSpeakingPlaybackSequence): the hook just
+ * walks this list with setTimeout, no state machine needed since it's a
+ * one-shot triggered sequence rather than a continuous loop.
+ */
+export declare function buildDefensiveBlinkSteps(config?: GazeConfig): DefensiveBlinkStep[];
 export type GazeWanderPhase = "resting" | "glancing" | "eyesClosing" | "eyesOpening";
 export type GazeWanderState = {
     phase: GazeWanderPhase;

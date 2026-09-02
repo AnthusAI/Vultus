@@ -39,6 +39,7 @@ export {
   DEFAULT_GAZE_CONFIG,
   NEUTRAL_GAZE_VECTOR,
   advanceGazeWander,
+  buildDefensiveBlinkSteps,
   applyBlinkScale,
   applyGazeTravel,
   clampUnit,
@@ -47,4 +48,12 @@ export {
   isPointerWithinProximity,
   makeSeededRandom
 } from "./gaze";
-export type { GazeConfig, GazeGeometry, GazeSource, GazeVector, GazeWanderPhase, GazeWanderState } from "./gaze";
+export type {
+  DefensiveBlinkStep,
+  GazeConfig,
+  GazeGeometry,
+  GazeSource,
+  GazeVector,
+  GazeWanderPhase,
+  GazeWanderState
+} from "./gaze";
