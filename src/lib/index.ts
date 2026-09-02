@@ -35,6 +35,16 @@ export {
 } from "./creativeDeskModels";
 export type { CreativeMotionState, CreativeRole } from "./creativeDeskModels";
 export { CHATTICUS_MARK_MODEL } from "./chatticusModels";
+export { buildCharacterModel, characterColorProps, characterGazeConfig } from "./characterModels";
+export type {
+  CharacterBodyCorner,
+  CharacterBodySpec,
+  CharacterColors,
+  CharacterEyeSpec,
+  CharacterMouthSpec,
+  CharacterSpec
+} from "./characterModels";
+export { creativeCharacterModelForRole, creativeCharacterSpecForRole } from "./creativeCharacterModels";
 export {
   DEFAULT_GAZE_CONFIG,
   NEUTRAL_GAZE_VECTOR,

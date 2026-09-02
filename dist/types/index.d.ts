@@ -7,5 +7,8 @@ export type { BotAvatarModel, BotAvatarModelZoo, ClipCircle, FeatureAnchor, Fill
 export { CREATIVE_DESK_MODEL_ZOO, creativeDeskModelForRole, creativeMotionAnimation } from "./creativeDeskModels";
 export type { CreativeMotionState, CreativeRole } from "./creativeDeskModels";
 export { CHATTICUS_MARK_MODEL } from "./chatticusModels";
+export { buildCharacterModel, characterColorProps, characterGazeConfig } from "./characterModels";
+export type { CharacterBodyCorner, CharacterBodySpec, CharacterColors, CharacterEyeSpec, CharacterMouthSpec, CharacterSpec } from "./characterModels";
+export { creativeCharacterModelForRole, creativeCharacterSpecForRole } from "./creativeCharacterModels";
 export { DEFAULT_GAZE_CONFIG, NEUTRAL_GAZE_VECTOR, advanceBlinkState, advanceGazeWander, applyBlinkScale, applyBodyFlinchRecoil, applyGazeTravel, buildBodyFlinchSteps, clampUnit, computePointerGazeVector, createBlinkState, createGazeWanderState, isPointerWithinProximity, makeSeededRandom } from "./gaze";
 export type { BlinkPhase, BlinkState, BodyFlinchStep, GazeConfig, GazeGeometry, GazeSource, GazeVector, GazeWanderPhase, GazeWanderState } from "./gaze";
