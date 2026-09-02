@@ -3,7 +3,7 @@ import type { GazeGeometry } from "./gaze";
 export type LottieAnimationData = Record<string, unknown>;
 export type LottieFrameSegment = readonly [number, number];
 /** Named ref slots a procedural rig can expose for animation targeting. */
-export type RigSlot = "root" | "leftEye" | "rightEye" | "mouth" | "accent";
+export type RigSlot = "root" | "leftEye" | "rightEye" | "mouth" | "accent" | "flinchBody";
 /**
  * Which of a model's three configurable colors a shape or feature paints
  * with: `shadowColor`/`lightColor` are the existing BotAvatar props

@@ -69,8 +69,12 @@ export const CHATTICUS_MARK_MODEL = defineProceduralAvatarModel({
   name: "Chatticus Mark",
   viewBox: [0, 0, 28, 28],
   body: [
+    // The back/shadow bubble is deliberately NOT tagged "flinchBody": it
+    // reads as a static backdrop, not part of the character, so a click
+    // reaction should only move the front bubble (with the eyes) that
+    // actually reads as "the creature".
     { kind: "path", d: INK_BUBBLE_PATH, fillRole: "shadow" },
-    { kind: "path", d: CLAY_BUBBLE_PATH, fillRole: "accent" }
+    { kind: "path", d: CLAY_BUBBLE_PATH, fillRole: "accent", slot: "flinchBody" }
   ],
   features: {
     leftEye: { cx: 10, cy: 14, fillRole: "light" },
@@ -82,6 +86,10 @@ export const CHATTICUS_MARK_MODEL = defineProceduralAvatarModel({
     travel: { left: 1.4, right: 1.4, up: 1.1, down: 1.1 },
     // Eyes are r=2 dots (open height 4); squashing to 15% reads as a
     // clean, near-flat dash rather than just a slightly shorter dot.
-    blinkClosedScaleY: 0.15
+    blinkClosedScaleY: 0.15,
+    // Safe here because the mark always uses neutralIdleMode="static" —
+    // there's no GSAP idle system also animating the root group.
+    bodyFlinch: true,
+    bodyFlinchRecoilDistance: 2.6
   }
 });

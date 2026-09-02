@@ -3,18 +3,26 @@ import type { RefObject } from "react";
 import {
   DEFAULT_GAZE_CONFIG,
   NEUTRAL_GAZE_VECTOR,
+  advanceBlinkState,
   advanceGazeWander,
   applyBlinkScale,
+  applyBodyFlinchRecoil,
   applyGazeTravel,
-  buildDefensiveBlinkSteps,
+  buildBodyFlinchSteps,
   computePointerGazeVector,
+  createBlinkState,
   createGazeWanderState
 } from "./gaze";
-import type { GazeConfig, GazeGeometry, GazeSource, GazeVector, GazeWanderPhase } from "./gaze";
+import type { GazeConfig, GazeGeometry, GazeSource, GazeVector } from "./gaze";
 
 export type UseGazeBehaviorOptions = {
   svgElementRef: RefObject<SVGSVGElement>;
+  /** Carries position only (translate) — pointer tracking / autonomous wander. */
   gazeGroupElementRef: RefObject<SVGGElement>;
+  /** Carries eyelid only (scaleY) — idle blink / defensive squint. Nested inside gazeGroupElementRef. */
+  eyelidGroupElementRef: RefObject<SVGGElement>;
+  /** The model's flinchable rig group; only used when geometry.bodyFlinch is true. */
+  bodyElementRef?: RefObject<SVGGElement>;
   gaze: GazeSource;
   geometry?: GazeGeometry;
   config?: Partial<GazeConfig>;
@@ -38,16 +46,23 @@ const isFixedVector = (gaze: GazeSource): gaze is GazeVector => typeof gaze === 
 
 /**
  * Drives a model's gaze from real time, real pointer events, and real
- * media queries. All the actual behavior (what vector to show, when to
- * transition) is the pure, tested logic in gaze.ts — this hook is just
- * the event/timer/DOM plumbing around it. Applies a `transform:
- * translate(...)` + `transition` directly on `gazeGroupElementRef`
- * (SVG's `transform-box` defaults to the element's own coordinate space,
- * so these translate values are in the model's own viewBox units).
+ * media queries. All the actual behavior (what vector/eyelid to show,
+ * when to transition) is the pure, tested logic in gaze.ts — this hook
+ * is just the event/timer/DOM plumbing around it.
+ *
+ * Position (translate, on gazeGroupElementRef) and eyelid (scaleY, on
+ * the nested eyelidGroupElementRef) are deliberately two separate CSS
+ * transforms on two separate elements: they're driven by independent
+ * schedulers (wander/tracking vs. blink/squint) that need independent
+ * transition durations, which one shared `transform` property can't give
+ * them — a fast 90ms blink and a slow 900ms glance can't both be "the"
+ * duration of one combined translate+scaleY transition.
  */
 export function useGazeBehavior({
   svgElementRef,
   gazeGroupElementRef,
+  eyelidGroupElementRef,
+  bodyElementRef,
   gaze,
   geometry,
   config
@@ -59,8 +74,9 @@ export function useGazeBehavior({
 
   useEffect(() => {
     const gazeGroupElement = gazeGroupElementRef.current;
+    const eyelidGroupElement = eyelidGroupElementRef.current;
     const svgElement = svgElementRef.current;
-    if (gaze === "none" || !geometry || !gazeGroupElement || !svgElement) {
+    if (gaze === "none" || !geometry || !gazeGroupElement || !eyelidGroupElement || !svgElement) {
       return undefined;
     }
 
@@ -73,32 +89,39 @@ export function useGazeBehavior({
     // back to neutral, this goes false and autonomous "bored" wander
     // takes over — on any device, not just ones without a pointer at all.
     let pointerEngaged = false;
+    let isSquinting = false;
     let intersecting = true;
     let documentHidden = typeof document !== "undefined" && document.hidden;
     let restTimeoutId: ReturnType<typeof setTimeout> | null = null;
     let wanderTimeoutId: ReturnType<typeof setTimeout> | null = null;
-    let defensiveBlinkTimeoutId: ReturnType<typeof setTimeout> | null = null;
-    let defensiveBlinkActive = false;
+    let blinkTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let bodyFlinchTimeoutId: ReturnType<typeof setTimeout> | null = null;
+    let bodyFlinchActive = false;
     let pendingFrameId: number | null = null;
     let wanderState = createGazeWanderState(Date.now(), Math.random, configRef.current);
-    let lastVector: GazeVector = { ...NEUTRAL_GAZE_VECTOR };
+    let blinkState = createBlinkState(Date.now(), Math.random, configRef.current);
 
-    const applyPose = (vector: GazeVector, eyelid: number, durationMs: number) => {
+    const isSuspended = () => disposed || reducedMotion || documentHidden || !intersecting;
+
+    const applyVector = (vector: GazeVector, durationMs: number) => {
       if (!geometry) {
         return;
       }
-      lastVector = vector;
       const { dx, dy } = applyGazeTravel(vector, geometry.travel);
-      const scaleY = applyBlinkScale(eyelid, geometry.blinkClosedScaleY);
       gazeGroupElement.style.transition = reducedMotion ? "none" : `transform ${durationMs}ms ${configRef.current.easing}`;
-      gazeGroupElement.style.transform = `translate(${dx}px, ${dy}px) scaleY(${scaleY})`;
+      gazeGroupElement.style.transform = `translate(${dx}px, ${dy}px)`;
     };
 
-    // Pointer tracking and fixed vectors never blink in this pass — a
-    // blink is one of the *autonomous bored* variants, not something that
-    // happens while actively engaged with the pointer — so eyelid is
-    // always 0 (open) outside of runWanderTick.
-    const goNeutral = (durationMs: number) => applyPose(NEUTRAL_GAZE_VECTOR, 0, durationMs);
+    const applyEyelid = (eyelid: number, durationMs: number) => {
+      if (!geometry) {
+        return;
+      }
+      const scaleY = applyBlinkScale(eyelid, geometry.blinkClosedScaleY);
+      eyelidGroupElement.style.transition = reducedMotion ? "none" : `transform ${durationMs}ms ${configRef.current.easing}`;
+      eyelidGroupElement.style.transform = `scaleY(${scaleY})`;
+    };
+
+    const goNeutralPosition = (durationMs: number) => applyVector(NEUTRAL_GAZE_VECTOR, durationMs);
 
     const clearRestTimeout = () => {
       if (restTimeoutId !== null) {
@@ -114,7 +137,21 @@ export function useGazeBehavior({
       }
     };
 
-    const isSuspended = () => disposed || reducedMotion || documentHidden || !intersecting;
+    const clearBlinkTimeout = () => {
+      if (blinkTimeoutId !== null) {
+        clearTimeout(blinkTimeoutId);
+        blinkTimeoutId = null;
+      }
+    };
+
+    const clearBodyFlinchTimeout = () => {
+      if (bodyFlinchTimeoutId !== null) {
+        clearTimeout(bodyFlinchTimeoutId);
+        bodyFlinchTimeoutId = null;
+      }
+    };
+
+    // --- Position: pointer tracking + autonomous wander -------------------
 
     const scheduleDriftBack = () => {
       clearRestTimeout();
@@ -122,7 +159,7 @@ export function useGazeBehavior({
         restTimeoutId = null;
         pointerEngaged = false;
         if (!isSuspended()) {
-          goNeutral(configRef.current.driftBackMs);
+          goNeutralPosition(configRef.current.driftBackMs);
         }
         // The pointer has been idle for a while now — let it get bored.
         startOrStopWander();
@@ -135,7 +172,7 @@ export function useGazeBehavior({
         return;
       }
       const rect = svgElement.getBoundingClientRect();
-      applyPose(computePointerGazeVector(rect, pointerPosition), 0, configRef.current.trackMs);
+      applyVector(computePointerGazeVector(rect, pointerPosition), configRef.current.trackMs);
       pointerEngaged = true;
       scheduleDriftBack();
     };
@@ -160,21 +197,8 @@ export function useGazeBehavior({
       pointerEngaged = false;
       clearRestTimeout();
       if (!isSuspended() && gaze === "pointer") {
-        goNeutral(configRef.current.driftBackMs);
+        goNeutralPosition(configRef.current.driftBackMs);
         startOrStopWander();
-      }
-    };
-
-    const wanderTransitionMsForPhase = (phase: GazeWanderPhase): number => {
-      switch (phase) {
-        case "eyesClosing":
-          return configRef.current.blinkCloseMs;
-        case "eyesOpening":
-          return configRef.current.blinkOpenMs;
-        case "glancing":
-        case "resting":
-        default:
-          return configRef.current.wanderHoldMs;
       }
     };
 
@@ -182,7 +206,7 @@ export function useGazeBehavior({
       const now = Date.now();
       wanderState = advanceGazeWander(wanderState, now, Math.random, configRef.current);
       if (!isSuspended()) {
-        applyPose(wanderState.vector, wanderState.eyelid, wanderTransitionMsForPhase(wanderState.phase));
+        applyVector(wanderState.vector, configRef.current.wanderHoldMs);
       }
       const delay = Math.max(16, wanderState.nextChangeAt - now);
       wanderTimeoutId = setTimeout(runWanderTick, delay);
@@ -190,7 +214,7 @@ export function useGazeBehavior({
 
     function startOrStopWander() {
       clearWanderTimeout();
-      if (defensiveBlinkActive || isFixedVector(gaze) || isSuspended()) {
+      if (isFixedVector(gaze) || isSuspended()) {
         return;
       }
       // "pointer" mode wanders whenever it isn't actively tracking a
@@ -198,56 +222,140 @@ export function useGazeBehavior({
       // pointer exists, or because one exists but has gone idle.
       const shouldWander = gaze === "auto" || (gaze === "pointer" && !pointerEngaged);
       if (shouldWander) {
-        wanderState = createGazeWanderState(Date.now(), Math.random, configRef.current);
-        runWanderTick();
+        const now = Date.now();
+        wanderState = createGazeWanderState(now, Math.random, configRef.current);
+        // Freshly created state is always "resting" (i.e. matches whatever
+        // is already displayed), so just schedule the first real tick
+        // rather than calling runWanderTick synchronously — that would
+        // reapply the current value with an unrelated duration, clobbering
+        // any transition another handler just set in this same call chain.
+        wanderTimeoutId = setTimeout(runWanderTick, Math.max(16, wanderState.nextChangeAt - now));
       }
     }
 
-    const clearDefensiveBlinkTimeout = () => {
-      if (defensiveBlinkTimeoutId !== null) {
-        clearTimeout(defensiveBlinkTimeoutId);
-        defensiveBlinkTimeoutId = null;
+    // --- Eyelid: independent idle-blink rhythm + defensive squint ---------
+
+    const runBlinkTick = () => {
+      const now = Date.now();
+      blinkState = advanceBlinkState(blinkState, now, Math.random, configRef.current);
+      if (!isSuspended()) {
+        const durationMs =
+          blinkState.phase === "closing"
+            ? configRef.current.blinkCloseMs
+            : blinkState.phase === "opening"
+              ? configRef.current.blinkOpenMs
+              : configRef.current.blinkCloseMs;
+        applyEyelid(blinkState.eyelid, durationMs);
       }
+      const delay = Math.max(16, blinkState.nextChangeAt - now);
+      blinkTimeoutId = setTimeout(runBlinkTick, delay);
     };
 
-    /**
-     * A sharp, fast, doubled blink triggered by the pointer directly
-     * rolling over the mark — a distinct "defensive" reaction, not just
-     * another idle blink. Interrupts autonomous wander (but leaves active
-     * pointer tracking's own drift-back timer alone — it resumes showing
-     * the tracked position once the blink finishes), keeps whatever gaze
-     * position was last shown, and doesn't re-trigger while already mid-blink.
-     */
-    const runDefensiveBlink = () => {
-      if (defensiveBlinkActive || isSuspended()) {
+    function startOrStopBlink() {
+      clearBlinkTimeout();
+      if (isSquinting || isSuspended()) {
         return;
       }
-      clearWanderTimeout();
-      defensiveBlinkActive = true;
-      const steps = buildDefensiveBlinkSteps(configRef.current);
+      const now = Date.now();
+      blinkState = createBlinkState(now, Math.random, configRef.current);
+      // Same reasoning as startOrStopWander: don't call runBlinkTick
+      // synchronously here, just schedule it — a freshly created state is
+      // always "open" (eyelid 0), matching what's already shown, so there's
+      // nothing to apply yet, and doing so anyway would stomp whatever
+      // transition another handler (e.g. squint release) just set.
+      blinkTimeoutId = setTimeout(runBlinkTick, Math.max(16, blinkState.nextChangeAt - now));
+    }
+
+    /**
+     * Squint is a sustained hover *state*, not a one-shot animation: it
+     * holds for as long as the pointer stays over the mark and releases
+     * the moment it leaves — distinct from the idle blink both in how
+     * far it closes (partial, not full) and in that it's driven by hover
+     * state rather than a timer.
+     */
+    const handlePointerEnterMark = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" && event.pointerType !== "pen") {
+        return;
+      }
+      if (isSquinting || isSuspended()) {
+        return;
+      }
+      isSquinting = true;
+      clearBlinkTimeout();
+      applyEyelid(configRef.current.defensiveSquintEyelid, configRef.current.defensiveSquintInMs);
+    };
+
+    const handlePointerLeaveMark = (event: PointerEvent) => {
+      if (event.pointerType !== "mouse" && event.pointerType !== "pen") {
+        return;
+      }
+      if (!isSquinting) {
+        return;
+      }
+      isSquinting = false;
+      if (!isSuspended()) {
+        applyEyelid(0, configRef.current.defensiveSquintOutMs);
+      }
+      startOrStopBlink();
+    };
+
+    // --- Whole-body click flinch -------------------------------------------
+
+    const bodyElement = geometry.bodyFlinch ? bodyElementRef?.current ?? null : null;
+
+    /**
+     * A whole-body "startled" reaction to being clicked: recoils away
+     * from the click point, overshoots back with a small counter-wobble,
+     * settles flat. Listener lives on bodyElement itself (not the whole
+     * <svg>), so a click only counts if it actually hit something inside
+     * that group (the front/character shapes + eyes) — a click on a
+     * sibling shape (e.g. a back "shadow" bubble not tagged for flinch)
+     * or on empty space never bubbles into it.
+     */
+    const handleBodyClick = (event: MouseEvent) => {
+      if (!bodyElement || bodyFlinchActive || isSuspended() || !geometry) {
+        return;
+      }
+      const rect = bodyElement.getBoundingClientRect();
+      const clickVector = computePointerGazeVector(rect, { x: event.clientX, y: event.clientY });
+      const awayFromClick: GazeVector = { x: -clickVector.x, y: -clickVector.y };
+
+      bodyFlinchActive = true;
+      const steps = buildBodyFlinchSteps(configRef.current);
       const runStep = (index: number) => {
         if (index >= steps.length) {
-          defensiveBlinkActive = false;
-          startOrStopWander();
+          bodyFlinchActive = false;
           return;
         }
         const step = steps[index];
         if (!isSuspended()) {
-          applyPose(lastVector, step.eyelid, step.durationMs);
+          const { dx, dy, rotation } = applyBodyFlinchRecoil(
+            step.recoilFactor,
+            awayFromClick,
+            geometry.bodyFlinchRecoilDistance,
+            configRef.current.bodyFlinchRotationDeg
+          );
+          bodyElement.style.transition = reducedMotion ? "none" : `transform ${step.durationMs}ms ${configRef.current.easing}`;
+          bodyElement.style.transform = `translate(${dx}px, ${dy}px) rotate(${rotation}deg) scale(${step.scale})`;
         }
-        defensiveBlinkTimeoutId = setTimeout(() => {
-          defensiveBlinkTimeoutId = null;
+        bodyFlinchTimeoutId = setTimeout(() => {
+          bodyFlinchTimeoutId = null;
           runStep(index + 1);
         }, step.waitMs);
       };
       runStep(0);
     };
 
-    const handlePointerEnterMark = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse" && event.pointerType !== "pen") {
-        return;
+    // --- Cross-cutting: reduced motion / visibility / intersection --------
+
+    const freezeEyelidAndBody = () => {
+      isSquinting = false;
+      eyelidGroupElement.style.transition = "none";
+      eyelidGroupElement.style.transform = "scaleY(1)";
+      if (bodyElement) {
+        bodyElement.style.transition = "none";
+        bodyElement.style.transform = "translate(0px, 0px) rotate(0deg) scale(1)";
       }
-      runDefensiveBlink();
     };
 
     const handleReducedMotionChange = (event: MediaQueryListEvent) => {
@@ -255,12 +363,15 @@ export function useGazeBehavior({
       if (reducedMotion) {
         clearRestTimeout();
         clearWanderTimeout();
-        clearDefensiveBlinkTimeout();
-        defensiveBlinkActive = false;
+        clearBlinkTimeout();
+        clearBodyFlinchTimeout();
+        bodyFlinchActive = false;
         gazeGroupElement.style.transition = "none";
-        gazeGroupElement.style.transform = "translate(0px, 0px) scaleY(1)";
+        gazeGroupElement.style.transform = "translate(0px, 0px)";
+        freezeEyelidAndBody();
       } else {
         startOrStopWander();
+        startOrStopBlink();
       }
     };
 
@@ -274,10 +385,12 @@ export function useGazeBehavior({
       if (documentHidden) {
         clearRestTimeout();
         clearWanderTimeout();
-        clearDefensiveBlinkTimeout();
-        defensiveBlinkActive = false;
+        clearBlinkTimeout();
+        clearBodyFlinchTimeout();
+        bodyFlinchActive = false;
       } else {
         startOrStopWander();
+        startOrStopBlink();
       }
     };
 
@@ -290,10 +403,12 @@ export function useGazeBehavior({
           if (!intersecting) {
             clearRestTimeout();
             clearWanderTimeout();
-            clearDefensiveBlinkTimeout();
-            defensiveBlinkActive = false;
+            clearBlinkTimeout();
+            clearBodyFlinchTimeout();
+            bodyFlinchActive = false;
           } else {
             startOrStopWander();
+            startOrStopBlink();
           }
         },
         { threshold: 0 }
@@ -309,20 +424,36 @@ export function useGazeBehavior({
     document.addEventListener("mouseleave", handlePointerLeaveDocument);
     document.addEventListener("visibilitychange", handleVisibilityChange);
     svgElement.addEventListener("pointerenter", handlePointerEnterMark);
+    svgElement.addEventListener("pointerleave", handlePointerLeaveMark);
+    if (bodyElement) {
+      bodyElement.addEventListener("click", handleBodyClick);
+    }
 
+    // Establish an explicit, instant baseline before any scheduler kicks
+    // in — startOrStopWander/startOrStopBlink only *schedule* a future
+    // tick now (see their comments), so without this the transform would
+    // be genuinely unset (not just "at neutral") until whatever timer
+    // fires first, which could be seconds away.
     if (isFixedVector(gaze)) {
-      applyPose(gaze, 0, configRef.current.trackMs);
-    } else if (reducedMotion) {
-      goNeutral(0);
+      applyVector(gaze, configRef.current.trackMs);
+    } else {
+      goNeutralPosition(0);
+    }
+    applyEyelid(0, 0);
+
+    if (reducedMotion) {
+      freezeEyelidAndBody();
     } else {
       startOrStopWander();
+      startOrStopBlink();
     }
 
     return () => {
       disposed = true;
       clearRestTimeout();
       clearWanderTimeout();
-      clearDefensiveBlinkTimeout();
+      clearBlinkTimeout();
+      clearBodyFlinchTimeout();
       if (pendingFrameId !== null) {
         if (typeof cancelAnimationFrame === "function") {
           cancelAnimationFrame(pendingFrameId);
@@ -337,7 +468,17 @@ export function useGazeBehavior({
       document.removeEventListener("mouseleave", handlePointerLeaveDocument);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       svgElement.removeEventListener("pointerenter", handlePointerEnterMark);
+      svgElement.removeEventListener("pointerleave", handlePointerLeaveMark);
+      if (bodyElement) {
+        bodyElement.removeEventListener("click", handleBodyClick);
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fixedVectorKey stands in for gaze's object identity
-  }, [gaze === "none" ? "none" : gaze === "auto" ? "auto" : gaze === "pointer" ? "pointer" : fixedVectorKey, geometry, gazeGroupElementRef, svgElementRef]);
+  }, [
+    gaze === "none" ? "none" : gaze === "auto" ? "auto" : gaze === "pointer" ? "pointer" : fixedVectorKey,
+    geometry,
+    gazeGroupElementRef,
+    eyelidGroupElementRef,
+    svgElementRef
+  ]);
 }

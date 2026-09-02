@@ -472,15 +472,20 @@ const ProceduralBotAvatar = ({
   const antennaCircleElementRef = useRef<SVGCircleElement>(null);
   const innerHeadGroupElementRef = useRef<SVGGElement>(null);
   const gazeGroupElementRef = useRef<SVGGElement>(null);
+  const eyelidGroupElementRef = useRef<SVGGElement>(null);
+  const flinchBodyElementRef = useRef<SVGGElement>(null);
   const activeMorphTweenRef = useRef<Killable | null>(null);
   const activeIdleAnimationRef = useRef<Killable | null>(null);
   const activeNeutralBoredTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const initialPathSetRef = useRef(computeAllFacialPathsForState(model, currentState));
 
   const gazeIsActive = gaze !== "none" && Boolean(model.gaze);
+  const bodyFlinchIsActive = gazeIsActive && Boolean(model.gaze?.bodyFlinch);
   useGazeBehavior({
     svgElementRef,
     gazeGroupElementRef,
+    eyelidGroupElementRef,
+    bodyElementRef: flinchBodyElementRef,
     gaze,
     geometry: model.gaze,
     config: gazeConfig
@@ -653,6 +658,8 @@ const ProceduralBotAvatar = ({
   const bodyShapes = model.body.map((shape, index) =>
     renderProceduralShape(shape, index, colors, antennaCircleElementRef)
   );
+  const eyesOriginX = (model.features.leftEye.cx + model.features.rightEye.cx) / 2;
+  const eyesOriginY = (model.features.leftEye.cy + model.features.rightEye.cy) / 2;
   const eyePaths = (
     <>
       <path ref={leftEyePathElementRef} d={initialPaths.leftEyePathString} fill={resolveFillColor(model.features.leftEye.fillRole, colors)} />
@@ -665,14 +672,15 @@ const ProceduralBotAvatar = ({
         <g
           ref={gazeGroupElementRef}
           className="vultus-gaze"
-          style={{
-            transformBox: "view-box",
-            transformOrigin: `${(model.features.leftEye.cx + model.features.rightEye.cx) / 2}px ${
-              (model.features.leftEye.cy + model.features.rightEye.cy) / 2
-            }px`
-          }}
+          style={{ transformBox: "view-box", transformOrigin: `${eyesOriginX}px ${eyesOriginY}px` }}
         >
-          {eyePaths}
+          <g
+            ref={eyelidGroupElementRef}
+            className="vultus-eyelid"
+            style={{ transformBox: "view-box", transformOrigin: `${eyesOriginX}px ${eyesOriginY}px` }}
+          >
+            {eyePaths}
+          </g>
         </g>
       ) : (
         eyePaths
@@ -687,6 +695,34 @@ const ProceduralBotAvatar = ({
     </>
   );
 
+  // When bodyFlinch is enabled, only shapes tagged slot:"flinchBody" (plus
+  // the eyes) sit inside the group a click animates — everything else
+  // (e.g. a back "shadow" bubble) stays a static sibling, unaffected.
+  // Skipped entirely when bodyFlinch is off, so non-flinch models render
+  // exactly as before (bodyShapes/eyeAndMouthShapes as flat siblings).
+  const bodyContent = bodyFlinchIsActive ? (
+    <>
+      {model.body
+        .filter((shape) => shape.slot !== "flinchBody")
+        .map((shape, index) => renderProceduralShape(shape, index, colors, antennaCircleElementRef))}
+      <g
+        ref={flinchBodyElementRef}
+        className="vultus-flinch-body"
+        style={{ transformBox: "view-box", transformOrigin: `${eyesOriginX}px ${eyesOriginY}px` }}
+      >
+        {model.body
+          .filter((shape) => shape.slot === "flinchBody")
+          .map((shape, index) => renderProceduralShape(shape, index, colors, antennaCircleElementRef))}
+        {eyeAndMouthShapes}
+      </g>
+    </>
+  ) : (
+    <>
+      {bodyShapes}
+      {eyeAndMouthShapes}
+    </>
+  );
+
   return (
     <svg
       ref={svgElementRef}
@@ -696,7 +732,18 @@ const ProceduralBotAvatar = ({
       height={size}
       role="img"
       aria-label={computedAriaLabel}
-      style={{ display: "block" }}
+      style={
+        gazeIsActive
+          ? // Default SVG hit-testing (visiblePainted) only responds over
+            // actually-painted pixels, so a mark with transparent corners
+            // (like the Chatticus mark) would silently miss pointerenter
+            // for a real cursor unless the whole rectangular box is made
+            // hit-testable. Scoped to gaze-active instances only, so
+            // every other BotAvatar usage (including the classic model's
+            // golden-snapshot-tested output) is untouched.
+            { display: "block", pointerEvents: "all" }
+          : { display: "block" }
+      }
     >
       {model.clipShape ? (
         <defs>
@@ -710,17 +757,7 @@ const ProceduralBotAvatar = ({
         {(model.underlayShapes ?? []).map((shape, index) =>
           renderProceduralShape(shape, index, colors, antennaCircleElementRef)
         )}
-        {model.clipShape ? (
-          <g clipPath={`url(#${headClipPathId})`}>
-            {bodyShapes}
-            {eyeAndMouthShapes}
-          </g>
-        ) : (
-          <>
-            {bodyShapes}
-            {eyeAndMouthShapes}
-          </>
-        )}
+        {model.clipShape ? <g clipPath={`url(#${headClipPathId})`}>{bodyContent}</g> : bodyContent}
       </g>
     </svg>
   );

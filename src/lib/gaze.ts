@@ -27,6 +27,21 @@ export type GazeGeometry = {
    * special-casing it elsewhere.
    */
   blinkClosedScaleY: number;
+  /**
+   * Whether clicking the mark triggers a whole-body flinch (see
+   * buildBodyFlinchSteps). Applied to the model's root rig group — the
+   * same element the classic model's GSAP idle animations (breathing,
+   * happy bounce) animate for non-neutral states, so this must stay
+   * `false` for any model that runs those concurrently with gaze, to
+   * avoid two systems fighting over the same transform. Safe to enable
+   * for any model using `neutralIdleMode="static"` (no GSAP idle at all).
+   */
+  bodyFlinch: boolean;
+  /**
+   * How far the flinch recoils away from the click point, in the model's
+   * own viewBox units. Only meaningful when bodyFlinch is true.
+   */
+  bodyFlinchRecoilDistance: number;
 };
 
 export type GazeConfig = {
@@ -45,23 +60,41 @@ export type GazeConfig = {
   wanderHoldMs: number;
   /** Autonomous wander: glance magnitude as a fraction of full travel, (0, 1]. */
   wanderMagnitude: number;
-  /** Autonomous wander: chance of glancing (vs. blinking) each time it wakes from rest. */
-  wanderGlanceChance: number;
-  /** Autonomous wander: blink close/hold/open durations. */
+  /**
+   * Idle blink: an independent, always-running rhythm (like a person's),
+   * decoupled from wander's glance timing so it can't get "crowded out"
+   * by a run of glances — gap between blinks, min/max.
+   */
+  blinkMinMs: number;
+  blinkMaxMs: number;
+  /** Blink close/hold/open durations (the motion itself, not the gap). */
   blinkCloseMs: number;
   blinkHoldMs: number;
   blinkOpenMs: number;
   /**
-   * Defensive blink: a sharper, faster, repeated blink triggered by the
-   * pointer directly rolling over the mark — distinct from the slower,
-   * single idle blink so the two read as different reactions.
+   * Defensive squint: a sustained, protective partial-close while the
+   * pointer is directly over the mark — not a full blink (that would
+   * look like the idle blink), and not a one-shot animation: it holds
+   * for as long as the pointer stays, and releases when it leaves.
    */
-  defensiveBlinkCloseMs: number;
-  defensiveBlinkHoldMs: number;
-  defensiveBlinkOpenMs: number;
-  /** Gap between repeats (not used after the last one). */
-  defensiveBlinkGapMs: number;
-  defensiveBlinkRepeats: number;
+  defensiveSquintEyelid: number; // 0..1, partial closure
+  defensiveSquintInMs: number; // transition into the squint on rollover
+  defensiveSquintOutMs: number; // transition back to open on rollout
+  /**
+   * Body flinch: a whole-body recoil-and-spring-back reaction triggered
+   * by clicking the mark. Recoils away from the click point, overshoots
+   * back past center/1 scale, then settles — a quick "startled" bounce.
+   * The rotation wobble (full away, then a smaller twist back the other
+   * way before settling flat) is what makes it read as asymmetric and a
+   * little awkward rather than a clean, mechanical bounce.
+   */
+  bodyFlinchSquashScale: number;
+  bodyFlinchOvershootScale: number;
+  /** Max rotation (degrees) at the peak of the recoil; signed by click side. */
+  bodyFlinchRotationDeg: number;
+  bodyFlinchInMs: number;
+  bodyFlinchOvershootMs: number;
+  bodyFlinchSettleMs: number;
   easing: string;
 };
 
@@ -74,15 +107,20 @@ export const DEFAULT_GAZE_CONFIG: GazeConfig = {
   wanderMaxMs: 9000,
   wanderHoldMs: 900,
   wanderMagnitude: 0.55,
-  wanderGlanceChance: 0.6,
+  blinkMinMs: 2500,
+  blinkMaxMs: 6500,
   blinkCloseMs: 90,
   blinkHoldMs: 40,
   blinkOpenMs: 130,
-  defensiveBlinkCloseMs: 50,
-  defensiveBlinkHoldMs: 30,
-  defensiveBlinkOpenMs: 70,
-  defensiveBlinkGapMs: 90,
-  defensiveBlinkRepeats: 2,
+  defensiveSquintEyelid: 0.6,
+  defensiveSquintInMs: 90,
+  defensiveSquintOutMs: 160,
+  bodyFlinchSquashScale: 0.85,
+  bodyFlinchOvershootScale: 1.06,
+  bodyFlinchRotationDeg: 7,
+  bodyFlinchInMs: 70,
+  bodyFlinchOvershootMs: 140,
+  bodyFlinchSettleMs: 120,
   easing: "cubic-bezier(0.22, 0.75, 0.18, 1)"
 };
 
@@ -152,47 +190,115 @@ export function applyBlinkScale(eyelid: number, blinkClosedScaleY: number): numb
   return 1 - eyelid * (1 - blinkClosedScaleY);
 }
 
-export type DefensiveBlinkStep = {
-  eyelid: 0 | 1;
-  /** CSS transition duration to reach this eyelid value. */
+export type BlinkPhase = "open" | "closing" | "opening";
+
+export type BlinkState = {
+  phase: BlinkPhase;
+  /** 0 = open, 1 = fully closed. Normalized; see applyBlinkScale. */
+  eyelid: number;
+  /** Absolute timestamp (same clock as `now`) when this phase ends. */
+  nextChangeAt: number;
+};
+
+const randomBlinkGapMs = (random: () => number, config: GazeConfig): number =>
+  config.blinkMinMs + random() * (config.blinkMaxMs - config.blinkMinMs);
+
+/**
+ * Independent blink rhythm — deliberately NOT tied to wander's glance
+ * timer, so a run of glances (or a long stretch of pointer tracking)
+ * can never crowd out blinking the way a person's eyes wouldn't stop
+ * blinking just because they're looking around or watching something.
+ */
+export function createBlinkState(
+  now: number,
+  random: () => number,
+  config: GazeConfig = DEFAULT_GAZE_CONFIG
+): BlinkState {
+  return { phase: "open", eyelid: 0, nextChangeAt: now + randomBlinkGapMs(random, config) };
+}
+
+export function advanceBlinkState(
+  state: BlinkState,
+  now: number,
+  random: () => number,
+  config: GazeConfig = DEFAULT_GAZE_CONFIG
+): BlinkState {
+  if (now < state.nextChangeAt) {
+    return state;
+  }
+  if (state.phase === "open") {
+    return { phase: "closing", eyelid: 1, nextChangeAt: now + config.blinkCloseMs + config.blinkHoldMs };
+  }
+  if (state.phase === "closing") {
+    return { phase: "opening", eyelid: 0, nextChangeAt: now + config.blinkOpenMs };
+  }
+  return { phase: "open", eyelid: 0, nextChangeAt: now + randomBlinkGapMs(random, config) };
+}
+
+export type BodyFlinchStep = {
+  scale: number;
+  /**
+   * How much of the full away-from-click recoil distance/rotation this
+   * step applies: 1 = full recoil away, negative = a small wobble back
+   * past center the *other* way (what makes it read as asymmetric/
+   * awkward rather than a clean, mechanical bounce), 0 = centered.
+   */
+  recoilFactor: number;
+  /** CSS transition duration to reach this scale/recoil. */
   durationMs: number;
   /** Total time from this step firing until the next one fires. */
   waitMs: number;
 };
 
 /**
- * A quick, sharp, repeated blink — the "defensive" reaction to the
- * pointer directly rolling over the mark, deliberately faster and
- * doubled so it doesn't read as just another idle blink. Pure data (like
- * the classic model's automatedSpeakingPlaybackSequence): the hook just
- * walks this list with setTimeout, no state machine needed since it's a
- * one-shot triggered sequence rather than a continuous loop.
+ * A whole-body "startled" reaction to being clicked: recoils away from
+ * the click point (scale squash + translate + rotate), overshoots back
+ * past center with a small counter-wobble, then settles flat. Pure data
+ * — the hook resolves recoilFactor against the actual click direction at
+ * trigger time, since that's runtime information this function can't know.
  */
-export function buildDefensiveBlinkSteps(config: GazeConfig = DEFAULT_GAZE_CONFIG): DefensiveBlinkStep[] {
-  const steps: DefensiveBlinkStep[] = [];
-  for (let repeat = 0; repeat < config.defensiveBlinkRepeats; repeat += 1) {
-    const isLast = repeat === config.defensiveBlinkRepeats - 1;
-    steps.push({
-      eyelid: 1,
-      durationMs: config.defensiveBlinkCloseMs,
-      waitMs: config.defensiveBlinkCloseMs + config.defensiveBlinkHoldMs
-    });
-    steps.push({
-      eyelid: 0,
-      durationMs: config.defensiveBlinkOpenMs,
-      waitMs: config.defensiveBlinkOpenMs + (isLast ? 0 : config.defensiveBlinkGapMs)
-    });
-  }
-  return steps;
+export function buildBodyFlinchSteps(config: GazeConfig = DEFAULT_GAZE_CONFIG): BodyFlinchStep[] {
+  return [
+    {
+      scale: config.bodyFlinchSquashScale,
+      recoilFactor: 1,
+      durationMs: config.bodyFlinchInMs,
+      waitMs: config.bodyFlinchInMs
+    },
+    {
+      scale: config.bodyFlinchOvershootScale,
+      recoilFactor: -0.35,
+      durationMs: config.bodyFlinchOvershootMs,
+      waitMs: config.bodyFlinchOvershootMs
+    },
+    { scale: 1, recoilFactor: 0, durationMs: config.bodyFlinchSettleMs, waitMs: config.bodyFlinchSettleMs }
+  ];
 }
 
-export type GazeWanderPhase = "resting" | "glancing" | "eyesClosing" | "eyesOpening";
+/**
+ * Resolves a flinch step's abstract recoilFactor into an actual
+ * translate + rotation, given the real direction away from the click
+ * (already the direction *away*, e.g. -clickVector) and the model's
+ * recoil distance / configured max rotation.
+ */
+export function applyBodyFlinchRecoil(
+  recoilFactor: number,
+  awayFromClick: GazeVector,
+  recoilDistance: number,
+  rotationDeg: number
+): { dx: number; dy: number; rotation: number } {
+  return {
+    dx: awayFromClick.x * recoilDistance * recoilFactor,
+    dy: awayFromClick.y * recoilDistance * recoilFactor,
+    rotation: awayFromClick.x * rotationDeg * recoilFactor
+  };
+}
+
+export type GazeWanderPhase = "resting" | "glancing";
 
 export type GazeWanderState = {
   phase: GazeWanderPhase;
   vector: GazeVector;
-  /** 0 = open, 1 = fully closed. Normalized; see applyBlinkScale. */
-  eyelid: number;
   /** Absolute timestamp (same clock as `now`) when this phase ends. */
   nextChangeAt: number;
 };
@@ -215,19 +321,16 @@ export function createGazeWanderState(
   return {
     phase: "resting",
     vector: { ...NEUTRAL_GAZE_VECTOR },
-    eyelid: 0,
     nextChangeAt: now + randomRestGapMs(random, config)
   };
 }
 
 /**
- * Pure step function for autonomous "bored, looks around" wander. Returns
- * the same state (by value) when `now < state.nextChangeAt`. From rest,
- * randomly picks one of two bored actions — glance to a small random
- * offset, or blink — then returns to a long neutral rest. The gaze-channel
- * analog of the classic model's bored-idle scheduler (which randomly
- * picks among blink/glance/antenna-fidget), but operating on eye
- * *position and lid state* rather than canned path morphs.
+ * Pure step function for autonomous "bored, looks around" wander (eye
+ * *position* only — blinking is a fully independent rhythm, see
+ * advanceBlinkState). Returns the same state (by value) when
+ * `now < state.nextChangeAt`. Alternates a long neutral rest with a
+ * brief glance to a random small offset.
  */
 export function advanceGazeWander(
   state: GazeWanderState,
@@ -239,36 +342,17 @@ export function advanceGazeWander(
     return state;
   }
   if (state.phase === "resting") {
-    if (random() < config.wanderGlanceChance) {
-      const angle = random() * Math.PI * 2;
-      const magnitude = config.wanderMagnitude * (0.5 + random() * 0.5);
-      return {
-        phase: "glancing",
-        vector: { x: clampUnit(Math.cos(angle) * magnitude), y: clampUnit(Math.sin(angle) * magnitude) },
-        eyelid: 0,
-        nextChangeAt: now + config.wanderHoldMs
-      };
-    }
+    const angle = random() * Math.PI * 2;
+    const magnitude = config.wanderMagnitude * (0.5 + random() * 0.5);
     return {
-      phase: "eyesClosing",
-      vector: { ...NEUTRAL_GAZE_VECTOR },
-      eyelid: 1,
-      nextChangeAt: now + config.blinkCloseMs + config.blinkHoldMs
+      phase: "glancing",
+      vector: { x: clampUnit(Math.cos(angle) * magnitude), y: clampUnit(Math.sin(angle) * magnitude) },
+      nextChangeAt: now + config.wanderHoldMs
     };
   }
-  if (state.phase === "eyesClosing") {
-    return {
-      phase: "eyesOpening",
-      vector: { ...NEUTRAL_GAZE_VECTOR },
-      eyelid: 0,
-      nextChangeAt: now + config.blinkOpenMs
-    };
-  }
-  // "glancing" or "eyesOpening" -> back to a long neutral rest.
   return {
     phase: "resting",
     vector: { ...NEUTRAL_GAZE_VECTOR },
-    eyelid: 0,
     nextChangeAt: now + randomRestGapMs(random, config)
   };
 }

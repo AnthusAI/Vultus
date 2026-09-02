@@ -38,18 +38,23 @@ export { CHATTICUS_MARK_MODEL } from "./chatticusModels";
 export {
   DEFAULT_GAZE_CONFIG,
   NEUTRAL_GAZE_VECTOR,
+  advanceBlinkState,
   advanceGazeWander,
-  buildDefensiveBlinkSteps,
   applyBlinkScale,
+  applyBodyFlinchRecoil,
   applyGazeTravel,
+  buildBodyFlinchSteps,
   clampUnit,
   computePointerGazeVector,
+  createBlinkState,
   createGazeWanderState,
   isPointerWithinProximity,
   makeSeededRandom
 } from "./gaze";
 export type {
-  DefensiveBlinkStep,
+  BlinkPhase,
+  BlinkState,
+  BodyFlinchStep,
   GazeConfig,
   GazeGeometry,
   GazeSource,
