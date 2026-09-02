@@ -25,6 +25,13 @@ export type GazeGeometry = {
         up: number;
         down: number;
     };
+    /**
+     * Vertical scale applied to the eyes at full blink closure, e.g. 0.15 =
+     * squashed to 15% of open height. 1 disables the *visual* effect of
+     * blinking (the timing still runs, it's just invisible) without
+     * special-casing it elsewhere.
+     */
+    blinkClosedScaleY: number;
 };
 export type GazeConfig = {
     /** Ease duration when tracking toward a new pointer position. */
@@ -42,6 +49,12 @@ export type GazeConfig = {
     wanderHoldMs: number;
     /** Autonomous wander: glance magnitude as a fraction of full travel, (0, 1]. */
     wanderMagnitude: number;
+    /** Autonomous wander: chance of glancing (vs. blinking) each time it wakes from rest. */
+    wanderGlanceChance: number;
+    /** Autonomous wander: blink close/hold/open durations. */
+    blinkCloseMs: number;
+    blinkHoldMs: number;
+    blinkOpenMs: number;
     easing: string;
 };
 export declare const DEFAULT_GAZE_CONFIG: GazeConfig;
@@ -71,20 +84,33 @@ export declare function applyGazeTravel(vector: GazeVector, travel: GazeGeometry
     dx: number;
     dy: number;
 };
-export type GazeWanderPhase = "resting" | "glancing";
+/**
+ * Maps a normalized eyelid position (0 = open, 1 = fully closed) to an
+ * actual vertical scale factor, given a model's blink geometry. Kept
+ * separate from the state machine so the state machine itself stays
+ * model-agnostic (it works in normalized 0..1 terms, the same way
+ * `vector` is normalized to [-1,1] and only scaled to real units by
+ * applyGazeTravel) — the same split `applyGazeTravel` already uses.
+ */
+export declare function applyBlinkScale(eyelid: number, blinkClosedScaleY: number): number;
+export type GazeWanderPhase = "resting" | "glancing" | "eyesClosing" | "eyesOpening";
 export type GazeWanderState = {
     phase: GazeWanderPhase;
     vector: GazeVector;
+    /** 0 = open, 1 = fully closed. Normalized; see applyBlinkScale. */
+    eyelid: number;
     /** Absolute timestamp (same clock as `now`) when this phase ends. */
     nextChangeAt: number;
 };
 export declare function createGazeWanderState(now: number, random: () => number, config?: GazeConfig): GazeWanderState;
 /**
  * Pure step function for autonomous "bored, looks around" wander. Returns
- * the same state (by value) when `now < state.nextChangeAt`. Alternates a
- * long neutral rest with a brief glance to a random small offset — the
- * gaze-channel analog of the classic model's bored-idle scheduler, but
- * operating on eye *position* rather than canned path morphs.
+ * the same state (by value) when `now < state.nextChangeAt`. From rest,
+ * randomly picks one of two bored actions — glance to a small random
+ * offset, or blink — then returns to a long neutral rest. The gaze-channel
+ * analog of the classic model's bored-idle scheduler (which randomly
+ * picks among blink/glance/antenna-fidget), but operating on eye
+ * *position and lid state* rather than canned path morphs.
  */
 export declare function advanceGazeWander(state: GazeWanderState, now: number, random: () => number, config?: GazeConfig): GazeWanderState;
 export {};

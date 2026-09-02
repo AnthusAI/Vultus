@@ -1,6 +1,7 @@
-import { render } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BotAvatar } from "../lib/BotAvatar";
+import { DEFAULT_GAZE_CONFIG } from "../lib/gaze";
 import { defineProceduralAvatarModel, VULTUS_CLASSIC_MODEL } from "../lib/avatarModels";
 
 /**
@@ -34,7 +35,7 @@ const gazeModel = defineProceduralAvatarModel({
     speakingComplete: { rx: 2, ry: 2, dy: 0, shape: "ellipse" }
   },
   blink: { closedRx: 2, closedRy: 0.3 },
-  gaze: { travel: { left: 2.4, right: 1.5, up: 1.2, down: 1.0 } }
+  gaze: { travel: { left: 2.4, right: 1.5, up: 1.2, down: 1.0 }, blinkClosedScaleY: 0.15 }
 });
 
 describe("gaze wiring on BotAvatar", () => {
@@ -101,7 +102,7 @@ describe("gaze wiring on BotAvatar", () => {
     const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement | null;
     expect(gazeGroup).toBeTruthy();
     // right travel budget is 1.5 for this model
-    expect(gazeGroup?.style.transform).toBe("translate(1.5px, 0px)");
+    expect(gazeGroup?.style.transform).toBe("translate(1.5px, 0px) scaleY(1)");
   });
 
   it("freezes at neutral and schedules no wander timer under reduced motion", () => {
@@ -124,8 +125,37 @@ describe("gaze wiring on BotAvatar", () => {
     const { container } = render(<BotAvatar model={gazeModel} gaze="auto" neutralIdleMode="static" />);
     const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement | null;
 
-    expect(gazeGroup?.style.transform).toBe("translate(0px, 0px)");
+    expect(gazeGroup?.style.transform).toBe("translate(0px, 0px) scaleY(1)");
     expect(setTimeoutSpy).not.toHaveBeenCalled();
+  });
+
+  it("applies a visible blink (scaleY < 1) when autonomous wander picks it", () => {
+    // A constant high draw satisfies both createGazeWanderState's initial
+    // rest-gap roll (any value works) and the branch check
+    // (>= wanderGlanceChance picks blink over glance) on every call.
+    vi.spyOn(Math, "random").mockReturnValue(0.99);
+    const { container } = render(<BotAvatar model={gazeModel} gaze="auto" neutralIdleMode="static" />);
+    const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement;
+
+    // Land just past the initial rest gap (wanderMinMs + 0.99 * range) so
+    // we observe the eyesClosing state before it has time to also advance
+    // through eyesOpening in the same jump.
+    const initialRestGapMs =
+      DEFAULT_GAZE_CONFIG.wanderMinMs + 0.99 * (DEFAULT_GAZE_CONFIG.wanderMaxMs - DEFAULT_GAZE_CONFIG.wanderMinMs);
+    act(() => {
+      vi.advanceTimersByTime(initialRestGapMs + 1);
+    });
+
+    const closedScaleY = Number(gazeGroup.style.transform.match(/scaleY\(([\d.]+)\)/)?.[1]);
+    expect(closedScaleY).toBeCloseTo(0.15, 10);
+    expect(gazeGroup.style.transform).toContain("translate(0px, 0px)"); // blink doesn't move the eyes
+
+    // Advancing past blinkCloseMs + blinkHoldMs reopens the eyes.
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_GAZE_CONFIG.blinkCloseMs + DEFAULT_GAZE_CONFIG.blinkHoldMs + 1);
+    });
+    const openScaleY = Number(gazeGroup.style.transform.match(/scaleY\(([\d.]+)\)/)?.[1]);
+    expect(openScaleY).toBeCloseTo(1, 10);
   });
 
   it("unmounts cleanly without throwing", () => {

@@ -20,6 +20,13 @@ export type GazeSource = "none" | "pointer" | "auto" | GazeVector;
 /** A model's eye-travel budget, in the model's own viewBox units. */
 export type GazeGeometry = {
   travel: { left: number; right: number; up: number; down: number };
+  /**
+   * Vertical scale applied to the eyes at full blink closure, e.g. 0.15 =
+   * squashed to 15% of open height. 1 disables the *visual* effect of
+   * blinking (the timing still runs, it's just invisible) without
+   * special-casing it elsewhere.
+   */
+  blinkClosedScaleY: number;
 };
 
 export type GazeConfig = {
@@ -38,6 +45,12 @@ export type GazeConfig = {
   wanderHoldMs: number;
   /** Autonomous wander: glance magnitude as a fraction of full travel, (0, 1]. */
   wanderMagnitude: number;
+  /** Autonomous wander: chance of glancing (vs. blinking) each time it wakes from rest. */
+  wanderGlanceChance: number;
+  /** Autonomous wander: blink close/hold/open durations. */
+  blinkCloseMs: number;
+  blinkHoldMs: number;
+  blinkOpenMs: number;
   easing: string;
 };
 
@@ -50,6 +63,10 @@ export const DEFAULT_GAZE_CONFIG: GazeConfig = {
   wanderMaxMs: 9000,
   wanderHoldMs: 900,
   wanderMagnitude: 0.55,
+  wanderGlanceChance: 0.6,
+  blinkCloseMs: 90,
+  blinkHoldMs: 40,
+  blinkOpenMs: 130,
   easing: "cubic-bezier(0.22, 0.75, 0.18, 1)"
 };
 
@@ -107,11 +124,25 @@ export function applyGazeTravel(
   };
 }
 
-export type GazeWanderPhase = "resting" | "glancing";
+/**
+ * Maps a normalized eyelid position (0 = open, 1 = fully closed) to an
+ * actual vertical scale factor, given a model's blink geometry. Kept
+ * separate from the state machine so the state machine itself stays
+ * model-agnostic (it works in normalized 0..1 terms, the same way
+ * `vector` is normalized to [-1,1] and only scaled to real units by
+ * applyGazeTravel) — the same split `applyGazeTravel` already uses.
+ */
+export function applyBlinkScale(eyelid: number, blinkClosedScaleY: number): number {
+  return 1 - eyelid * (1 - blinkClosedScaleY);
+}
+
+export type GazeWanderPhase = "resting" | "glancing" | "eyesClosing" | "eyesOpening";
 
 export type GazeWanderState = {
   phase: GazeWanderPhase;
   vector: GazeVector;
+  /** 0 = open, 1 = fully closed. Normalized; see applyBlinkScale. */
+  eyelid: number;
   /** Absolute timestamp (same clock as `now`) when this phase ends. */
   nextChangeAt: number;
 };
@@ -131,15 +162,22 @@ export function createGazeWanderState(
   random: () => number,
   config: GazeConfig = DEFAULT_GAZE_CONFIG
 ): GazeWanderState {
-  return { phase: "resting", vector: { ...NEUTRAL_GAZE_VECTOR }, nextChangeAt: now + randomRestGapMs(random, config) };
+  return {
+    phase: "resting",
+    vector: { ...NEUTRAL_GAZE_VECTOR },
+    eyelid: 0,
+    nextChangeAt: now + randomRestGapMs(random, config)
+  };
 }
 
 /**
  * Pure step function for autonomous "bored, looks around" wander. Returns
- * the same state (by value) when `now < state.nextChangeAt`. Alternates a
- * long neutral rest with a brief glance to a random small offset — the
- * gaze-channel analog of the classic model's bored-idle scheduler, but
- * operating on eye *position* rather than canned path morphs.
+ * the same state (by value) when `now < state.nextChangeAt`. From rest,
+ * randomly picks one of two bored actions — glance to a small random
+ * offset, or blink — then returns to a long neutral rest. The gaze-channel
+ * analog of the classic model's bored-idle scheduler (which randomly
+ * picks among blink/glance/antenna-fidget), but operating on eye
+ * *position and lid state* rather than canned path morphs.
  */
 export function advanceGazeWander(
   state: GazeWanderState,
@@ -151,13 +189,36 @@ export function advanceGazeWander(
     return state;
   }
   if (state.phase === "resting") {
-    const angle = random() * Math.PI * 2;
-    const magnitude = config.wanderMagnitude * (0.5 + random() * 0.5);
+    if (random() < config.wanderGlanceChance) {
+      const angle = random() * Math.PI * 2;
+      const magnitude = config.wanderMagnitude * (0.5 + random() * 0.5);
+      return {
+        phase: "glancing",
+        vector: { x: clampUnit(Math.cos(angle) * magnitude), y: clampUnit(Math.sin(angle) * magnitude) },
+        eyelid: 0,
+        nextChangeAt: now + config.wanderHoldMs
+      };
+    }
     return {
-      phase: "glancing",
-      vector: { x: clampUnit(Math.cos(angle) * magnitude), y: clampUnit(Math.sin(angle) * magnitude) },
-      nextChangeAt: now + config.wanderHoldMs
+      phase: "eyesClosing",
+      vector: { ...NEUTRAL_GAZE_VECTOR },
+      eyelid: 1,
+      nextChangeAt: now + config.blinkCloseMs + config.blinkHoldMs
     };
   }
-  return { phase: "resting", vector: { ...NEUTRAL_GAZE_VECTOR }, nextChangeAt: now + randomRestGapMs(random, config) };
+  if (state.phase === "eyesClosing") {
+    return {
+      phase: "eyesOpening",
+      vector: { ...NEUTRAL_GAZE_VECTOR },
+      eyelid: 0,
+      nextChangeAt: now + config.blinkOpenMs
+    };
+  }
+  // "glancing" or "eyesOpening" -> back to a long neutral rest.
+  return {
+    phase: "resting",
+    vector: { ...NEUTRAL_GAZE_VECTOR },
+    eyelid: 0,
+    nextChangeAt: now + randomRestGapMs(random, config)
+  };
 }

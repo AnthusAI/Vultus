@@ -4,11 +4,12 @@ import {
   DEFAULT_GAZE_CONFIG,
   NEUTRAL_GAZE_VECTOR,
   advanceGazeWander,
+  applyBlinkScale,
   applyGazeTravel,
   computePointerGazeVector,
   createGazeWanderState
 } from "./gaze";
-import type { GazeConfig, GazeGeometry, GazeSource, GazeVector } from "./gaze";
+import type { GazeConfig, GazeGeometry, GazeSource, GazeVector, GazeWanderPhase } from "./gaze";
 
 export type UseGazeBehaviorOptions = {
   svgElementRef: RefObject<SVGSVGElement>;
@@ -78,16 +79,21 @@ export function useGazeBehavior({
     let pendingFrameId: number | null = null;
     let wanderState = createGazeWanderState(Date.now(), Math.random, configRef.current);
 
-    const applyVector = (vector: GazeVector, durationMs: number) => {
+    const applyPose = (vector: GazeVector, eyelid: number, durationMs: number) => {
       if (!geometry) {
         return;
       }
       const { dx, dy } = applyGazeTravel(vector, geometry.travel);
+      const scaleY = applyBlinkScale(eyelid, geometry.blinkClosedScaleY);
       gazeGroupElement.style.transition = reducedMotion ? "none" : `transform ${durationMs}ms ${configRef.current.easing}`;
-      gazeGroupElement.style.transform = `translate(${dx}px, ${dy}px)`;
+      gazeGroupElement.style.transform = `translate(${dx}px, ${dy}px) scaleY(${scaleY})`;
     };
 
-    const goNeutral = (durationMs: number) => applyVector(NEUTRAL_GAZE_VECTOR, durationMs);
+    // Pointer tracking and fixed vectors never blink in this pass — a
+    // blink is one of the *autonomous bored* variants, not something that
+    // happens while actively engaged with the pointer — so eyelid is
+    // always 0 (open) outside of runWanderTick.
+    const goNeutral = (durationMs: number) => applyPose(NEUTRAL_GAZE_VECTOR, 0, durationMs);
 
     const clearRestTimeout = () => {
       if (restTimeoutId !== null) {
@@ -124,7 +130,7 @@ export function useGazeBehavior({
         return;
       }
       const rect = svgElement.getBoundingClientRect();
-      applyVector(computePointerGazeVector(rect, pointerPosition), configRef.current.trackMs);
+      applyPose(computePointerGazeVector(rect, pointerPosition), 0, configRef.current.trackMs);
       pointerEngaged = true;
       scheduleDriftBack();
     };
@@ -154,11 +160,24 @@ export function useGazeBehavior({
       }
     };
 
+    const wanderTransitionMsForPhase = (phase: GazeWanderPhase): number => {
+      switch (phase) {
+        case "eyesClosing":
+          return configRef.current.blinkCloseMs;
+        case "eyesOpening":
+          return configRef.current.blinkOpenMs;
+        case "glancing":
+        case "resting":
+        default:
+          return configRef.current.wanderHoldMs;
+      }
+    };
+
     const runWanderTick = () => {
       const now = Date.now();
       wanderState = advanceGazeWander(wanderState, now, Math.random, configRef.current);
       if (!isSuspended()) {
-        applyVector(wanderState.vector, configRef.current.wanderHoldMs);
+        applyPose(wanderState.vector, wanderState.eyelid, wanderTransitionMsForPhase(wanderState.phase));
       }
       const delay = Math.max(16, wanderState.nextChangeAt - now);
       wanderTimeoutId = setTimeout(runWanderTick, delay);
@@ -185,7 +204,7 @@ export function useGazeBehavior({
         clearRestTimeout();
         clearWanderTimeout();
         gazeGroupElement.style.transition = "none";
-        gazeGroupElement.style.transform = "translate(0px, 0px)";
+        gazeGroupElement.style.transform = "translate(0px, 0px) scaleY(1)";
       } else {
         startOrStopWander();
       }
@@ -233,7 +252,7 @@ export function useGazeBehavior({
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     if (isFixedVector(gaze)) {
-      applyVector(gaze, configRef.current.trackMs);
+      applyPose(gaze, 0, configRef.current.trackMs);
     } else if (reducedMotion) {
       goNeutral(0);
     } else {

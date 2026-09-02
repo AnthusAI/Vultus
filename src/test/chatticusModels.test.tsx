@@ -50,6 +50,6 @@ describe("CHATTICUS_MARK_MODEL", () => {
     expect(gazeGroup).toBeTruthy();
     expect(gazeGroup?.querySelectorAll("path")).toHaveLength(2);
     // right=1.4, down=1.1 per the model's travel budget
-    expect((gazeGroup as SVGGElement).style.transform).toBe("translate(1.4px, 1.1px)");
+    expect((gazeGroup as SVGGElement).style.transform).toBe("translate(1.4px, 1.1px) scaleY(1)");
   });
 });

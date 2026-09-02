@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_GAZE_CONFIG,
   advanceGazeWander,
+  applyBlinkScale,
   applyGazeTravel,
   clampUnit,
   computePointerGazeVector,
@@ -116,6 +117,109 @@ describe("applyGazeTravel", () => {
 
   it("is proportional, not just clamped, for partial vectors", () => {
     expect(applyGazeTravel({ x: 0.5, y: -0.5 }, travel)).toEqual({ dx: 0.75, dy: -0.6 });
+  });
+});
+
+describe("applyBlinkScale", () => {
+  it("is 1 (open) when eyelid is 0", () => {
+    expect(applyBlinkScale(0, 0.15)).toBe(1);
+  });
+
+  it("equals blinkClosedScaleY when eyelid is 1 (fully closed)", () => {
+    expect(applyBlinkScale(1, 0.15)).toBeCloseTo(0.15, 10);
+  });
+
+  it("interpolates linearly in between", () => {
+    expect(applyBlinkScale(0.5, 0.2)).toBeCloseTo(0.6, 10);
+  });
+
+  it("is a no-op (always 1) when blinkClosedScaleY is 1", () => {
+    expect(applyBlinkScale(0, 1)).toBe(1);
+    expect(applyBlinkScale(1, 1)).toBe(1);
+  });
+});
+
+/** Queue-based random for forcing a specific branch deterministically. */
+const queuedRandom = (values: number[]): (() => number) => {
+  let index = 0;
+  return () => values[Math.min(index++, values.length - 1)];
+};
+
+describe("gaze wander state machine — blink", () => {
+  it("picks blink over glance when the branch draw lands on the blink side", () => {
+    // First draw >= wanderGlanceChance (0.6) selects blink; config
+    // doesn't consume more random() calls before nextChangeAt is computed.
+    const random = queuedRandom([0.99]);
+    let state = createGazeWanderState(0, random);
+    state = advanceGazeWander(state, state.nextChangeAt, random);
+    expect(state.phase).toBe("eyesClosing");
+    expect(state.eyelid).toBe(1);
+    expect(state.vector).toEqual({ x: 0, y: 0 });
+  });
+
+  it("schedules eyesClosing for blinkCloseMs + blinkHoldMs", () => {
+    const random = queuedRandom([0.99]);
+    let state = createGazeWanderState(0, random);
+    const restEnd = state.nextChangeAt;
+    state = advanceGazeWander(state, restEnd, random);
+    expect(state.nextChangeAt).toBe(restEnd + DEFAULT_GAZE_CONFIG.blinkCloseMs + DEFAULT_GAZE_CONFIG.blinkHoldMs);
+  });
+
+  it("moves eyesClosing -> eyesOpening -> resting, eyelid closing then opening", () => {
+    // [0]: createGazeWanderState's own initial-rest-gap draw.
+    // [1]: the resting->{glance,blink} branch draw — >= wanderGlanceChance picks blink.
+    // [2]: eyesOpening->resting's rest-gap draw.
+    const random = queuedRandom([0.5, 0.99, 0.5]);
+    let state = createGazeWanderState(0, random);
+    state = advanceGazeWander(state, state.nextChangeAt, random); // -> eyesClosing
+    expect(state.phase).toBe("eyesClosing");
+    expect(state.eyelid).toBe(1);
+
+    const closingEnds = state.nextChangeAt;
+    state = advanceGazeWander(state, closingEnds, random); // -> eyesOpening
+    expect(state.phase).toBe("eyesOpening");
+    expect(state.eyelid).toBe(0);
+    expect(state.nextChangeAt).toBe(closingEnds + DEFAULT_GAZE_CONFIG.blinkOpenMs);
+
+    const openingEnds = state.nextChangeAt;
+    state = advanceGazeWander(state, openingEnds, random); // -> resting
+    expect(state.phase).toBe("resting");
+    expect(state.eyelid).toBe(0);
+    expect(state.vector).toEqual({ x: 0, y: 0 });
+    expect(state.nextChangeAt).toBeGreaterThanOrEqual(openingEnds + DEFAULT_GAZE_CONFIG.wanderMinMs);
+    expect(state.nextChangeAt).toBeLessThanOrEqual(openingEnds + DEFAULT_GAZE_CONFIG.wanderMaxMs);
+  });
+
+  it("never blinks and glances at the same time (eyelid is 0 whenever vector is nonzero, and vice versa)", () => {
+    const random = makeSeededRandom(1234);
+    let state = createGazeWanderState(0, random);
+    for (let i = 0; i < 200; i += 1) {
+      state = advanceGazeWander(state, state.nextChangeAt, random);
+      const isGlancing = state.vector.x !== 0 || state.vector.y !== 0;
+      const isBlinking = state.eyelid !== 0;
+      expect(isGlancing && isBlinking).toBe(false);
+    }
+  });
+
+  it("respects wanderGlanceChance: with chance 0, resting always transitions to a blink", () => {
+    const config = { ...DEFAULT_GAZE_CONFIG, wanderGlanceChance: 0 };
+    const random = makeSeededRandom(7);
+    let state = createGazeWanderState(0, random, config);
+    for (let i = 0; i < 20; i += 1) {
+      state = advanceGazeWander(state, state.nextChangeAt, random, config);
+      expect(state.phase).not.toBe("glancing");
+    }
+  });
+
+  it("respects wanderGlanceChance: with chance 1, resting never transitions to a blink", () => {
+    const config = { ...DEFAULT_GAZE_CONFIG, wanderGlanceChance: 1 };
+    const random = makeSeededRandom(7);
+    let state = createGazeWanderState(0, random, config);
+    for (let i = 0; i < 20; i += 1) {
+      state = advanceGazeWander(state, state.nextChangeAt, random, config);
+      expect(state.phase).not.toBe("eyesClosing");
+      expect(state.phase).not.toBe("eyesOpening");
+    }
   });
 });
 

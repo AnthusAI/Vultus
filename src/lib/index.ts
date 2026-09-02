@@ -39,6 +39,7 @@ export {
   DEFAULT_GAZE_CONFIG,
   NEUTRAL_GAZE_VECTOR,
   advanceGazeWander,
+  applyBlinkScale,
   applyGazeTravel,
   clampUnit,
   computePointerGazeVector,

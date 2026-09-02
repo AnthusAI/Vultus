@@ -662,7 +662,16 @@ const ProceduralBotAvatar = ({
   const eyeAndMouthShapes = (
     <>
       {gazeIsActive ? (
-        <g ref={gazeGroupElementRef} className="vultus-gaze">
+        <g
+          ref={gazeGroupElementRef}
+          className="vultus-gaze"
+          style={{
+            transformBox: "view-box",
+            transformOrigin: `${(model.features.leftEye.cx + model.features.rightEye.cx) / 2}px ${
+              (model.features.leftEye.cy + model.features.rightEye.cy) / 2
+            }px`
+          }}
+        >
           {eyePaths}
         </g>
       ) : (

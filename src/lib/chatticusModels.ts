@@ -78,5 +78,10 @@ export const CHATTICUS_MARK_MODEL = defineProceduralAvatarModel({
   },
   eyeShapesByState: chatticusEyeShapesByState,
   blink: { closedRx: 2, closedRy: 0.3 },
-  gaze: { travel: { left: 1.4, right: 1.4, up: 1.1, down: 1.1 } }
+  gaze: {
+    travel: { left: 1.4, right: 1.4, up: 1.1, down: 1.1 },
+    // Eyes are r=2 dots (open height 4); squashing to 15% reads as a
+    // clean, near-flat dash rather than just a slightly shorter dot.
+    blinkClosedScaleY: 0.15
+  }
 });
