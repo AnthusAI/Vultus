@@ -1,6 +1,28 @@
+import type { ProceduralAvatarModel } from "./avatarModels";
 export declare const BOT_AVATAR_STATES: readonly ["neutral", "thinking", "deepThinking", "toolCalling", "toolResponse", "speakingOpen", "speakingWide", "speakingRound", "speakingComplete"];
 export type BotAvatarState = (typeof BOT_AVATAR_STATES)[number];
-export declare const computeAllFacialPathsForState: (stateName: BotAvatarState) => {
+export type FacialShapeDefinition = {
+    rx: number;
+    ry: number;
+    dy: number;
+    shape: "ellipse" | "curvedLens";
+    curveDirection?: "up" | "down";
+};
+/**
+ * Shape tables for VULTUS_CLASSIC_MODEL's facial features. Exported so
+ * avatarModels.ts can build the classic model from them; a different
+ * procedural model supplies its own tables instead.
+ */
+export declare const classicEyeShapeDefinitionsByState: Record<BotAvatarState, FacialShapeDefinition>;
+export declare const classicMouthShapeDefinitionsByState: Record<BotAvatarState, FacialShapeDefinition>;
+/**
+ * Computes facial feature paths for a model at a given state. Feature
+ * anchors (where the eyes/mouth sit) and per-state shape tables both come
+ * from the model, so this works for any procedural model, not just the
+ * classic robot. `mouthPathString` is "" when the model has no mouth
+ * feature or no shape table entry for this state.
+ */
+export declare const computeAllFacialPathsForState: (model: ProceduralAvatarModel, stateName: BotAvatarState) => {
     leftEyePathString: string;
     rightEyePathString: string;
     mouthPathString: string;

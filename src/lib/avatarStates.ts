@@ -1,4 +1,5 @@
 import { buildFourSegmentCurvedLensPath, buildFourSegmentEllipsePath } from "./avatarMath";
+import type { ProceduralAvatarModel } from "./avatarModels";
 
 export const BOT_AVATAR_STATES = [
   "neutral",
@@ -14,7 +15,7 @@ export const BOT_AVATAR_STATES = [
 
 export type BotAvatarState = (typeof BOT_AVATAR_STATES)[number];
 
-type FacialShapeDefinition = {
+export type FacialShapeDefinition = {
   rx: number;
   ry: number;
   dy: number;
@@ -22,15 +23,12 @@ type FacialShapeDefinition = {
   curveDirection?: "up" | "down";
 };
 
-const FACIAL_FEATURE_GEOMETRY = {
-  leftEyeCenterX: 70,
-  rightEyeCenterX: 130,
-  eyeBaselineCenterY: 90,
-  mouthCenterX: 100,
-  mouthBaselineCenterY: 122
-} as const;
-
-const eyeShapeDefinitionsByState: Record<BotAvatarState, FacialShapeDefinition> = {
+/**
+ * Shape tables for VULTUS_CLASSIC_MODEL's facial features. Exported so
+ * avatarModels.ts can build the classic model from them; a different
+ * procedural model supplies its own tables instead.
+ */
+export const classicEyeShapeDefinitionsByState: Record<BotAvatarState, FacialShapeDefinition> = {
   neutral: { rx: 14, ry: 14, dy: 0, shape: "ellipse" },
   thinking: { rx: 14, ry: 14, dy: -4, shape: "ellipse" },
   deepThinking: { rx: 17, ry: 2, dy: 0, shape: "ellipse" },
@@ -42,7 +40,7 @@ const eyeShapeDefinitionsByState: Record<BotAvatarState, FacialShapeDefinition> 
   speakingComplete: { rx: 16, ry: 5, dy: -1, shape: "curvedLens", curveDirection: "up" }
 };
 
-const mouthShapeDefinitionsByState: Record<BotAvatarState, FacialShapeDefinition> = {
+export const classicMouthShapeDefinitionsByState: Record<BotAvatarState, FacialShapeDefinition> = {
   neutral: { rx: 25, ry: 10, dy: 0, shape: "curvedLens", curveDirection: "down" },
   thinking: { rx: 6, ry: 6, dy: 0, shape: "ellipse" },
   deepThinking: { rx: 24, ry: 2, dy: 0, shape: "ellipse" },
@@ -72,26 +70,34 @@ const buildPathStringFromDefinition = (
   return buildFourSegmentEllipsePath(centerX, adjustedCenterY, definition.rx, definition.ry);
 };
 
-export const computeAllFacialPathsForState = (stateName: BotAvatarState) => {
-  const eyeDefinition = eyeShapeDefinitionsByState[stateName];
-  const mouthDefinition = mouthShapeDefinitionsByState[stateName];
-  return {
-    leftEyePathString: buildPathStringFromDefinition(
-      FACIAL_FEATURE_GEOMETRY.leftEyeCenterX,
-      FACIAL_FEATURE_GEOMETRY.eyeBaselineCenterY,
-      eyeDefinition
-    ),
-    rightEyePathString: buildPathStringFromDefinition(
-      FACIAL_FEATURE_GEOMETRY.rightEyeCenterX,
-      FACIAL_FEATURE_GEOMETRY.eyeBaselineCenterY,
-      eyeDefinition
-    ),
-    mouthPathString: buildPathStringFromDefinition(
-      FACIAL_FEATURE_GEOMETRY.mouthCenterX,
-      FACIAL_FEATURE_GEOMETRY.mouthBaselineCenterY,
-      mouthDefinition
-    )
-  };
+/**
+ * Computes facial feature paths for a model at a given state. Feature
+ * anchors (where the eyes/mouth sit) and per-state shape tables both come
+ * from the model, so this works for any procedural model, not just the
+ * classic robot. `mouthPathString` is "" when the model has no mouth
+ * feature or no shape table entry for this state.
+ */
+export const computeAllFacialPathsForState = (
+  model: ProceduralAvatarModel,
+  stateName: BotAvatarState
+) => {
+  const eyeDefinition = model.eyeShapesByState[stateName];
+  const mouthDefinition = model.mouthShapesByState?.[stateName];
+  const leftEyePathString = buildPathStringFromDefinition(
+    model.features.leftEye.cx,
+    model.features.leftEye.cy,
+    eyeDefinition
+  );
+  const rightEyePathString = buildPathStringFromDefinition(
+    model.features.rightEye.cx,
+    model.features.rightEye.cy,
+    eyeDefinition
+  );
+  const mouthPathString =
+    model.features.mouth && mouthDefinition
+      ? buildPathStringFromDefinition(model.features.mouth.cx, model.features.mouth.cy, mouthDefinition)
+      : "";
+  return { leftEyePathString, rightEyePathString, mouthPathString };
 };
 
 export const orderedStateButtonDescriptors = [

@@ -1,11 +1,13 @@
 import { useEffect, useId, useRef } from "react";
-import type { RefObject } from "react";
+import type { ReactElement, RefObject } from "react";
 import { gsap } from "gsap";
 import { buildFourSegmentEllipsePath, interpolateNumericValuesBetweenPathStrings } from "./avatarMath";
 import { BOT_AVATAR_STATES, BotAvatarState, computeAllFacialPathsForState } from "./avatarStates";
 import { LottieBotAvatar } from "./LottieBotAvatar";
 import { VULTUS_CLASSIC_MODEL } from "./avatarModels";
-import type { BotAvatarModel } from "./avatarModels";
+import type { BotAvatarModel, FillRole, ProceduralAvatarModel, ProceduralShape } from "./avatarModels";
+import { useGazeBehavior } from "./useGazeBehavior";
+import type { GazeConfig, GazeSource } from "./gaze";
 
 const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray";
 const DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME = "white";
@@ -22,11 +24,21 @@ export type BotAvatarProps = {
   transitionDurationSeconds?: number;
   shadowColor?: string;
   lightColor?: string;
+  /** Third color for models with "accent"-role shapes/features. Defaults to lightColor. */
+  accentColor?: string;
   ariaLabel?: string;
   paused?: boolean;
+  /**
+   * Continuous gaze/pointer-following, independent of `state`. Defaults to
+   * "none" (no change from prior behavior). Only has an effect on models
+   * that declare `gaze` geometry; ignored otherwise.
+   */
+  gaze?: GazeSource;
+  gazeConfig?: Partial<GazeConfig>;
 };
 
 type AnimationContext = {
+  model: ProceduralAvatarModel;
   leftEyePathElementRef: RefObject<SVGPathElement>;
   rightEyePathElementRef: RefObject<SVGPathElement>;
   mouthPathElementRef: RefObject<SVGPathElement>;
@@ -56,7 +68,7 @@ const appendBlinkToTimeline = (
     openDuration?: number;
   }
 ) => {
-  const basePaths = computeAllFacialPathsForState("neutral");
+  const basePaths = computeAllFacialPathsForState(animationContext.model, "neutral");
   const closedLeftEyePath = ellipsePathAtPosition(70, 90, 13, 1.5);
   const closedRightEyePath = ellipsePathAtPosition(130, 90, 13, 1.5);
   const blinkProgress = { value: 0 };
@@ -338,8 +350,11 @@ const buildSpeakingVariantPulseIdleAnimation = (
   primaryStateKey: BotAvatarState,
   secondaryStateKey: BotAvatarState
 ): gsap.core.Tween => {
-  const primaryMouthPathString = computeAllFacialPathsForState(primaryStateKey).mouthPathString;
-  const secondaryMouthPathString = computeAllFacialPathsForState(secondaryStateKey).mouthPathString;
+  const primaryMouthPathString = computeAllFacialPathsForState(animationContext.model, primaryStateKey).mouthPathString;
+  const secondaryMouthPathString = computeAllFacialPathsForState(
+    animationContext.model,
+    secondaryStateKey
+  ).mouthPathString;
   const pulseProgress = { value: 0 };
   return gsap.to(pulseProgress, {
     value: 1,
@@ -389,32 +404,91 @@ const browserPrefersReducedMotion = (): boolean => {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 };
 
+const resolveFillColor = (
+  role: FillRole,
+  colors: { shadowColor: string; lightColor: string; accentColor: string }
+): string => {
+  if (role === "shadow") {
+    return colors.shadowColor;
+  }
+  if (role === "accent") {
+    return colors.accentColor;
+  }
+  return colors.lightColor;
+};
+
+const renderProceduralShape = (
+  shape: ProceduralShape,
+  key: number,
+  colors: { shadowColor: string; lightColor: string; accentColor: string },
+  antennaCircleElementRef: RefObject<SVGCircleElement>
+): ReactElement => {
+  const fill = resolveFillColor(shape.fillRole, colors);
+  if (shape.kind === "circle") {
+    const ref = shape.slot === "accent" ? antennaCircleElementRef : undefined;
+    return <circle key={key} ref={ref} cx={shape.cx} cy={shape.cy} r={shape.r} fill={fill} />;
+  }
+  if (shape.kind === "rect") {
+    return (
+      <rect
+        key={key}
+        x={shape.x}
+        y={shape.y}
+        width={shape.width}
+        height={shape.height}
+        {...(shape.rx !== undefined ? { rx: shape.rx } : {})}
+        {...(shape.ry !== undefined ? { ry: shape.ry } : {})}
+        fill={fill}
+      />
+    );
+  }
+  return <path key={key} d={shape.d} fill={fill} />;
+};
+
+type ProceduralBotAvatarProps = Omit<BotAvatarProps, "model"> & { model: ProceduralAvatarModel };
+
 const ProceduralBotAvatar = ({
+  model,
   state = "neutral",
   neutralIdleMode = "bored-random",
   size = 240,
   transitionDurationSeconds = 0.55,
   shadowColor = DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME,
   lightColor = DEFAULT_BOT_AVATAR_LIGHT_COLOR_NAME,
+  accentColor = lightColor,
   ariaLabel,
-  paused = false
-}: Omit<BotAvatarProps, "model">) => {
+  paused = false,
+  gaze = "none",
+  gazeConfig
+}: ProceduralBotAvatarProps) => {
   const currentState: BotAvatarState = isBotAvatarState(state) ? state : "neutral";
   const generatedRawId = useId();
   const headClipPathId = `bot-avatar-head-clip-${generatedRawId.replace(/:/g, "")}`;
 
+  const svgElementRef = useRef<SVGSVGElement>(null);
   const leftEyePathElementRef = useRef<SVGPathElement>(null);
   const rightEyePathElementRef = useRef<SVGPathElement>(null);
   const mouthPathElementRef = useRef<SVGPathElement>(null);
   const antennaCircleElementRef = useRef<SVGCircleElement>(null);
   const innerHeadGroupElementRef = useRef<SVGGElement>(null);
+  const gazeGroupElementRef = useRef<SVGGElement>(null);
   const activeMorphTweenRef = useRef<Killable | null>(null);
   const activeIdleAnimationRef = useRef<Killable | null>(null);
   const activeNeutralBoredTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const initialPathSetRef = useRef(computeAllFacialPathsForState(currentState));
+  const initialPathSetRef = useRef(computeAllFacialPathsForState(model, currentState));
+
+  const gazeIsActive = gaze !== "none" && Boolean(model.gaze);
+  useGazeBehavior({
+    svgElementRef,
+    gazeGroupElementRef,
+    gaze,
+    geometry: model.gaze,
+    config: gazeConfig
+  });
 
   useEffect(() => {
     const animationContext: AnimationContext = {
+      model,
       leftEyePathElementRef,
       rightEyePathElementRef,
       mouthPathElementRef,
@@ -422,11 +496,7 @@ const ProceduralBotAvatar = ({
       innerHeadGroupElementRef
     };
 
-    if (
-      !animationContext.leftEyePathElementRef.current ||
-      !animationContext.rightEyePathElementRef.current ||
-      !animationContext.mouthPathElementRef.current
-    ) {
+    if (!animationContext.leftEyePathElementRef.current || !animationContext.rightEyePathElementRef.current) {
       return undefined;
     }
 
@@ -451,10 +521,10 @@ const ProceduralBotAvatar = ({
     const currentlyRenderedPaths = {
       leftEyePathString: animationContext.leftEyePathElementRef.current.getAttribute("d") ?? "",
       rightEyePathString: animationContext.rightEyePathElementRef.current.getAttribute("d") ?? "",
-      mouthPathString: animationContext.mouthPathElementRef.current.getAttribute("d") ?? ""
+      mouthPathString: animationContext.mouthPathElementRef.current?.getAttribute("d") ?? ""
     };
 
-    const targetPathsForNextState = computeAllFacialPathsForState(currentState);
+    const targetPathsForNextState = computeAllFacialPathsForState(model, currentState);
 
     const scheduleNeutralBoredTimeout = (delayMilliseconds: number, callback: () => void) => {
       if (activeNeutralBoredTimeoutRef.current) {
@@ -502,8 +572,13 @@ const ProceduralBotAvatar = ({
     };
 
     const startIdleAnimationForCurrentState = () => {
+      if (browserPrefersReducedMotion()) {
+        activeIdleAnimationRef.current = null;
+        return;
+      }
+
       if (currentState === "neutral") {
-        if (neutralIdleMode === "static" || browserPrefersReducedMotion()) {
+        if (neutralIdleMode === "static") {
           activeIdleAnimationRef.current = null;
           return;
         }
@@ -567,41 +642,76 @@ const ProceduralBotAvatar = ({
         activeNeutralBoredTimeoutRef.current = null;
       }
     };
-  }, [currentState, neutralIdleMode, paused, transitionDurationSeconds]);
+  }, [model, currentState, neutralIdleMode, paused, transitionDurationSeconds]);
 
   const initialPaths = initialPathSetRef.current;
   const computedAriaLabel = ariaLabel ?? `Bot avatar - ${currentState} state`;
+  const colors = { shadowColor, lightColor, accentColor };
+  const [viewBoxMinX, viewBoxMinY, viewBoxWidth, viewBoxHeight] = model.viewBox;
+  const viewBoxAttribute = `${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}`;
+
+  const bodyShapes = model.body.map((shape, index) =>
+    renderProceduralShape(shape, index, colors, antennaCircleElementRef)
+  );
+  const eyePaths = (
+    <>
+      <path ref={leftEyePathElementRef} d={initialPaths.leftEyePathString} fill={resolveFillColor(model.features.leftEye.fillRole, colors)} />
+      <path ref={rightEyePathElementRef} d={initialPaths.rightEyePathString} fill={resolveFillColor(model.features.rightEye.fillRole, colors)} />
+    </>
+  );
+  const eyeAndMouthShapes = (
+    <>
+      {gazeIsActive ? (
+        <g ref={gazeGroupElementRef} className="vultus-gaze">
+          {eyePaths}
+        </g>
+      ) : (
+        eyePaths
+      )}
+      {model.features.mouth ? (
+        <path
+          ref={mouthPathElementRef}
+          d={initialPaths.mouthPathString}
+          fill={resolveFillColor(model.features.mouth.fillRole, colors)}
+        />
+      ) : null}
+    </>
+  );
 
   return (
     <svg
+      ref={svgElementRef}
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 200 200"
+      viewBox={viewBoxAttribute}
       width={size}
       height={size}
       role="img"
       aria-label={computedAriaLabel}
       style={{ display: "block" }}
     >
-      <defs>
-        <clipPath id={headClipPathId}>
-          <circle cx={100} cy={100} r={90} />
-        </clipPath>
-      </defs>
-      <rect width={200} height={200} fill={lightColor} />
+      {model.clipShape ? (
+        <defs>
+          <clipPath id={headClipPathId}>
+            <circle cx={model.clipShape.cx} cy={model.clipShape.cy} r={model.clipShape.r} />
+          </clipPath>
+        </defs>
+      ) : null}
+      {model.background ? <rect width={viewBoxWidth} height={viewBoxHeight} fill={resolveFillColor(model.background, colors)} /> : null}
       <g ref={innerHeadGroupElementRef}>
-        <circle cx={100} cy={100} r={90} fill={shadowColor} />
-        <g clipPath={`url(#${headClipPathId})`}>
-          <circle ref={antennaCircleElementRef} cx={100} cy={20} r={10} fill={lightColor} />
-          <rect x={95} y={25} width={10} height={25} fill={lightColor} />
-          <rect x={15} y={80} width={30} height={40} rx={8} fill={lightColor} />
-          <rect x={155} y={80} width={30} height={40} rx={8} fill={lightColor} />
-          <rect x={35} y={45} width={130} height={100} rx={30} fill={lightColor} />
-          <rect x={80} y={140} width={40} height={20} fill={lightColor} />
-          <path d="M 20 200 Q 100 150 180 200 Z" fill={lightColor} />
-          <path ref={leftEyePathElementRef} d={initialPaths.leftEyePathString} fill={shadowColor} />
-          <path ref={rightEyePathElementRef} d={initialPaths.rightEyePathString} fill={shadowColor} />
-          <path ref={mouthPathElementRef} d={initialPaths.mouthPathString} fill={shadowColor} />
-        </g>
+        {(model.underlayShapes ?? []).map((shape, index) =>
+          renderProceduralShape(shape, index, colors, antennaCircleElementRef)
+        )}
+        {model.clipShape ? (
+          <g clipPath={`url(#${headClipPathId})`}>
+            {bodyShapes}
+            {eyeAndMouthShapes}
+          </g>
+        ) : (
+          <>
+            {bodyShapes}
+            {eyeAndMouthShapes}
+          </>
+        )}
       </g>
     </svg>
   );
@@ -632,6 +742,7 @@ export const BotAvatar = ({
   return (
     <ProceduralBotAvatar
       {...proceduralProps}
+      model={model}
       state={currentState}
       size={size}
       lightColor={lightColor}

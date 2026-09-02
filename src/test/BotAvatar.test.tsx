@@ -1,8 +1,32 @@
 import { act, render, screen } from "@testing-library/react";
+import { gsap } from "gsap";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BotAvatar } from "../lib/BotAvatar";
 import { BOT_AVATAR_STATES } from "../lib/avatarStates";
-import { defineLottieAvatarModel } from "../lib/avatarModels";
+import { defineLottieAvatarModel, defineProceduralAvatarModel } from "../lib/avatarModels";
+
+const mouthlessModel = defineProceduralAvatarModel({
+  id: "test-mouthless",
+  name: "Test Mouthless",
+  viewBox: [0, 0, 28, 28],
+  body: [],
+  features: {
+    leftEye: { cx: 10, cy: 14, fillRole: "shadow" },
+    rightEye: { cx: 18, cy: 14, fillRole: "shadow" }
+  },
+  eyeShapesByState: {
+    neutral: { rx: 2, ry: 2, dy: 0, shape: "ellipse" },
+    thinking: { rx: 2, ry: 2, dy: 0, shape: "ellipse" },
+    deepThinking: { rx: 2, ry: 2, dy: 0, shape: "ellipse" },
+    toolCalling: { rx: 2, ry: 2, dy: 0, shape: "ellipse" },
+    toolResponse: { rx: 2, ry: 2, dy: 0, shape: "ellipse" },
+    speakingOpen: { rx: 2, ry: 2, dy: 0, shape: "ellipse" },
+    speakingWide: { rx: 2, ry: 2, dy: 0, shape: "ellipse" },
+    speakingRound: { rx: 2, ry: 2, dy: 0, shape: "ellipse" },
+    speakingComplete: { rx: 2, ry: 2, dy: 0, shape: "ellipse" }
+  },
+  blink: { closedRx: 2, closedRy: 0.3 }
+});
 
 const lottieModel = defineLottieAvatarModel({
   id: "test-lottie",
@@ -30,6 +54,10 @@ describe("BotAvatar", () => {
     vi.runOnlyPendingTimers();
     vi.useRealTimers();
     vi.restoreAllMocks();
+    // Object.defineProperty(window, "matchMedia", ...) below isn't a vi
+    // mock, so vi.restoreAllMocks() doesn't undo it; without this it leaks
+    // a "reduced motion" matchMedia into every later test in the file.
+    Reflect.deleteProperty(window, "matchMedia");
   });
 
   it("renders an SVG with the default aria label", () => {
@@ -138,5 +166,43 @@ describe("BotAvatar", () => {
 
     render(<BotAvatar state="neutral" />);
     expect(setTimeoutSpy).not.toHaveBeenCalled();
+  });
+
+  it("disables idle motion for non-neutral states when reduced-motion is preferred", () => {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      writable: true,
+      value: (query: string): MediaQueryList => ({
+        matches: query === "(prefers-reduced-motion: reduce)",
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false
+      })
+    });
+    const timelineSpy = vi.spyOn(gsap, "timeline");
+
+    render(<BotAvatar state="thinking" transitionDurationSeconds={0.01} />);
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+
+    // Only idle builders call gsap.timeline(); the discrete-state morph
+    // itself uses gsap.to(). Reduced motion must suppress the idle call.
+    expect(timelineSpy).not.toHaveBeenCalled();
+  });
+
+  it("renders and idles a mouthless procedural model without a mouth ref", () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const { container } = render(<BotAvatar model={mouthlessModel} state="neutral" />);
+
+    expect(container.querySelector("path")).toBeTruthy();
+    expect(container.querySelectorAll("path")).toHaveLength(2);
+    // Idle scheduling must still run even though there is no mouth element.
+    expect(setTimeoutSpy).toHaveBeenCalled();
   });
 });
