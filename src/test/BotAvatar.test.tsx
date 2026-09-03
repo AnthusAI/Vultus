@@ -205,4 +205,84 @@ describe("BotAvatar", () => {
     // Idle scheduling must still run even though there is no mouth element.
     expect(setTimeoutSpy).toHaveBeenCalled();
   });
+
+  // Regression: the neutral-bored blink/glance and thinking/toolResponse
+  // wander idle animations used to target hardcoded coordinates tuned for
+  // VULTUS_CLASSIC_MODEL's 200x200 viewBox (eyes at ~(70,90)/(130,90),
+  // radius ~14). Against a small, differently-anchored model (e.g. the 28x28
+  // character models) that produced wildly out-of-viewBox eye paths --
+  // exactly the "eyes sometimes fucked up" / "eyebrows there, eyes not,
+  // then rotate into place" bugs. These must stay derived from the model's
+  // own geometry (features.leftEye/rightEye, blink, eyeShapesByState).
+  const maxAbsCoordinateInPathString = (d: string): number => {
+    const numbers = d.match(/-?\d+(\.\d+)?/g) ?? [];
+    return Math.max(...numbers.map(Number).map(Math.abs));
+  };
+
+  // GSAP drives tweens off its own ticker (rAF-based), which fake timers'
+  // setTimeout queue doesn't push forward on its own -- advance both in
+  // lockstep so onUpdate callbacks actually fire during the assertion.
+  const advanceTimersAndGsapTicker = (totalMs: number, stepMs = 16) => {
+    let elapsed = 0;
+    while (elapsed < totalMs) {
+      vi.advanceTimersByTime(stepMs);
+      gsap.ticker.tick();
+      elapsed += stepMs;
+    }
+  };
+
+  it("keeps blink-idle eye paths within the small character model's viewBox", () => {
+    vi.spyOn(Math, "random")
+      .mockReturnValueOnce(0) // bored interval delay
+      .mockReturnValueOnce(0) // bored variant duration
+      .mockReturnValueOnce(0); // builder selection -> blink (index 0)
+    const { container } = render(<BotAvatar model={mouthlessModel} state="neutral" />);
+
+    act(() => {
+      vi.advanceTimersByTime(10_000); // fire the scheduled bored variant
+      advanceTimersAndGsapTicker(60); // partway into the blink-close tween
+    });
+
+    const eyePaths = container.querySelectorAll("path");
+    expect(eyePaths.length).toBeGreaterThan(0);
+    eyePaths.forEach((path) => {
+      expect(maxAbsCoordinateInPathString(path.getAttribute("d") ?? "")).toBeLessThan(40);
+    });
+  });
+
+  it("keeps glance-idle eye paths within the small character model's viewBox", () => {
+    vi.spyOn(Math, "random")
+      .mockReturnValueOnce(0) // bored interval delay
+      .mockReturnValueOnce(0) // bored variant duration
+      .mockReturnValueOnce(0.5); // builder selection -> glance (index 1 of 3)
+    const { container } = render(<BotAvatar model={mouthlessModel} state="neutral" />);
+
+    act(() => {
+      vi.advanceTimersByTime(10_000); // fire the scheduled bored variant
+      advanceTimersAndGsapTicker(150); // partway into the glance-out tween
+    });
+
+    const eyePaths = container.querySelectorAll("path");
+    expect(eyePaths.length).toBeGreaterThan(0);
+    eyePaths.forEach((path) => {
+      expect(maxAbsCoordinateInPathString(path.getAttribute("d") ?? "")).toBeLessThan(40);
+    });
+  });
+
+  it("keeps thinking-wander eye paths within the small character model's viewBox", () => {
+    const { container } = render(
+      <BotAvatar model={mouthlessModel} state="thinking" transitionDurationSeconds={0.01} />
+    );
+
+    act(() => {
+      advanceTimersAndGsapTicker(20); // finish the discrete-state morph into "thinking"
+      advanceTimersAndGsapTicker(300); // partway into the wander idle animation
+    });
+
+    const eyePaths = container.querySelectorAll("path");
+    expect(eyePaths.length).toBeGreaterThan(0);
+    eyePaths.forEach((path) => {
+      expect(maxAbsCoordinateInPathString(path.getAttribute("d") ?? "")).toBeLessThan(40);
+    });
+  });
 });

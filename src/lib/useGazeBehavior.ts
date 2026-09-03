@@ -26,6 +26,8 @@ export type UseGazeBehaviorOptions = {
   gaze: GazeSource;
   geometry?: GazeGeometry;
   config?: Partial<GazeConfig>;
+  /** When set, the avatar looks at this element's center instead of the pointer/wander. See BotAvatarProps.focusElement. */
+  focusElement?: Element | null;
 };
 
 const browserPrefersReducedMotion = (): boolean => {
@@ -65,7 +67,8 @@ export function useGazeBehavior({
   bodyElementRef,
   gaze,
   geometry,
-  config
+  config,
+  focusElement
 }: UseGazeBehaviorOptions): void {
   const configRef = useRef<GazeConfig>({ ...DEFAULT_GAZE_CONFIG, ...config });
   configRef.current = { ...DEFAULT_GAZE_CONFIG, ...config };
@@ -503,4 +506,46 @@ export function useGazeBehavior({
     eyelidGroupElementRef,
     svgElementRef
   ]);
+
+  // Deliberately a second, independent effect rather than folded into the
+  // one above: focusElement is a short-lived override (e.g. a "typing…"
+  // indicator mounting/unmounting every few seconds) that only needs to
+  // steer where the existing gaze group already points, not touch wander,
+  // blink, or pointer-tracking scheduling at all. Keeping it separate
+  // means it can't regress that already-tuned machinery, and the main
+  // effect's own next tick naturally takes back over the moment
+  // focusElement clears -- no coordination between the two is needed.
+  useEffect(() => {
+    if (!focusElement || gaze === "none" || !geometry) {
+      return undefined;
+    }
+    const svgElement = svgElementRef.current;
+    const gazeGroupElement = gazeGroupElementRef.current;
+    if (!svgElement || !gazeGroupElement) {
+      return undefined;
+    }
+
+    const reducedMotion = browserPrefersReducedMotion();
+
+    const applyFocusVector = () => {
+      const svgRect = svgElement.getBoundingClientRect();
+      const targetRect = focusElement.getBoundingClientRect();
+      const targetPoint = {
+        x: targetRect.left + targetRect.width / 2,
+        y: targetRect.top + targetRect.height / 2
+      };
+      const { dx, dy } = applyGazeTravel(computePointerGazeVector(svgRect, targetPoint), geometry.travel);
+      gazeGroupElement.style.transition = reducedMotion ? "none" : `transform ${configRef.current.trackMs}ms ${configRef.current.easing}`;
+      gazeGroupElement.style.transform = `translate(${dx}px, ${dy}px)`;
+    };
+
+    applyFocusVector();
+    // The target is expected to only appear/disappear, not move on its own,
+    // but re-applying on a light interval keeps the look correct through a
+    // reflow (e.g. sibling content shifting the indicator's position) and
+    // guards against the main effect's own wander/pointer ticks stomping
+    // the transform in between.
+    const intervalId = setInterval(applyFocusVector, 400);
+    return () => clearInterval(intervalId);
+  }, [focusElement, gaze, geometry, svgElementRef, gazeGroupElementRef]);
 }
