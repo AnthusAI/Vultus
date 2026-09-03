@@ -11,6 +11,8 @@ export type UseGazeBehaviorOptions = {
     gaze: GazeSource;
     geometry?: GazeGeometry;
     config?: Partial<GazeConfig>;
+    /** When set, the avatar looks at this element's center instead of the pointer/wander. See BotAvatarProps.focusElement. */
+    focusElement?: Element | null;
 };
 /**
  * Drives a model's gaze from real time, real pointer events, and real
@@ -26,4 +28,4 @@ export type UseGazeBehaviorOptions = {
  * them — a fast 90ms blink and a slow 900ms glance can't both be "the"
  * duration of one combined translate+scaleY transition.
  */
-export declare function useGazeBehavior({ svgElementRef, gazeGroupElementRef, eyelidGroupElementRef, bodyElementRef, gaze, geometry, config }: UseGazeBehaviorOptions): void;
+export declare function useGazeBehavior({ svgElementRef, gazeGroupElementRef, eyelidGroupElementRef, bodyElementRef, gaze, geometry, config, focusElement }: UseGazeBehaviorOptions): void;

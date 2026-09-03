@@ -20,5 +20,15 @@ export type BotAvatarProps = {
      */
     gaze?: GazeSource;
     gazeConfig?: Partial<GazeConfig>;
+    /**
+     * When set (and `gaze` isn't "none"), the avatar looks at this DOM
+     * element's center instead of the pointer/wander -- e.g. a caller's own
+     * "typing…" indicator, so the character visibly notices it. Overrides
+     * pointer tracking and autonomous wander for as long as it's set;
+     * reverts the moment it's cleared. Independent of `gaze`'s own mode,
+     * same as a fixed-vector `gaze` is -- but sourced from a live element's
+     * position rather than a static direction.
+     */
+    focusElement?: Element | null;
 };
 export declare const BotAvatar: ({ model, state, size, lightColor, ariaLabel, paused, ...proceduralProps }: BotAvatarProps) => import("react/jsx-runtime").JSX.Element;

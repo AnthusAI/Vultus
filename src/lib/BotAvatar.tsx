@@ -35,6 +35,16 @@ export type BotAvatarProps = {
    */
   gaze?: GazeSource;
   gazeConfig?: Partial<GazeConfig>;
+  /**
+   * When set (and `gaze` isn't "none"), the avatar looks at this DOM
+   * element's center instead of the pointer/wander -- e.g. a caller's own
+   * "typing…" indicator, so the character visibly notices it. Overrides
+   * pointer tracking and autonomous wander for as long as it's set;
+   * reverts the moment it's cleared. Independent of `gaze`'s own mode,
+   * same as a fixed-vector `gaze` is -- but sourced from a live element's
+   * position rather than a static direction.
+   */
+  focusElement?: Element | null;
 };
 
 type AnimationContext = {
@@ -68,9 +78,11 @@ const appendBlinkToTimeline = (
     openDuration?: number;
   }
 ) => {
+  const { leftEye, rightEye } = animationContext.model.features;
+  const { closedRx, closedRy } = animationContext.model.blink;
   const basePaths = computeAllFacialPathsForState(animationContext.model, "neutral");
-  const closedLeftEyePath = ellipsePathAtPosition(70, 90, 13, 1.5);
-  const closedRightEyePath = ellipsePathAtPosition(130, 90, 13, 1.5);
+  const closedLeftEyePath = ellipsePathAtPosition(leftEye.cx, leftEye.cy, closedRx, closedRy);
+  const closedRightEyePath = ellipsePathAtPosition(rightEye.cx, rightEye.cy, closedRx, closedRy);
   const blinkProgress = { value: 0 };
   const closeDuration = options?.closeDuration ?? 0.09;
   const closedHoldDuration = options?.closedHoldDuration ?? 0.03;
@@ -134,12 +146,17 @@ const buildNeutralEyeGlanceBoredAnimation = (
   const totalDurationSeconds = Math.max(totalDurationMilliseconds / 1000, 1);
   const stepDuration = totalDurationSeconds * 0.24;
   const holdDuration = totalDurationSeconds * 0.14;
-  const centerLeftEyePath = ellipsePathAtPosition(70, 90, 14, 14);
-  const centerRightEyePath = ellipsePathAtPosition(130, 90, 14, 14);
-  const glanceLeftEyePath = ellipsePathAtPosition(75, 90, 14, 14);
-  const glanceRightEyePath = ellipsePathAtPosition(135, 90, 14, 14);
-  const glanceBackLeftEyePath = ellipsePathAtPosition(65, 90, 14, 14);
-  const glanceBackRightEyePath = ellipsePathAtPosition(125, 90, 14, 14);
+  const { leftEye, rightEye } = animationContext.model.features;
+  const neutralEyeShape = animationContext.model.eyeShapesByState.neutral;
+  const eyeRadius = neutralEyeShape.rx;
+  /** Sideways glance distance, proportional to eye size -- tuned against the classic model's 14-unit eye radius, where a 5-unit glance read as natural. */
+  const glanceOffset = eyeRadius * (5 / 14);
+  const centerLeftEyePath = ellipsePathAtPosition(leftEye.cx, leftEye.cy, eyeRadius, eyeRadius);
+  const centerRightEyePath = ellipsePathAtPosition(rightEye.cx, rightEye.cy, eyeRadius, eyeRadius);
+  const glanceLeftEyePath = ellipsePathAtPosition(leftEye.cx + glanceOffset, leftEye.cy, eyeRadius, eyeRadius);
+  const glanceRightEyePath = ellipsePathAtPosition(rightEye.cx + glanceOffset, rightEye.cy, eyeRadius, eyeRadius);
+  const glanceBackLeftEyePath = ellipsePathAtPosition(leftEye.cx - glanceOffset, leftEye.cy, eyeRadius, eyeRadius);
+  const glanceBackRightEyePath = ellipsePathAtPosition(rightEye.cx - glanceOffset, rightEye.cy, eyeRadius, eyeRadius);
   const glanceTimeline = gsap.timeline();
 
   const animateEyePathMorph = (
@@ -229,19 +246,24 @@ const buildNeutralAntennaFidgetBoredAnimation = (
 
 const buildEyeWanderIdleAnimation = (
   animationContext: AnimationContext,
-  wanderEyeCenterPositions: ReadonlyArray<{
-    leftEyeCenter: readonly [number, number];
-    rightEyeCenter: readonly [number, number];
-  }>,
+  wanderRadius: number,
+  /** Offsets from each eye's own anchor, in classic-model units (tuned against its 14-unit eye radius) -- scaled to this model's actual eye size below. */
+  wanderOffsets: ReadonlyArray<{ dx: number; dy: number }>,
   transitionDuration: number,
   restDurationFunction: (index: number) => number
 ): gsap.core.Timeline => {
-  const wanderRadius = 14;
-  const positionPathSets = wanderEyeCenterPositions.map((position) => ({
-    leftEyePath: ellipsePathAtPosition(position.leftEyeCenter[0], position.leftEyeCenter[1], wanderRadius, wanderRadius),
+  const { leftEye, rightEye } = animationContext.model.features;
+  const offsetScale = wanderRadius / 14;
+  const positionPathSets = wanderOffsets.map(({ dx, dy }) => ({
+    leftEyePath: ellipsePathAtPosition(
+      leftEye.cx + dx * offsetScale,
+      leftEye.cy + dy * offsetScale,
+      wanderRadius,
+      wanderRadius
+    ),
     rightEyePath: ellipsePathAtPosition(
-      position.rightEyeCenter[0],
-      position.rightEyeCenter[1],
+      rightEye.cx + dx * offsetScale,
+      rightEye.cy + dy * offsetScale,
       wanderRadius,
       wanderRadius
     )
@@ -277,11 +299,12 @@ const buildEyeWanderIdleAnimation = (
 const buildThinkingWanderIdleAnimation = (animationContext: AnimationContext): gsap.core.Timeline =>
   buildEyeWanderIdleAnimation(
     animationContext,
+    animationContext.model.eyeShapesByState.thinking.rx,
     [
-      { leftEyeCenter: [70, 86], rightEyeCenter: [130, 86] },
-      { leftEyeCenter: [66, 84], rightEyeCenter: [126, 84] },
-      { leftEyeCenter: [70, 82], rightEyeCenter: [130, 82] },
-      { leftEyeCenter: [74, 84], rightEyeCenter: [134, 84] }
+      { dx: 0, dy: -4 },
+      { dx: -4, dy: -6 },
+      { dx: 0, dy: -8 },
+      { dx: 4, dy: -6 }
     ],
     0.5,
     () => 1.1 + Math.random() * 0.6
@@ -290,11 +313,12 @@ const buildThinkingWanderIdleAnimation = (animationContext: AnimationContext): g
 const buildToolResponseReadingIdleAnimation = (animationContext: AnimationContext): gsap.core.Timeline =>
   buildEyeWanderIdleAnimation(
     animationContext,
+    animationContext.model.eyeShapesByState.toolResponse.rx,
     [
-      { leftEyeCenter: [66, 90], rightEyeCenter: [126, 90] },
-      { leftEyeCenter: [70, 90], rightEyeCenter: [130, 90] },
-      { leftEyeCenter: [74, 90], rightEyeCenter: [134, 90] },
-      { leftEyeCenter: [70, 90], rightEyeCenter: [130, 90] }
+      { dx: -4, dy: 0 },
+      { dx: 0, dy: 0 },
+      { dx: 4, dy: 0 },
+      { dx: 0, dy: 0 }
     ],
     0.16,
     () => 0.35
@@ -459,7 +483,8 @@ const ProceduralBotAvatar = ({
   ariaLabel,
   paused = false,
   gaze = "none",
-  gazeConfig
+  gazeConfig,
+  focusElement = null
 }: ProceduralBotAvatarProps) => {
   const currentState: BotAvatarState = isBotAvatarState(state) ? state : "neutral";
   const generatedRawId = useId();
@@ -488,7 +513,8 @@ const ProceduralBotAvatar = ({
     bodyElementRef: flinchBodyElementRef,
     gaze,
     geometry: model.gaze,
-    config: gazeConfig
+    config: gazeConfig,
+    focusElement
   });
 
   useEffect(() => {
