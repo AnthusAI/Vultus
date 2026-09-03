@@ -1,9 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { characterColorProps } from "../lib/characterModels";
 import { creativeCharacterModelForRole, creativeCharacterSpecForRole } from "../lib/creativeCharacterModels";
-import type { CreativeRole } from "../lib/creativeDeskModels";
+import type { CreativeCharacterRole } from "../lib/creativeCharacterModels";
 
-const roles: CreativeRole[] = ["Editor", "Reporter", "Copy Writer", "Illustrator"];
+const roles: CreativeCharacterRole[] = [
+  "Editor",
+  "Reporter",
+  "Copy Writer",
+  "Illustrator",
+  "Producer",
+  "Researcher",
+  "Archivist",
+  "Analyst"
+];
 
 describe("creativeCharacterModelForRole", () => {
   it("produces a distinct model id for every role", () => {
@@ -11,9 +20,16 @@ describe("creativeCharacterModelForRole", () => {
     expect(new Set(ids).size).toBe(roles.length);
   });
 
-  it("gives every role a unique body color", () => {
-    const colors = roles.map((role) => characterColorProps(creativeCharacterSpecForRole(role)).shadowColor);
-    expect(new Set(colors).size).toBe(roles.length);
+  it("gives every role a unique body/eye/accent color combination", () => {
+    // The palette is a closed set of seven brand colors shared across eight
+    // roles, so a body color alone can repeat (by design -- shape and
+    // accessory carry the rest of the distinction); the full three-color
+    // combination never does.
+    const combos = roles.map((role) => {
+      const { shadowColor, lightColor, accentColor } = characterColorProps(creativeCharacterSpecForRole(role));
+      return `${shadowColor}/${lightColor}/${accentColor}`;
+    });
+    expect(new Set(combos).size).toBe(roles.length);
   });
 
   it("every role opts into bodyFlinch and gaze support", () => {
