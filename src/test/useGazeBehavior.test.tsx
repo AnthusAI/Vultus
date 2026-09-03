@@ -186,9 +186,15 @@ describe("gaze wiring on BotAvatar", () => {
 });
 
 /** jsdom has no PointerEvent constructor; a plain Event with pointerType set works for dispatch. */
-const makePointerEvent = (type: string, pointerType: string) => {
+const makePointerEvent = (
+  type: string,
+  pointerType: string,
+  coords: { clientX: number; clientY: number } = { clientX: 0, clientY: 0 }
+) => {
   const event = new Event(type);
   Object.defineProperty(event, "pointerType", { value: pointerType });
+  Object.defineProperty(event, "clientX", { value: coords.clientX });
+  Object.defineProperty(event, "clientY", { value: coords.clientY });
   return event;
 };
 
@@ -277,6 +283,73 @@ describe("defensive squint (pointer rollover)", () => {
     });
     expect(setTimeoutSpy).toHaveBeenCalled(); // blink scheduling resumes
     expect(squintScaleY).not.toBe("scaleY(1)"); // stayed squinted throughout, unaffected by blink's own gap
+  });
+});
+
+describe("touch gaze (notice, then drift back)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(window, "matchMedia");
+  });
+
+  const mockSvgRect = (svgElement: SVGSVGElement) => {
+    // jsdom's getBoundingClientRect is all-zero by default, which
+    // computePointerGazeVector treats as "no real geometry" and always
+    // resolves to neutral -- give it a real rect so a touch point off
+    // to one side actually produces a non-neutral vector.
+    svgElement.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 20, height: 20, right: 20, bottom: 20, x: 0, y: 0, toJSON: () => "" }) as DOMRect;
+  };
+
+  it("glances at a touch point on contact, with no prior pointermove needed", () => {
+    const { container } = render(<BotAvatar model={gazeModel} gaze="pointer" neutralIdleMode="static" />);
+    const svgElement = container.querySelector("svg") as SVGSVGElement;
+    const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement;
+    mockSvgRect(svgElement);
+
+    act(() => {
+      // Touch the right edge (x=20) of a rect centered at (10,10) -> fully right (1,0).
+      window.dispatchEvent(makePointerEvent("pointerdown", "touch", { clientX: 20, clientY: 10 }));
+    });
+
+    // right travel budget is 1.5 for this model
+    expect(gazeGroup.style.transform).toBe("translate(1.5px, 0px)");
+  });
+
+  it("does not stare forever: drifts back to neutral and resumes wander after the touch goes stale", () => {
+    const { container } = render(<BotAvatar model={gazeModel} gaze="pointer" neutralIdleMode="static" />);
+    const svgElement = container.querySelector("svg") as SVGSVGElement;
+    const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement;
+    mockSvgRect(svgElement);
+
+    act(() => {
+      window.dispatchEvent(makePointerEvent("pointerdown", "touch", { clientX: 20, clientY: 10 }));
+    });
+    expect(gazeGroup.style.transform).toBe("translate(1.5px, 0px)");
+
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_GAZE_CONFIG.pointerRestMs + DEFAULT_GAZE_CONFIG.driftBackMs + 1);
+    });
+    expect(gazeGroup.style.transform).toBe("translate(0px, 0px)");
+  });
+
+  it("ignores a mouse pointerdown (already handled by pointermove tracking)", () => {
+    const { container } = render(<BotAvatar model={gazeModel} gaze="pointer" neutralIdleMode="static" />);
+    const svgElement = container.querySelector("svg") as SVGSVGElement;
+    const gazeGroup = container.querySelector(".vultus-gaze") as SVGGElement;
+    mockSvgRect(svgElement);
+
+    act(() => {
+      window.dispatchEvent(makePointerEvent("pointerdown", "mouse", { clientX: 20, clientY: 10 }));
+    });
+
+    expect(gazeGroup.style.transform).toBe("translate(0px, 0px)");
   });
 });
 

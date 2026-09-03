@@ -192,6 +192,26 @@ export function useGazeBehavior({
       }
     };
 
+    /**
+     * Touchscreens have no hover: a finger only reaches the DOM at the
+     * moment of contact, with no pointermove beforehand to track. So
+     * touch gets a one-shot "notice" instead of continuous tracking —
+     * glance at the contact point, then reuse the same rest/drift-back
+     * pipeline as an idle mouse to return to neutral/wander shortly
+     * after, rather than staring at a stale point forever.
+     */
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.pointerType !== "touch" || gaze !== "pointer" || isSuspended()) {
+        return;
+      }
+      pointerPosition = { x: event.clientX, y: event.clientY };
+      clearWanderTimeout();
+      const rect = svgElement.getBoundingClientRect();
+      applyVector(computePointerGazeVector(rect, pointerPosition), configRef.current.trackMs);
+      pointerEngaged = true;
+      scheduleDriftBack();
+    };
+
     const handlePointerLeaveDocument = () => {
       pointerPosition = null;
       pointerEngaged = false;
@@ -421,6 +441,7 @@ export function useGazeBehavior({
     reducedMotionMedia?.addEventListener("change", handleReducedMotionChange);
     pointerFineMedia?.addEventListener("change", handlePointerFineChange);
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
     document.addEventListener("mouseleave", handlePointerLeaveDocument);
     document.addEventListener("visibilitychange", handleVisibilityChange);
     svgElement.addEventListener("pointerenter", handlePointerEnterMark);
@@ -465,6 +486,7 @@ export function useGazeBehavior({
       reducedMotionMedia?.removeEventListener("change", handleReducedMotionChange);
       pointerFineMedia?.removeEventListener("change", handlePointerFineChange);
       window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("mouseleave", handlePointerLeaveDocument);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       svgElement.removeEventListener("pointerenter", handlePointerEnterMark);

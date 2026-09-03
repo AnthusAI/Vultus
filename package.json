@@ -1,6 +1,6 @@
 {
   "name": "anthus-vultus",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Extensible React avatar model zoo with procedural and Lottie renderers.",
   "license": "MIT",
   "type": "module",
