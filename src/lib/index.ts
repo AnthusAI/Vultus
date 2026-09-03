@@ -45,6 +45,7 @@ export type {
   CharacterSpec
 } from "./characterModels";
 export { creativeCharacterModelForRole, creativeCharacterSpecForRole } from "./creativeCharacterModels";
+export type { CreativeCharacterRole } from "./creativeCharacterModels";
 export {
   DEFAULT_GAZE_CONFIG,
   NEUTRAL_GAZE_VECTOR,

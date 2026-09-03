@@ -1,5 +1,5 @@
 import type { CharacterSpec } from "./characterModels";
 import type { ProceduralAvatarModel } from "./avatarModels";
-import type { CreativeRole } from "./creativeDeskModels";
-export declare function creativeCharacterSpecForRole(role: CreativeRole): CharacterSpec;
-export declare function creativeCharacterModelForRole(role: CreativeRole): ProceduralAvatarModel;
+export type CreativeCharacterRole = "Editor" | "Reporter" | "Copy Writer" | "Illustrator" | "Producer" | "Researcher" | "Archivist" | "Analyst";
+export declare function creativeCharacterSpecForRole(role: CreativeCharacterRole): CharacterSpec;
+export declare function creativeCharacterModelForRole(role: CreativeCharacterRole): ProceduralAvatarModel;

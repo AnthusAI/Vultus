@@ -391,11 +391,11 @@ function requireLottie() {
           i || (i = a(function(b) {
             function v() {
               function x(I, C) {
-                var T, g, E = I.length, F, k, L, O;
+                var M, g, E = I.length, F, k, L, O;
                 for (g = 0; g < E; g += 1)
-                  if (T = I[g], "ks" in T && !T.completed) {
-                    if (T.completed = !0, T.hasMask) {
-                      var G = T.masksProperties;
+                  if (M = I[g], "ks" in M && !M.completed) {
+                    if (M.completed = !0, M.hasMask) {
+                      var G = M.masksProperties;
                       for (k = G.length, F = 0; F < k; F += 1)
                         if (G[F].pt.k.i)
                           P(G[F].pt.k);
@@ -403,31 +403,31 @@ function requireLottie() {
                           for (O = G[F].pt.k.length, L = 0; L < O; L += 1)
                             G[F].pt.k[L].s && P(G[F].pt.k[L].s[0]), G[F].pt.k[L].e && P(G[F].pt.k[L].e[0]);
                     }
-                    T.ty === 0 ? (T.layers = h(T.refId, C), x(T.layers, C)) : T.ty === 4 ? y(T.shapes) : T.ty === 5 && D(T);
+                    M.ty === 0 ? (M.layers = h(M.refId, C), x(M.layers, C)) : M.ty === 4 ? y(M.shapes) : M.ty === 5 && D(M);
                   }
               }
               function c(I, C) {
                 if (I) {
-                  var T = 0, g = I.length;
-                  for (T = 0; T < g; T += 1)
-                    I[T].t === 1 && (I[T].data.layers = h(I[T].data.refId, C), x(I[T].data.layers, C));
+                  var M = 0, g = I.length;
+                  for (M = 0; M < g; M += 1)
+                    I[M].t === 1 && (I[M].data.layers = h(I[M].data.refId, C), x(I[M].data.layers, C));
                 }
               }
               function d(I, C) {
-                for (var T = 0, g = C.length; T < g; ) {
-                  if (C[T].id === I)
-                    return C[T];
-                  T += 1;
+                for (var M = 0, g = C.length; M < g; ) {
+                  if (C[M].id === I)
+                    return C[M];
+                  M += 1;
                 }
                 return null;
               }
               function h(I, C) {
-                var T = d(I, C);
-                return T ? T.layers.__used ? JSON.parse(JSON.stringify(T.layers)) : (T.layers.__used = !0, T.layers) : null;
+                var M = d(I, C);
+                return M ? M.layers.__used ? JSON.parse(JSON.stringify(M.layers)) : (M.layers.__used = !0, M.layers) : null;
               }
               function y(I) {
-                var C, T = I.length, g, E;
-                for (C = T - 1; C >= 0; C -= 1)
+                var C, M = I.length, g, E;
+                for (C = M - 1; C >= 0; C -= 1)
                   if (I[C].ty === "sh")
                     if (I[C].ks.k.i)
                       P(I[C].ks.k);
@@ -437,13 +437,13 @@ function requireLottie() {
                   else I[C].ty === "gr" && y(I[C].it);
               }
               function P(I) {
-                var C, T = I.i.length;
-                for (C = 0; C < T; C += 1)
+                var C, M = I.i.length;
+                for (C = 0; C < M; C += 1)
                   I.i[C][0] += I.v[C][0], I.i[C][1] += I.v[C][1], I.o[C][0] += I.v[C][0], I.o[C][1] += I.v[C][1];
               }
               function A(I, C) {
-                var T = C ? C.split(".") : [100, 100, 100];
-                return I[0] > T[0] ? !0 : T[0] > I[0] ? !1 : I[1] > T[1] ? !0 : T[1] > I[1] ? !1 : I[2] > T[2] ? !0 : T[2] > I[2] ? !1 : null;
+                var M = C ? C.split(".") : [100, 100, 100];
+                return I[0] > M[0] ? !0 : M[0] > I[0] ? !1 : I[1] > M[1] ? !0 : M[1] > I[1] ? !1 : I[2] > M[2] ? !0 : M[2] > I[2] ? !1 : null;
               }
               var _ = /* @__PURE__ */ (function() {
                 var I = [4, 4, 14];
@@ -456,25 +456,25 @@ function requireLottie() {
                     }]
                   };
                 }
-                function T(g) {
+                function M(g) {
                   var E, F = g.length;
                   for (E = 0; E < F; E += 1)
                     g[E].ty === 5 && C(g[E]);
                 }
                 return function(g) {
-                  if (A(I, g.v) && (T(g.layers), g.assets)) {
+                  if (A(I, g.v) && (M(g.layers), g.assets)) {
                     var E, F = g.assets.length;
                     for (E = 0; E < F; E += 1)
-                      g.assets[E].layers && T(g.assets[E].layers);
+                      g.assets[E].layers && M(g.assets[E].layers);
                   }
                 };
-              })(), M = /* @__PURE__ */ (function() {
+              })(), T = /* @__PURE__ */ (function() {
                 var I = [4, 7, 99];
                 return function(C) {
                   if (C.chars && !A(I, C.v)) {
-                    var T, g = C.chars.length;
-                    for (T = 0; T < g; T += 1) {
-                      var E = C.chars[T];
+                    var M, g = C.chars.length;
+                    for (M = 0; M < g; M += 1) {
+                      var E = C.chars[M];
                       E.data && E.data.shapes && (y(E.data.shapes), E.data.ip = 0, E.data.op = 99999, E.data.st = 0, E.data.sr = 1, E.data.ks = {
                         p: {
                           k: [0, 0],
@@ -496,7 +496,7 @@ function requireLottie() {
                           k: 100,
                           a: 0
                         }
-                      }, C.chars[T].t || (E.data.shapes.push({
+                      }, C.chars[M].t || (E.data.shapes.push({
                         ty: "no"
                       }), E.data.shapes[0].it.push({
                         p: {
@@ -547,16 +547,16 @@ function requireLottie() {
                     k: E.r
                   });
                 }
-                function T(g) {
+                function M(g) {
                   var E, F = g.length;
                   for (E = 0; E < F; E += 1)
                     g[E].ty === 5 && C(g[E]);
                 }
                 return function(g) {
-                  if (A(I, g.v) && (T(g.layers), g.assets)) {
+                  if (A(I, g.v) && (M(g.layers), g.assets)) {
                     var E, F = g.assets.length;
                     for (E = 0; E < F; E += 1)
-                      g.assets[E].layers && T(g.assets[E].layers);
+                      g.assets[E].layers && M(g.assets[E].layers);
                   }
                 };
               })(), V = /* @__PURE__ */ (function() {
@@ -573,16 +573,16 @@ function requireLottie() {
                       else
                         g[E].c.k[0] /= 255, g[E].c.k[1] /= 255, g[E].c.k[2] /= 255, g[E].c.k[3] /= 255;
                 }
-                function T(g) {
+                function M(g) {
                   var E, F = g.length;
                   for (E = 0; E < F; E += 1)
                     g[E].ty === 4 && C(g[E].shapes);
                 }
                 return function(g) {
-                  if (A(I, g.v) && (T(g.layers), g.assets)) {
+                  if (A(I, g.v) && (M(g.layers), g.assets)) {
                     var E, F = g.assets.length;
                     for (E = 0; E < F; E += 1)
-                      g.assets[E].layers && T(g.assets[E].layers);
+                      g.assets[E].layers && M(g.assets[E].layers);
                   }
                 };
               })(), B = /* @__PURE__ */ (function() {
@@ -598,7 +598,7 @@ function requireLottie() {
                           g[E].ks.k[k].s && (g[E].ks.k[k].s[0].c = g[E].closed), g[E].ks.k[k].e && (g[E].ks.k[k].e[0].c = g[E].closed);
                     else g[E].ty === "gr" && C(g[E].it);
                 }
-                function T(g) {
+                function M(g) {
                   var E, F, k = g.length, L, O, G, W;
                   for (F = 0; F < k; F += 1) {
                     if (E = g[F], E.hasMask) {
@@ -614,21 +614,21 @@ function requireLottie() {
                   }
                 }
                 return function(g) {
-                  if (A(I, g.v) && (T(g.layers), g.assets)) {
+                  if (A(I, g.v) && (M(g.layers), g.assets)) {
                     var E, F = g.assets.length;
                     for (E = 0; E < F; E += 1)
-                      g.assets[E].layers && T(g.assets[E].layers);
+                      g.assets[E].layers && M(g.assets[E].layers);
                   }
                 };
               })();
               function R(I) {
-                I.__complete || (V(I), _(I), M(I), w(I), B(I), x(I.layers, I.assets), c(I.chars, I.assets), I.__complete = !0);
+                I.__complete || (V(I), _(I), T(I), w(I), B(I), x(I.layers, I.assets), c(I.chars, I.assets), I.__complete = !0);
               }
               function D(I) {
                 I.t.a.length === 0 && "m" in I.t.p;
               }
               var N = {};
-              return N.completeData = R, N.checkColors = V, N.checkChars = M, N.checkPathProperties = w, N.checkShapes = B, N.completeLayers = x, N;
+              return N.completeData = R, N.checkColors = V, N.checkChars = T, N.checkPathProperties = w, N.checkShapes = B, N.completeLayers = x, N;
             }
             if (n.dataManager || (n.dataManager = v()), n.assetLoader || (n.assetLoader = /* @__PURE__ */ (function() {
               function x(d) {
@@ -648,8 +648,8 @@ function requireLottie() {
                     else
                       try {
                         A = x(_), y(A);
-                      } catch (M) {
-                        P && P(M);
+                      } catch (T) {
+                        P && P(T);
                       }
                 };
                 try {
@@ -1178,10 +1178,10 @@ function requireLottie() {
       var animationManager = (function() {
         var e = {}, t = [], r = 0, i = 0, s = 0, n = !0, a = !1;
         function l(C) {
-          for (var T = 0, g = C.target; T < i; )
-            t[T].animation === g && (t.splice(T, 1), T -= 1, i -= 1, g.isPaused || S()), T += 1;
+          for (var M = 0, g = C.target; M < i; )
+            t[M].animation === g && (t.splice(M, 1), M -= 1, i -= 1, g.isPaused || S()), M += 1;
         }
-        function o(C, T) {
+        function o(C, M) {
           if (!C)
             return null;
           for (var g = 0; g < i; ) {
@@ -1190,11 +1190,11 @@ function requireLottie() {
             g += 1;
           }
           var E = new AnimationItem();
-          return f(E, C), E.setData(C, T), E;
+          return f(E, C), E.setData(C, M), E;
         }
         function p() {
-          var C, T = t.length, g = [];
-          for (C = 0; C < T; C += 1)
+          var C, M = t.length, g = [];
+          for (C = 0; C < M; C += 1)
             g.push(t[C].animation);
           return g;
         }
@@ -1204,70 +1204,70 @@ function requireLottie() {
         function S() {
           s -= 1;
         }
-        function f(C, T) {
+        function f(C, M) {
           C.addEventListener("destroy", l), C.addEventListener("_active", u), C.addEventListener("_idle", S), t.push({
-            elem: T,
+            elem: M,
             animation: C
           }), i += 1;
         }
         function b(C) {
-          var T = new AnimationItem();
-          return f(T, null), T.setParams(C), T;
+          var M = new AnimationItem();
+          return f(M, null), M.setParams(C), M;
         }
-        function v(C, T) {
+        function v(C, M) {
           var g;
           for (g = 0; g < i; g += 1)
-            t[g].animation.setSpeed(C, T);
+            t[g].animation.setSpeed(C, M);
         }
-        function m(C, T) {
+        function m(C, M) {
           var g;
           for (g = 0; g < i; g += 1)
-            t[g].animation.setDirection(C, T);
+            t[g].animation.setDirection(C, M);
         }
         function x(C) {
-          var T;
-          for (T = 0; T < i; T += 1)
-            t[T].animation.play(C);
+          var M;
+          for (M = 0; M < i; M += 1)
+            t[M].animation.play(C);
         }
         function c(C) {
-          var T = C - r, g;
+          var M = C - r, g;
           for (g = 0; g < i; g += 1)
-            t[g].animation.advanceTime(T);
+            t[g].animation.advanceTime(M);
           r = C, s && !a ? window.requestAnimationFrame(c) : n = !0;
         }
         function d(C) {
           r = C, window.requestAnimationFrame(c);
         }
         function h(C) {
-          var T;
-          for (T = 0; T < i; T += 1)
-            t[T].animation.pause(C);
+          var M;
+          for (M = 0; M < i; M += 1)
+            t[M].animation.pause(C);
         }
-        function y(C, T, g) {
+        function y(C, M, g) {
           var E;
           for (E = 0; E < i; E += 1)
-            t[E].animation.goToAndStop(C, T, g);
+            t[E].animation.goToAndStop(C, M, g);
         }
         function P(C) {
-          var T;
-          for (T = 0; T < i; T += 1)
-            t[T].animation.stop(C);
+          var M;
+          for (M = 0; M < i; M += 1)
+            t[M].animation.stop(C);
         }
         function A(C) {
-          var T;
-          for (T = 0; T < i; T += 1)
-            t[T].animation.togglePause(C);
+          var M;
+          for (M = 0; M < i; M += 1)
+            t[M].animation.togglePause(C);
         }
         function _(C) {
-          var T;
-          for (T = i - 1; T >= 0; T -= 1)
-            t[T].animation.destroy(C);
+          var M;
+          for (M = i - 1; M >= 0; M -= 1)
+            t[M].animation.destroy(C);
         }
-        function M(C, T, g) {
+        function T(C, M, g) {
           var E = [].concat([].slice.call(document.getElementsByClassName("lottie")), [].slice.call(document.getElementsByClassName("bodymovin"))), F, k = E.length;
           for (F = 0; F < k; F += 1)
             g && E[F].setAttribute("data-bm-type", g), o(E[F], C);
-          if (T && k === 0) {
+          if (M && k === 0) {
             g || (g = "svg");
             var L = document.getElementsByTagName("body")[0];
             L.innerText = "";
@@ -1289,22 +1289,22 @@ function requireLottie() {
         function R() {
           a = !1, V();
         }
-        function D(C, T) {
+        function D(C, M) {
           var g;
           for (g = 0; g < i; g += 1)
-            t[g].animation.setVolume(C, T);
+            t[g].animation.setVolume(C, M);
         }
         function N(C) {
-          var T;
-          for (T = 0; T < i; T += 1)
-            t[T].animation.mute(C);
+          var M;
+          for (M = 0; M < i; M += 1)
+            t[M].animation.mute(C);
         }
         function I(C) {
-          var T;
-          for (T = 0; T < i; T += 1)
-            t[T].animation.unmute(C);
+          var M;
+          for (M = 0; M < i; M += 1)
+            t[M].animation.unmute(C);
         }
-        return e.registerAnimation = o, e.loadAnimation = b, e.setSpeed = v, e.setDirection = m, e.play = x, e.pause = h, e.stop = P, e.togglePause = A, e.searchAnimations = M, e.resize = w, e.goToAndStop = y, e.destroy = _, e.freeze = B, e.unfreeze = R, e.setVolume = D, e.mute = N, e.unmute = I, e.getRegisteredAnimations = p, e;
+        return e.registerAnimation = o, e.loadAnimation = b, e.setSpeed = v, e.setDirection = m, e.play = x, e.pause = h, e.stop = P, e.togglePause = A, e.searchAnimations = T, e.resize = w, e.goToAndStop = y, e.destroy = _, e.freeze = B, e.unfreeze = R, e.setVolume = D, e.mute = N, e.unmute = I, e.getRegisteredAnimations = p, e;
       })(), BezierFactory = (function() {
         var e = {};
         e.getBezierEasing = r;
@@ -1313,8 +1313,8 @@ function requireLottie() {
           var _ = A || ("bez_" + d + "_" + h + "_" + y + "_" + P).replace(/\./g, "p");
           if (t[_])
             return t[_];
-          var M = new c([d, h, y, P]);
-          return t[_] = M, M;
+          var T = new c([d, h, y, P]);
+          return t[_] = T, T;
         }
         var i = 4, s = 1e-3, n = 1e-7, a = 10, l = 11, o = 1 / (l - 1), p = typeof Float32Array == "function";
         function u(d, h) {
@@ -1333,18 +1333,18 @@ function requireLottie() {
           return 3 * u(h, y) * d * d + 2 * S(h, y) * d + f(h);
         }
         function m(d, h, y, P, A) {
-          var _, M, w = 0;
+          var _, T, w = 0;
           do
-            M = h + (y - h) / 2, _ = b(M, P, A) - d, _ > 0 ? y = M : h = M;
+            T = h + (y - h) / 2, _ = b(T, P, A) - d, _ > 0 ? y = T : h = T;
           while (Math.abs(_) > n && ++w < a);
-          return M;
+          return T;
         }
         function x(d, h, y, P) {
           for (var A = 0; A < i; ++A) {
             var _ = v(h, y, P);
             if (_ === 0) return h;
-            var M = b(h, y, P) - d;
-            h -= M / _;
+            var T = b(h, y, P) - d;
+            h -= T / _;
           }
           return h;
         }
@@ -1369,10 +1369,10 @@ function requireLottie() {
                * getTForX chose the fastest heuristic to determine the percentage value precisely from a given X projection.
                */
           _getTForX: function(h) {
-            for (var y = this._p[0], P = this._p[2], A = this._mSampleValues, _ = 0, M = 1, w = l - 1; M !== w && A[M] <= h; ++M)
+            for (var y = this._p[0], P = this._p[2], A = this._mSampleValues, _ = 0, T = 1, w = l - 1; T !== w && A[T] <= h; ++T)
               _ += o;
-            --M;
-            var V = (h - A[M]) / (A[M + 1] - A[M]), B = _ + V * o, R = v(B, y, P);
+            --T;
+            var V = (h - A[T]) / (A[T + 1] - A[T]), B = _ + V * o, R = v(B, y, P);
             return R >= s ? x(h, B, y, P) : R === 0 ? B : m(h, _, _ + o, y, P);
           }
         }, e;
@@ -1431,15 +1431,15 @@ function requireLottie() {
         function r(f, b, v, m, x, c, d, h, y) {
           if (v === 0 && c === 0 && y === 0)
             return t(f, b, m, x, d, h);
-          var P = e.sqrt(e.pow(m - f, 2) + e.pow(x - b, 2) + e.pow(c - v, 2)), A = e.sqrt(e.pow(d - f, 2) + e.pow(h - b, 2) + e.pow(y - v, 2)), _ = e.sqrt(e.pow(d - m, 2) + e.pow(h - x, 2) + e.pow(y - c, 2)), M;
-          return P > A ? P > _ ? M = P - A - _ : M = _ - A - P : _ > A ? M = _ - A - P : M = A - P - _, M > -1e-4 && M < 1e-4;
+          var P = e.sqrt(e.pow(m - f, 2) + e.pow(x - b, 2) + e.pow(c - v, 2)), A = e.sqrt(e.pow(d - f, 2) + e.pow(h - b, 2) + e.pow(y - v, 2)), _ = e.sqrt(e.pow(d - m, 2) + e.pow(h - x, 2) + e.pow(y - c, 2)), T;
+          return P > A ? P > _ ? T = P - A - _ : T = _ - A - P : _ > A ? T = _ - A - P : T = A - P - _, T > -1e-4 && T < 1e-4;
         }
         var i = /* @__PURE__ */ (function() {
           return function(f, b, v, m) {
-            var x = getDefaultCurveSegments(), c, d, h, y, P, A = 0, _, M = [], w = [], V = bezierLengthPool.newElement();
+            var x = getDefaultCurveSegments(), c, d, h, y, P, A = 0, _, T = [], w = [], V = bezierLengthPool.newElement();
             for (h = v.length, c = 0; c < x; c += 1) {
               for (P = c / (x - 1), _ = 0, d = 0; d < h; d += 1)
-                y = bmPow(1 - P, 3) * f[d] + 3 * bmPow(1 - P, 2) * P * v[d] + 3 * (1 - P) * bmPow(P, 2) * m[d] + bmPow(P, 3) * b[d], M[d] = y, w[d] !== null && (_ += bmPow(M[d] - w[d], 2)), w[d] = M[d];
+                y = bmPow(1 - P, 3) * f[d] + 3 * bmPow(1 - P, 2) * P * v[d] + 3 * (1 - P) * bmPow(P, 2) * m[d] + bmPow(P, 3) * b[d], T[d] = y, w[d] !== null && (_ += bmPow(T[d] - w[d], 2)), w[d] = T[d];
               _ && (_ = bmSqrt(_), A += _), V.percents[c] = P, V.lengths[c] = A;
             }
             return V.addedLength = A, V;
@@ -1462,15 +1462,15 @@ function requireLottie() {
           return function(b, v, m, x) {
             var c = (b[0] + "_" + b[1] + "_" + v[0] + "_" + v[1] + "_" + m[0] + "_" + m[1] + "_" + x[0] + "_" + x[1]).replace(/\./g, "p");
             if (!f[c]) {
-              var d = getDefaultCurveSegments(), h, y, P, A, _, M = 0, w, V, B = null;
+              var d = getDefaultCurveSegments(), h, y, P, A, _, T = 0, w, V, B = null;
               b.length === 2 && (b[0] !== v[0] || b[1] !== v[1]) && t(b[0], b[1], v[0], v[1], b[0] + m[0], b[1] + m[1]) && t(b[0], b[1], v[0], v[1], v[0] + x[0], v[1] + x[1]) && (d = 2);
               var R = new n(d);
               for (P = m.length, h = 0; h < d; h += 1) {
                 for (V = createSizedArray(P), _ = h / (d - 1), w = 0, y = 0; y < P; y += 1)
                   A = bmPow(1 - _, 3) * b[y] + 3 * bmPow(1 - _, 2) * _ * (b[y] + m[y]) + 3 * (1 - _) * bmPow(_, 2) * (v[y] + x[y]) + bmPow(_, 3) * v[y], V[y] = A, B !== null && (w += bmPow(V[y] - B[y], 2));
-                w = bmSqrt(w), M += w, R.points[h] = new a(w, V), B = V;
+                w = bmSqrt(w), T += w, R.points[h] = new a(w, V), B = V;
               }
-              R.segmentLength = M, f[c] = R;
+              R.segmentLength = T, f[c] = R;
             }
             return f[c];
           };
@@ -1496,9 +1496,9 @@ function requireLottie() {
           x < 0 ? x = 0 : x > 1 && (x = 1);
           var h = o(x, d);
           c = c > 1 ? 1 : c;
-          var y = o(c, d), P, A = f.length, _ = 1 - h, M = 1 - y, w = _ * _ * _, V = h * _ * _ * 3, B = h * h * _ * 3, R = h * h * h, D = _ * _ * M, N = h * _ * M + _ * h * M + _ * _ * y, I = h * h * M + _ * h * y + h * _ * y, C = h * h * y, T = _ * M * M, g = h * M * M + _ * y * M + _ * M * y, E = h * y * M + _ * y * y + h * M * y, F = h * y * y, k = M * M * M, L = y * M * M + M * y * M + M * M * y, O = y * y * M + M * y * y + y * M * y, G = y * y * y;
+          var y = o(c, d), P, A = f.length, _ = 1 - h, T = 1 - y, w = _ * _ * _, V = h * _ * _ * 3, B = h * h * _ * 3, R = h * h * h, D = _ * _ * T, N = h * _ * T + _ * h * T + _ * _ * y, I = h * h * T + _ * h * y + h * _ * y, C = h * h * y, M = _ * T * T, g = h * T * T + _ * y * T + _ * T * y, E = h * y * T + _ * y * y + h * T * y, F = h * y * y, k = T * T * T, L = y * T * T + T * y * T + T * T * y, O = y * y * T + T * y * y + y * T * y, G = y * y * y;
           for (P = 0; P < A; P += 1)
-            u[P * 4] = e.round((w * f[P] + V * v[P] + B * m[P] + R * b[P]) * 1e3) / 1e3, u[P * 4 + 1] = e.round((D * f[P] + N * v[P] + I * m[P] + C * b[P]) * 1e3) / 1e3, u[P * 4 + 2] = e.round((T * f[P] + g * v[P] + E * m[P] + F * b[P]) * 1e3) / 1e3, u[P * 4 + 3] = e.round((k * f[P] + L * v[P] + O * m[P] + G * b[P]) * 1e3) / 1e3;
+            u[P * 4] = e.round((w * f[P] + V * v[P] + B * m[P] + R * b[P]) * 1e3) / 1e3, u[P * 4 + 1] = e.round((D * f[P] + N * v[P] + I * m[P] + C * b[P]) * 1e3) / 1e3, u[P * 4 + 2] = e.round((M * f[P] + g * v[P] + E * m[P] + F * b[P]) * 1e3) / 1e3, u[P * 4 + 3] = e.round((k * f[P] + L * v[P] + O * m[P] + G * b[P]) * 1e3) / 1e3;
           return u;
         }
         return {
@@ -1536,20 +1536,20 @@ function requireLottie() {
               i[S] = y.points[P].point[S];
           } else {
             u.__fnct ? x = u.__fnct : (x = BezierFactory.getBezierEasing(o.o.x, o.o.y, o.i.x, o.i.y, o.n).get, u.__fnct = x), b = x((e - d) / (c - d));
-            var A = y.segmentLength * b, _, M = t.lastFrame < e && t._lastKeyframeIndex === n ? t._lastAddedLength : 0;
+            var A = y.segmentLength * b, _, T = t.lastFrame < e && t._lastKeyframeIndex === n ? t._lastAddedLength : 0;
             for (m = t.lastFrame < e && t._lastKeyframeIndex === n ? t._lastPoint : 0, l = !0, v = y.points.length; l; ) {
-              if (M += y.points[m].partialLength, A === 0 || b === 0 || m === y.points.length - 1) {
+              if (T += y.points[m].partialLength, A === 0 || b === 0 || m === y.points.length - 1) {
                 for (f = y.points[m].point.length, S = 0; S < f; S += 1)
                   i[S] = y.points[m].point[S];
                 break;
-              } else if (A >= M && A < M + y.points[m + 1].partialLength) {
-                for (_ = (A - M) / y.points[m + 1].partialLength, f = y.points[m].point.length, S = 0; S < f; S += 1)
+              } else if (A >= T && A < T + y.points[m + 1].partialLength) {
+                for (_ = (A - T) / y.points[m + 1].partialLength, f = y.points[m].point.length, S = 0; S < f; S += 1)
                   i[S] = y.points[m].point[S] + (y.points[m + 1].point[S] - y.points[m].point[S]) * _;
                 break;
               }
               m < v - 1 ? m += 1 : l = !1;
             }
-            t._lastPoint = m, t._lastAddedLength = M - y.points[m].partialLength, t._lastKeyframeIndex = n;
+            t._lastPoint = m, t._lastAddedLength = T - y.points[m].partialLength, t._lastKeyframeIndex = n;
           }
         } else {
           var w, V, B, R, D;
@@ -1785,14 +1785,14 @@ function requireLottie() {
       })(), ShapePropertyFactory = (function() {
         var e = -999999;
         function t(c, d, h) {
-          var y = h.lastIndex, P, A, _, M, w, V, B, R, D, N = this.keyframes;
+          var y = h.lastIndex, P, A, _, T, w, V, B, R, D, N = this.keyframes;
           if (c < N[0].t - this.offsetTime)
             P = N[0].s[0], _ = !0, y = 0;
           else if (c >= N[N.length - 1].t - this.offsetTime)
             P = N[N.length - 1].s ? N[N.length - 1].s[0] : N[N.length - 2].e[0], _ = !0;
           else {
-            for (var I = y, C = N.length - 1, T = !0, g, E, F; T && (g = N[I], E = N[I + 1], !(E.t - this.offsetTime > c)); )
-              I < C - 1 ? I += 1 : T = !1;
+            for (var I = y, C = N.length - 1, M = !0, g, E, F; M && (g = N[I], E = N[I + 1], !(E.t - this.offsetTime > c)); )
+              I < C - 1 ? I += 1 : M = !1;
             if (F = this.keyframesMetadata[I] || {}, _ = g.h === 1, y = I, !_) {
               if (c >= E.t - this.offsetTime)
                 R = 1;
@@ -1806,9 +1806,9 @@ function requireLottie() {
             }
             P = g.s[0];
           }
-          for (V = d._length, B = P.i[0].length, h.lastIndex = y, M = 0; M < V; M += 1)
+          for (V = d._length, B = P.i[0].length, h.lastIndex = y, T = 0; T < V; T += 1)
             for (w = 0; w < B; w += 1)
-              D = _ ? P.i[M][w] : P.i[M][w] + (A.i[M][w] - P.i[M][w]) * R, d.i[M][w] = D, D = _ ? P.o[M][w] : P.o[M][w] + (A.o[M][w] - P.o[M][w]) * R, d.o[M][w] = D, D = _ ? P.v[M][w] : P.v[M][w] + (A.v[M][w] - P.v[M][w]) * R, d.v[M][w] = D;
+              D = _ ? P.i[T][w] : P.i[T][w] + (A.i[T][w] - P.i[T][w]) * R, d.i[T][w] = D, D = _ ? P.o[T][w] : P.o[T][w] + (A.o[T][w] - P.o[T][w]) * R, d.o[T][w] = D, D = _ ? P.v[T][w] : P.v[T][w] + (A.v[T][w] - P.v[T][w]) * R, d.v[T][w] = D;
         }
         function r() {
           var c = this.comp.renderedFrame - this.offsetTime, d = this.keyframes[0].t - this.offsetTime, h = this.keyframes[this.keyframes.length - 1].t - this.offsetTime, y = this._caching.lastFrame;
@@ -1877,8 +1877,8 @@ function requireLottie() {
               this.elem.globalData.frameId !== this.frameId && (this.frameId = this.elem.globalData.frameId, this.iterateDynamicProperties(), this._mdf && this.convertEllToPath());
             },
             convertEllToPath: function() {
-              var y = this.p.v[0], P = this.p.v[1], A = this.s.v[0] / 2, _ = this.s.v[1] / 2, M = this.d !== 3, w = this.v;
-              w.v[0][0] = y, w.v[0][1] = P - _, w.v[1][0] = M ? y + A : y - A, w.v[1][1] = P, w.v[2][0] = y, w.v[2][1] = P + _, w.v[3][0] = M ? y - A : y + A, w.v[3][1] = P, w.i[0][0] = M ? y - A * c : y + A * c, w.i[0][1] = P - _, w.i[1][0] = M ? y + A : y - A, w.i[1][1] = P - _ * c, w.i[2][0] = M ? y + A * c : y - A * c, w.i[2][1] = P + _, w.i[3][0] = M ? y - A : y + A, w.i[3][1] = P + _ * c, w.o[0][0] = M ? y + A * c : y - A * c, w.o[0][1] = P - _, w.o[1][0] = M ? y + A : y - A, w.o[1][1] = P + _ * c, w.o[2][0] = M ? y - A * c : y + A * c, w.o[2][1] = P + _, w.o[3][0] = M ? y - A : y + A, w.o[3][1] = P - _ * c;
+              var y = this.p.v[0], P = this.p.v[1], A = this.s.v[0] / 2, _ = this.s.v[1] / 2, T = this.d !== 3, w = this.v;
+              w.v[0][0] = y, w.v[0][1] = P - _, w.v[1][0] = T ? y + A : y - A, w.v[1][1] = P, w.v[2][0] = y, w.v[2][1] = P + _, w.v[3][0] = T ? y - A : y + A, w.v[3][1] = P, w.i[0][0] = T ? y - A * c : y + A * c, w.i[0][1] = P - _, w.i[1][0] = T ? y + A : y - A, w.i[1][1] = P - _ * c, w.i[2][0] = T ? y + A * c : y - A * c, w.i[2][1] = P + _, w.i[3][0] = T ? y - A : y + A, w.i[3][1] = P + _ * c, w.o[0][0] = T ? y + A * c : y - A * c, w.o[0][1] = P - _, w.o[1][0] = T ? y + A : y - A, w.o[1][1] = P + _ * c, w.o[2][0] = T ? y - A * c : y + A * c, w.o[2][1] = P + _, w.o[3][0] = T ? y - A : y + A, w.o[3][1] = P - _ * c;
             }
           }, extendPrototype([DynamicPropertyContainer], d), d;
         })(), S = (function() {
@@ -1891,20 +1891,20 @@ function requireLottie() {
               this.elem.globalData.frameId !== this.frameId && (this.frameId = this.elem.globalData.frameId, this.iterateDynamicProperties(), this._mdf && this.convertToPath());
             },
             convertStarToPath: function() {
-              var h = Math.floor(this.pt.v) * 2, y = Math.PI * 2 / h, P = !0, A = this.or.v, _ = this.ir.v, M = this.os.v, w = this.is.v, V = 2 * Math.PI * A / (h * 2), B = 2 * Math.PI * _ / (h * 2), R, D, N, I, C = -Math.PI / 2;
+              var h = Math.floor(this.pt.v) * 2, y = Math.PI * 2 / h, P = !0, A = this.or.v, _ = this.ir.v, T = this.os.v, w = this.is.v, V = 2 * Math.PI * A / (h * 2), B = 2 * Math.PI * _ / (h * 2), R, D, N, I, C = -Math.PI / 2;
               C += this.r.v;
-              var T = this.data.d === 3 ? -1 : 1;
+              var M = this.data.d === 3 ? -1 : 1;
               for (this.v._length = 0, R = 0; R < h; R += 1) {
-                D = P ? A : _, N = P ? M : w, I = P ? V : B;
+                D = P ? A : _, N = P ? T : w, I = P ? V : B;
                 var g = D * Math.cos(C), E = D * Math.sin(C), F = g === 0 && E === 0 ? 0 : E / Math.sqrt(g * g + E * E), k = g === 0 && E === 0 ? 0 : -g / Math.sqrt(g * g + E * E);
-                g += +this.p.v[0], E += +this.p.v[1], this.v.setTripleAt(g, E, g - F * I * N * T, E - k * I * N * T, g + F * I * N * T, E + k * I * N * T, R, !0), P = !P, C += y * T;
+                g += +this.p.v[0], E += +this.p.v[1], this.v.setTripleAt(g, E, g - F * I * N * M, E - k * I * N * M, g + F * I * N * M, E + k * I * N * M, R, !0), P = !P, C += y * M;
               }
             },
             convertPolygonToPath: function() {
-              var h = Math.floor(this.pt.v), y = Math.PI * 2 / h, P = this.or.v, A = this.os.v, _ = 2 * Math.PI * P / (h * 4), M, w = -Math.PI * 0.5, V = this.data.d === 3 ? -1 : 1;
-              for (w += this.r.v, this.v._length = 0, M = 0; M < h; M += 1) {
+              var h = Math.floor(this.pt.v), y = Math.PI * 2 / h, P = this.or.v, A = this.os.v, _ = 2 * Math.PI * P / (h * 4), T, w = -Math.PI * 0.5, V = this.data.d === 3 ? -1 : 1;
+              for (w += this.r.v, this.v._length = 0, T = 0; T < h; T += 1) {
                 var B = P * Math.cos(w), R = P * Math.sin(w), D = B === 0 && R === 0 ? 0 : R / Math.sqrt(B * B + R * R), N = B === 0 && R === 0 ? 0 : -B / Math.sqrt(B * B + R * R);
-                B += +this.p.v[0], R += +this.p.v[1], this.v.setTripleAt(B, R, B - D * _ * A * V, R - N * _ * A * V, B + D * _ * A * V, R + N * _ * A * V, M, !0), w += y * V;
+                B += +this.p.v[0], R += +this.p.v[1], this.v.setTripleAt(B, R, B - D * _ * A * V, R - N * _ * A * V, B + D * _ * A * V, R + N * _ * A * V, T, !0), w += y * V;
               }
               this.paths.length = 0, this.paths[0] = this.v;
             }
@@ -1915,8 +1915,8 @@ function requireLottie() {
           }
           return c.prototype = {
             convertRectToPath: function() {
-              var h = this.p.v[0], y = this.p.v[1], P = this.s.v[0] / 2, A = this.s.v[1] / 2, _ = bmMin(P, A, this.r.v), M = _ * (1 - roundCorner);
-              this.v._length = 0, this.d === 2 || this.d === 1 ? (this.v.setTripleAt(h + P, y - A + _, h + P, y - A + _, h + P, y - A + M, 0, !0), this.v.setTripleAt(h + P, y + A - _, h + P, y + A - M, h + P, y + A - _, 1, !0), _ !== 0 ? (this.v.setTripleAt(h + P - _, y + A, h + P - _, y + A, h + P - M, y + A, 2, !0), this.v.setTripleAt(h - P + _, y + A, h - P + M, y + A, h - P + _, y + A, 3, !0), this.v.setTripleAt(h - P, y + A - _, h - P, y + A - _, h - P, y + A - M, 4, !0), this.v.setTripleAt(h - P, y - A + _, h - P, y - A + M, h - P, y - A + _, 5, !0), this.v.setTripleAt(h - P + _, y - A, h - P + _, y - A, h - P + M, y - A, 6, !0), this.v.setTripleAt(h + P - _, y - A, h + P - M, y - A, h + P - _, y - A, 7, !0)) : (this.v.setTripleAt(h - P, y + A, h - P + M, y + A, h - P, y + A, 2), this.v.setTripleAt(h - P, y - A, h - P, y - A + M, h - P, y - A, 3))) : (this.v.setTripleAt(h + P, y - A + _, h + P, y - A + M, h + P, y - A + _, 0, !0), _ !== 0 ? (this.v.setTripleAt(h + P - _, y - A, h + P - _, y - A, h + P - M, y - A, 1, !0), this.v.setTripleAt(h - P + _, y - A, h - P + M, y - A, h - P + _, y - A, 2, !0), this.v.setTripleAt(h - P, y - A + _, h - P, y - A + _, h - P, y - A + M, 3, !0), this.v.setTripleAt(h - P, y + A - _, h - P, y + A - M, h - P, y + A - _, 4, !0), this.v.setTripleAt(h - P + _, y + A, h - P + _, y + A, h - P + M, y + A, 5, !0), this.v.setTripleAt(h + P - _, y + A, h + P - M, y + A, h + P - _, y + A, 6, !0), this.v.setTripleAt(h + P, y + A - _, h + P, y + A - _, h + P, y + A - M, 7, !0)) : (this.v.setTripleAt(h - P, y - A, h - P + M, y - A, h - P, y - A, 1, !0), this.v.setTripleAt(h - P, y + A, h - P, y + A - M, h - P, y + A, 2, !0), this.v.setTripleAt(h + P, y + A, h + P - M, y + A, h + P, y + A, 3, !0)));
+              var h = this.p.v[0], y = this.p.v[1], P = this.s.v[0] / 2, A = this.s.v[1] / 2, _ = bmMin(P, A, this.r.v), T = _ * (1 - roundCorner);
+              this.v._length = 0, this.d === 2 || this.d === 1 ? (this.v.setTripleAt(h + P, y - A + _, h + P, y - A + _, h + P, y - A + T, 0, !0), this.v.setTripleAt(h + P, y + A - _, h + P, y + A - T, h + P, y + A - _, 1, !0), _ !== 0 ? (this.v.setTripleAt(h + P - _, y + A, h + P - _, y + A, h + P - T, y + A, 2, !0), this.v.setTripleAt(h - P + _, y + A, h - P + T, y + A, h - P + _, y + A, 3, !0), this.v.setTripleAt(h - P, y + A - _, h - P, y + A - _, h - P, y + A - T, 4, !0), this.v.setTripleAt(h - P, y - A + _, h - P, y - A + T, h - P, y - A + _, 5, !0), this.v.setTripleAt(h - P + _, y - A, h - P + _, y - A, h - P + T, y - A, 6, !0), this.v.setTripleAt(h + P - _, y - A, h + P - T, y - A, h + P - _, y - A, 7, !0)) : (this.v.setTripleAt(h - P, y + A, h - P + T, y + A, h - P, y + A, 2), this.v.setTripleAt(h - P, y - A, h - P, y - A + T, h - P, y - A, 3))) : (this.v.setTripleAt(h + P, y - A + _, h + P, y - A + T, h + P, y - A + _, 0, !0), _ !== 0 ? (this.v.setTripleAt(h + P - _, y - A, h + P - _, y - A, h + P - T, y - A, 1, !0), this.v.setTripleAt(h - P + _, y - A, h - P + T, y - A, h - P + _, y - A, 2, !0), this.v.setTripleAt(h - P, y - A + _, h - P, y - A + _, h - P, y - A + T, 3, !0), this.v.setTripleAt(h - P, y + A - _, h - P, y + A - T, h - P, y + A - _, 4, !0), this.v.setTripleAt(h - P + _, y + A, h - P + _, y + A, h - P + T, y + A, 5, !0), this.v.setTripleAt(h + P - _, y + A, h + P - T, y + A, h + P - _, y + A, 6, !0), this.v.setTripleAt(h + P, y + A - _, h + P, y + A - _, h + P, y + A - T, 7, !0)) : (this.v.setTripleAt(h - P, y - A, h - P + T, y - A, h - P, y - A, 1, !0), this.v.setTripleAt(h - P, y + A, h - P, y + A - T, h - P, y + A, 2, !0), this.v.setTripleAt(h + P, y + A, h + P - T, y + A, h + P, y + A, 3, !0)));
             },
             getValue: function() {
               this.elem.globalData.frameId !== this.frameId && (this.frameId = this.elem.globalData.frameId, this.iterateDynamicProperties(), this._mdf && this.convertRectToPath());
@@ -2001,8 +2001,8 @@ function requireLottie() {
           var H = this.props;
           if (g === 1 && E === 0 && F === 0 && k === 0 && L === 0 && O === 1 && G === 0 && W === 0 && q === 0 && Y === 0 && ee === 1 && te === 0)
             return H[12] = H[12] * g + H[15] * j, H[13] = H[13] * O + H[15] * $, H[14] = H[14] * ee + H[15] * K, H[15] *= U, this._identityCalculated = !1, this;
-          var se = H[0], le = H[1], ne = H[2], re = H[3], ie = H[4], J = H[5], z = H[6], Z = H[7], X = H[8], Q = H[9], ae = H[10], oe = H[11], he = H[12], fe = H[13], pe = H[14], ce = H[15];
-          return H[0] = se * g + le * L + ne * q + re * j, H[1] = se * E + le * O + ne * Y + re * $, H[2] = se * F + le * G + ne * ee + re * K, H[3] = se * k + le * W + ne * te + re * U, H[4] = ie * g + J * L + z * q + Z * j, H[5] = ie * E + J * O + z * Y + Z * $, H[6] = ie * F + J * G + z * ee + Z * K, H[7] = ie * k + J * W + z * te + Z * U, H[8] = X * g + Q * L + ae * q + oe * j, H[9] = X * E + Q * O + ae * Y + oe * $, H[10] = X * F + Q * G + ae * ee + oe * K, H[11] = X * k + Q * W + ae * te + oe * U, H[12] = he * g + fe * L + pe * q + ce * j, H[13] = he * E + fe * O + pe * Y + ce * $, H[14] = he * F + fe * G + pe * ee + ce * K, H[15] = he * k + fe * W + pe * te + ce * U, this._identityCalculated = !1, this;
+          var se = H[0], le = H[1], ne = H[2], re = H[3], ie = H[4], X = H[5], z = H[6], Z = H[7], J = H[8], Q = H[9], ae = H[10], oe = H[11], he = H[12], fe = H[13], pe = H[14], ce = H[15];
+          return H[0] = se * g + le * L + ne * q + re * j, H[1] = se * E + le * O + ne * Y + re * $, H[2] = se * F + le * G + ne * ee + re * K, H[3] = se * k + le * W + ne * te + re * U, H[4] = ie * g + X * L + z * q + Z * j, H[5] = ie * E + X * O + z * Y + Z * $, H[6] = ie * F + X * G + z * ee + Z * K, H[7] = ie * k + X * W + z * te + Z * U, H[8] = J * g + Q * L + ae * q + oe * j, H[9] = J * E + Q * O + ae * Y + oe * $, H[10] = J * F + Q * G + ae * ee + oe * K, H[11] = J * k + Q * W + ae * te + oe * U, H[12] = he * g + fe * L + pe * q + ce * j, H[13] = he * E + fe * O + pe * Y + ce * $, H[14] = he * F + fe * G + pe * ee + ce * K, H[15] = he * k + fe * W + pe * te + ce * U, this._identityCalculated = !1, this;
         }
         function x(g) {
           var E = g.props;
@@ -2043,7 +2043,7 @@ function requireLottie() {
         function _(g, E, F) {
           return g * this.props[1] + E * this.props[5] + F * this.props[9] + this.props[13];
         }
-        function M(g, E, F) {
+        function T(g, E, F) {
           return g * this.props[2] + E * this.props[6] + F * this.props[10] + this.props[14];
         }
         function w() {
@@ -2089,12 +2089,12 @@ function requireLottie() {
           var E = 1e4;
           return g < 1e-6 && g > 0 || g > -1e-6 && g < 0 ? i(g * E) / E : g;
         }
-        function T() {
+        function M() {
           var g = this.props, E = C(g[0]), F = C(g[1]), k = C(g[4]), L = C(g[5]), O = C(g[12]), G = C(g[13]);
           return "matrix(" + E + "," + F + "," + k + "," + L + "," + O + "," + G + ")";
         }
         return function() {
-          this.reset = s, this.rotate = n, this.rotateX = a, this.rotateY = l, this.rotateZ = o, this.skew = u, this.skewFromAxis = S, this.shear = p, this.scale = f, this.setTransform = b, this.translate = v, this.transform = m, this.multiply = x, this.applyToPoint = P, this.applyToX = A, this.applyToY = _, this.applyToZ = M, this.applyToPointArray = D, this.applyToTriplePoints = R, this.applyToPointStringified = N, this.toCSS = I, this.to2dCSS = T, this.clone = h, this.cloneFromProps = y, this.equals = d, this.inversePoints = B, this.inversePoint = V, this.getInverseMatrix = w, this._t = this.transform, this.isIdentity = c, this._identity = !0, this._identityCalculated = !1, this.props = createTypedArray("float32", 16), this.reset();
+          this.reset = s, this.rotate = n, this.rotateX = a, this.rotateY = l, this.rotateZ = o, this.skew = u, this.skewFromAxis = S, this.shear = p, this.scale = f, this.setTransform = b, this.translate = v, this.transform = m, this.multiply = x, this.applyToPoint = P, this.applyToX = A, this.applyToY = _, this.applyToZ = T, this.applyToPointArray = D, this.applyToTriplePoints = R, this.applyToPointStringified = N, this.toCSS = I, this.to2dCSS = M, this.clone = h, this.cloneFromProps = y, this.equals = d, this.inversePoints = B, this.inversePoint = V, this.getInverseMatrix = w, this._t = this.transform, this.isIdentity = c, this._identity = !0, this._identityCalculated = !1, this.props = createTypedArray("float32", 16), this.reset();
         };
       })();
       function _typeof$3(e) {
@@ -2918,34 +2918,34 @@ function requireLottie() {
         r = r.concat([2304, 2305, 2306, 2307, 2362, 2363, 2364, 2364, 2366, 2367, 2368, 2369, 2370, 2371, 2372, 2373, 2374, 2375, 2376, 2377, 2378, 2379, 2380, 2381, 2382, 2383, 2387, 2388, 2389, 2390, 2391, 2402, 2403]);
         var i = 127988, s = 917631, n = 917601, a = 917626, l = 65039, o = 8205, p = 127462, u = 127487, S = ["d83cdffb", "d83cdffc", "d83cdffd", "d83cdffe", "d83cdfff"];
         function f(C) {
-          var T = C.split(","), g, E = T.length, F = [];
+          var M = C.split(","), g, E = M.length, F = [];
           for (g = 0; g < E; g += 1)
-            T[g] !== "sans-serif" && T[g] !== "monospace" && F.push(T[g]);
+            M[g] !== "sans-serif" && M[g] !== "monospace" && F.push(M[g]);
           return F.join(",");
         }
-        function b(C, T) {
+        function b(C, M) {
           var g = createTag("span");
-          g.setAttribute("aria-hidden", !0), g.style.fontFamily = T;
+          g.setAttribute("aria-hidden", !0), g.style.fontFamily = M;
           var E = createTag("span");
           E.innerText = "giItT1WQy@!-/#", g.style.position = "absolute", g.style.left = "-10000px", g.style.top = "-10000px", g.style.fontSize = "300px", g.style.fontVariant = "normal", g.style.fontStyle = "normal", g.style.fontWeight = "normal", g.style.letterSpacing = "0", g.appendChild(E), document.body.appendChild(g);
           var F = E.offsetWidth;
-          return E.style.fontFamily = f(C) + ", " + T, {
+          return E.style.fontFamily = f(C) + ", " + M, {
             node: E,
             w: F,
             parent: g
           };
         }
         function v() {
-          var C, T = this.fonts.length, g, E, F = T;
-          for (C = 0; C < T; C += 1)
+          var C, M = this.fonts.length, g, E, F = M;
+          for (C = 0; C < M; C += 1)
             this.fonts[C].loaded ? F -= 1 : this.fonts[C].fOrigin === "n" || this.fonts[C].origin === 0 ? this.fonts[C].loaded = !0 : (g = this.fonts[C].monoCase.node, E = this.fonts[C].monoCase.w, g.offsetWidth !== E ? (F -= 1, this.fonts[C].loaded = !0) : (g = this.fonts[C].sansCase.node, E = this.fonts[C].sansCase.w, g.offsetWidth !== E && (F -= 1, this.fonts[C].loaded = !0)), this.fonts[C].loaded && (this.fonts[C].sansCase.parent.parentNode.removeChild(this.fonts[C].sansCase.parent), this.fonts[C].monoCase.parent.parentNode.removeChild(this.fonts[C].monoCase.parent)));
           F !== 0 && Date.now() - this.initTime < e ? setTimeout(this.checkLoadedFontsBinded, 20) : setTimeout(this.setIsLoadedBinded, 10);
         }
-        function m(C, T) {
-          var g = document.body && T ? "svg" : "canvas", E, F = getFontProperties(C);
+        function m(C, M) {
+          var g = document.body && M ? "svg" : "canvas", E, F = getFontProperties(C);
           if (g === "svg") {
             var k = createNS("text");
-            k.style.fontSize = "100px", k.setAttribute("font-family", C.fFamily), k.setAttribute("font-style", F.style), k.setAttribute("font-weight", F.weight), k.textContent = "1", C.fClass ? (k.style.fontFamily = "inherit", k.setAttribute("class", C.fClass)) : k.style.fontFamily = C.fFamily, T.appendChild(k), E = k;
+            k.style.fontSize = "100px", k.setAttribute("font-family", C.fFamily), k.setAttribute("font-style", F.style), k.setAttribute("font-weight", F.weight), k.textContent = "1", C.fClass ? (k.style.fontFamily = "inherit", k.setAttribute("class", C.fClass)) : k.style.fontFamily = C.fFamily, M.appendChild(k), E = k;
           } else {
             var L = new OffscreenCanvas(500, 500).getContext("2d");
             L.font = F.style + " " + F.weight + " 100px " + C.fFamily, E = L;
@@ -2957,7 +2957,7 @@ function requireLottie() {
             measureText: O
           };
         }
-        function x(C, T) {
+        function x(C, M) {
           if (!C) {
             this.isLoaded = !0;
             return;
@@ -2980,7 +2980,7 @@ function requireLottie() {
             else if (g[E].fOrigin === "p" || g[E].origin === 3) {
               if (O = document.querySelectorAll('style[f-forigin="p"][f-family="' + g[E].fFamily + '"], style[f-origin="3"][f-family="' + g[E].fFamily + '"]'), O.length > 0 && (L = !1), L) {
                 var W = createTag("style");
-                W.setAttribute("f-forigin", g[E].fOrigin), W.setAttribute("f-origin", g[E].origin), W.setAttribute("f-family", g[E].fFamily), W.type = "text/css", W.innerText = "@font-face {font-family: " + g[E].fFamily + "; font-style: normal; src: url('" + g[E].fPath + "');}", T.appendChild(W);
+                W.setAttribute("f-forigin", g[E].fOrigin), W.setAttribute("f-origin", g[E].origin), W.setAttribute("f-family", g[E].fFamily), W.type = "text/css", W.innerText = "@font-face {font-family: " + g[E].fFamily + "; font-style: normal; src: url('" + g[E].fPath + "');}", M.appendChild(W);
               }
             } else if (g[E].fOrigin === "g" || g[E].origin === 1) {
               for (O = document.querySelectorAll('link[f-forigin="g"], link[f-origin="1"]'), G = 0; G < O.length; G += 1)
@@ -2994,34 +2994,34 @@ function requireLottie() {
                 g[E].fPath === O[G].src && (L = !1);
               if (L) {
                 var Y = createTag("link");
-                Y.setAttribute("f-forigin", g[E].fOrigin), Y.setAttribute("f-origin", g[E].origin), Y.setAttribute("rel", "stylesheet"), Y.setAttribute("href", g[E].fPath), T.appendChild(Y);
+                Y.setAttribute("f-forigin", g[E].fOrigin), Y.setAttribute("f-origin", g[E].origin), Y.setAttribute("rel", "stylesheet"), Y.setAttribute("href", g[E].fPath), M.appendChild(Y);
               }
             }
-            g[E].helper = m(g[E], T), g[E].cache = {}, this.fonts.push(g[E]);
+            g[E].helper = m(g[E], M), g[E].cache = {}, this.fonts.push(g[E]);
           }
           k === 0 ? this.isLoaded = !0 : setTimeout(this.checkLoadedFonts.bind(this), 100);
         }
         function c(C) {
           if (C) {
             this.chars || (this.chars = []);
-            var T, g = C.length, E, F = this.chars.length, k;
-            for (T = 0; T < g; T += 1) {
+            var M, g = C.length, E, F = this.chars.length, k;
+            for (M = 0; M < g; M += 1) {
               for (E = 0, k = !1; E < F; )
-                this.chars[E].style === C[T].style && this.chars[E].fFamily === C[T].fFamily && this.chars[E].ch === C[T].ch && (k = !0), E += 1;
-              k || (this.chars.push(C[T]), F += 1);
+                this.chars[E].style === C[M].style && this.chars[E].fFamily === C[M].fFamily && this.chars[E].ch === C[M].ch && (k = !0), E += 1;
+              k || (this.chars.push(C[M]), F += 1);
             }
           }
         }
-        function d(C, T, g) {
+        function d(C, M, g) {
           for (var E = 0, F = this.chars.length; E < F; ) {
-            if (this.chars[E].ch === C && this.chars[E].style === T && this.chars[E].fFamily === g)
+            if (this.chars[E].ch === C && this.chars[E].style === M && this.chars[E].fFamily === g)
               return this.chars[E];
             E += 1;
           }
-          return (typeof C == "string" && C.charCodeAt(0) !== 13 || !C) && console && console.warn && !this._warned && (this._warned = !0, console.warn("Missing character from exported characters list: ", C, T, g)), t;
+          return (typeof C == "string" && C.charCodeAt(0) !== 13 || !C) && console && console.warn && !this._warned && (this._warned = !0, console.warn("Missing character from exported characters list: ", C, M, g)), t;
         }
-        function h(C, T, g) {
-          var E = this.getFontByName(T), F = C;
+        function h(C, M, g) {
+          var E = this.getFontByName(M), F = C;
           if (!E.cache[F]) {
             var k = E.helper;
             if (C === " ") {
@@ -3033,34 +3033,34 @@ function requireLottie() {
           return E.cache[F] * g;
         }
         function y(C) {
-          for (var T = 0, g = this.fonts.length; T < g; ) {
-            if (this.fonts[T].fName === C)
-              return this.fonts[T];
-            T += 1;
+          for (var M = 0, g = this.fonts.length; M < g; ) {
+            if (this.fonts[M].fName === C)
+              return this.fonts[M];
+            M += 1;
           }
           return this.fonts[0];
         }
         function P(C) {
-          var T = 0, g = C.charCodeAt(0);
+          var M = 0, g = C.charCodeAt(0);
           if (g >= 55296 && g <= 56319) {
             var E = C.charCodeAt(1);
-            E >= 56320 && E <= 57343 && (T = (g - 55296) * 1024 + E - 56320 + 65536);
+            E >= 56320 && E <= 57343 && (M = (g - 55296) * 1024 + E - 56320 + 65536);
           }
-          return T;
+          return M;
         }
-        function A(C, T) {
-          var g = C.toString(16) + T.toString(16);
+        function A(C, M) {
+          var g = C.toString(16) + M.toString(16);
           return S.indexOf(g) !== -1;
         }
         function _(C) {
           return C === o;
         }
-        function M(C) {
+        function T(C) {
           return C === l;
         }
         function w(C) {
-          var T = P(C);
-          return T >= p && T <= u;
+          var M = P(C);
+          return M >= p && M <= u;
         }
         function V(C) {
           return w(C.substr(0, 2)) && w(C.substr(2, 2));
@@ -3068,17 +3068,17 @@ function requireLottie() {
         function B(C) {
           return r.indexOf(C) !== -1;
         }
-        function R(C, T) {
-          var g = P(C.substr(T, 2));
+        function R(C, M) {
+          var g = P(C.substr(M, 2));
           if (g !== i)
             return !1;
           var E = 0;
-          for (T += 2; E < 5; ) {
-            if (g = P(C.substr(T, 2)), g < n || g > a)
+          for (M += 2; E < 5; ) {
+            if (g = P(C.substr(M, 2)), g < n || g > a)
               return !1;
-            E += 1, T += 2;
+            E += 1, M += 2;
           }
-          return P(C.substr(T, 2)) === s;
+          return P(C.substr(M, 2)) === s;
         }
         function D() {
           this.isLoaded = !0;
@@ -3086,7 +3086,7 @@ function requireLottie() {
         var N = function() {
           this.fonts = [], this.chars = null, this.typekitLoaded = 0, this.isLoaded = !1, this._warned = !1, this.initTime = Date.now(), this.setIsLoadedBinded = this.setIsLoaded.bind(this), this.checkLoadedFontsBinded = this.checkLoadedFonts.bind(this);
         };
-        N.isModifier = A, N.isZeroWidthJoiner = _, N.isFlagEmoji = V, N.isRegionalCode = w, N.isCombinedCharacter = B, N.isRegionalFlag = R, N.isVariationSelector = M, N.BLACK_FLAG_CODE_POINT = i;
+        N.isModifier = A, N.isZeroWidthJoiner = _, N.isFlagEmoji = V, N.isRegionalCode = w, N.isCombinedCharacter = B, N.isRegionalFlag = R, N.isVariationSelector = T, N.BLACK_FLAG_CODE_POINT = i;
         var I = {
           addChars: c,
           addFonts: x,
@@ -4046,14 +4046,14 @@ function requireLottie() {
         function n() {
         }
         function a(S, f, b) {
-          var v, m, x, c, d, h, y = f.styles.length, P = f.lvl, A, _, M, w;
+          var v, m, x, c, d, h, y = f.styles.length, P = f.lvl, A, _, T, w;
           for (h = 0; h < y; h += 1) {
             if (c = f.sh._mdf || b, f.styles[h].lvl < P) {
-              for (_ = t.reset(), M = P - f.styles[h].lvl, w = f.transformers.length - 1; !c && M > 0; )
-                c = f.transformers[w].mProps._mdf || c, M -= 1, w -= 1;
+              for (_ = t.reset(), T = P - f.styles[h].lvl, w = f.transformers.length - 1; !c && T > 0; )
+                c = f.transformers[w].mProps._mdf || c, T -= 1, w -= 1;
               if (c)
-                for (M = P - f.styles[h].lvl, w = f.transformers.length - 1; M > 0; )
-                  _.multiply(f.transformers[w].mProps.v), M -= 1, w -= 1;
+                for (T = P - f.styles[h].lvl, w = f.transformers.length - 1; T > 0; )
+                  _.multiply(f.transformers[w].mProps.v), T -= 1, w -= 1;
             } else
               _ = e;
             if (A = f.sh.paths, m = A._length, c) {
@@ -4082,17 +4082,17 @@ function requireLottie() {
             var h = S.t === 1 ? "x1" : "cx", y = h === "x1" ? "y1" : "cy";
             v.setAttribute(h, x[0]), v.setAttribute(y, x[1]), m && !f.g._collapsable && (f.of.setAttribute(h, x[0]), f.of.setAttribute(y, x[1]));
           }
-          var P, A, _, M;
+          var P, A, _, T;
           if (f.g._cmdf || b) {
             P = f.cst;
             var w = f.g.c;
             for (_ = P.length, A = 0; A < _; A += 1)
-              M = P[A], M.setAttribute("offset", w[A * 4] + "%"), M.setAttribute("stop-color", "rgb(" + w[A * 4 + 1] + "," + w[A * 4 + 2] + "," + w[A * 4 + 3] + ")");
+              T = P[A], T.setAttribute("offset", w[A * 4] + "%"), T.setAttribute("stop-color", "rgb(" + w[A * 4 + 1] + "," + w[A * 4 + 2] + "," + w[A * 4 + 3] + ")");
           }
           if (m && (f.g._omdf || b)) {
             var V = f.g.o;
             for (f.g._collapsable ? P = f.cst : P = f.ost, _ = P.length, A = 0; A < _; A += 1)
-              M = P[A], f.g._collapsable || M.setAttribute("offset", V[A * 2] + "%"), M.setAttribute("stop-opacity", V[A * 2 + 1]);
+              T = P[A], f.g._collapsable || T.setAttribute("offset", V[A * 2] + "%"), T.setAttribute("stop-opacity", V[A * 2 + 1]);
           }
           if (S.t === 1)
             (f.e._mdf || b) && (v.setAttribute("x2", c[0]), v.setAttribute("y2", c[1]), m && !f.g._collapsable && (f.of.setAttribute("x2", c[0]), f.of.setAttribute("y2", c[1])));
@@ -4296,12 +4296,12 @@ function requireLottie() {
         e.fWeight = P.weight, e.fStyle = P.style, e.finalSize = e.s, e.finalText = this.buildFinalText(e.t), n = e.finalText.length, e.finalLineHeight = e.lh;
         var A = e.tr / 1e3 * e.finalSize, _;
         if (e.sz)
-          for (var M = !0, w = e.sz[0], V = e.sz[1], B, R; M; ) {
+          for (var T = !0, w = e.sz[0], V = e.sz[1], B, R; T; ) {
             R = this.buildFinalText(e.t), B = 0, v = 0, n = R.length, A = e.tr / 1e3 * e.finalSize;
             var D = -1;
             for (s = 0; s < n; s += 1)
               _ = R[s].charCodeAt(0), a = !1, R[s] === " " ? D = s : (_ === 13 || _ === 3) && (v = 0, a = !0, B += e.finalLineHeight || e.finalSize * 1.2), t.chars ? (h = t.getCharData(R[s], d.fStyle, d.fFamily), y = a ? 0 : h.w * e.finalSize / 100) : y = t.measureText(R[s], e.f, e.finalSize), v + y > w && R[s] !== " " ? (D === -1 ? n += 1 : s = D, B += e.finalLineHeight || e.finalSize * 1.2, R.splice(s, D === s ? 1 : 0, "\r"), D = -1, v = 0) : (v += y, v += A);
-            B += d.ascent * e.finalSize / 100, this.canResize && e.finalSize > this.minimumFontSize && V < B ? (e.finalSize -= 1, e.finalLineHeight = e.finalSize * e.lh / e.s) : (e.finalText = R, n = e.finalText.length, M = !1);
+            B += d.ascent * e.finalSize / 100, this.canResize && e.finalSize > this.minimumFontSize && V < B ? (e.finalSize -= 1, e.finalLineHeight = e.finalSize * e.lh / e.s) : (e.finalText = R, n = e.finalText.length, T = !1);
           }
         v = -A, y = 0;
         var N = 0, I;
@@ -4343,15 +4343,15 @@ function requireLottie() {
               e.justifyOffset = 0;
           }
         e.lineWidths = b;
-        var C = r.a, T, g;
+        var C = r.a, M, g;
         c = C.length;
         var E, F, k = [];
         for (x = 0; x < c; x += 1) {
-          for (T = C[x], T.a.sc && (e.strokeColorAnim = !0), T.a.sw && (e.strokeWidthAnim = !0), (T.a.fc || T.a.fh || T.a.fs || T.a.fb) && (e.fillColorAnim = !0), F = 0, E = T.s.b, s = 0; s < n; s += 1)
-            g = i[s], g.anIndexes[x] = F, (E == 1 && g.val !== "" || E == 2 && g.val !== "" && g.val !== " " || E == 3 && (g.n || g.val == " " || s == n - 1) || E == 4 && (g.n || s == n - 1)) && (T.s.rn === 1 && k.push(F), F += 1);
+          for (M = C[x], M.a.sc && (e.strokeColorAnim = !0), M.a.sw && (e.strokeWidthAnim = !0), (M.a.fc || M.a.fh || M.a.fs || M.a.fb) && (e.fillColorAnim = !0), F = 0, E = M.s.b, s = 0; s < n; s += 1)
+            g = i[s], g.anIndexes[x] = F, (E == 1 && g.val !== "" || E == 2 && g.val !== "" && g.val !== " " || E == 3 && (g.n || g.val == " " || s == n - 1) || E == 4 && (g.n || s == n - 1)) && (M.s.rn === 1 && k.push(F), F += 1);
           r.a[x].s.totalChars = F;
           var L = -1, O;
-          if (T.s.rn === 1)
+          if (M.s.rn === 1)
             for (s = 0; s < n; s += 1)
               g = i[s], L != g.anIndexes[x] && (L = g.anIndexes[x], O = k.splice(Math.floor(Math.random() * k.length), 1)[0]), g.anIndexes[x] = O;
         }
@@ -4476,7 +4476,7 @@ function requireLottie() {
       }, TextAnimatorProperty.prototype.getMeasures = function(e, t) {
         if (this.lettersChangedFlag = t, !(!this._mdf && !this._isFirstFrame && !t && (!this._hasMaskedPath || !this._pathData.m._mdf))) {
           this._isFirstFrame = !1;
-          var r = this._moreOptions.alignment.v, i = this._animatorsData, s = this._textData, n = this.mHelper, a = this._renderType, l = this.renderedLetters.length, o, p, u, S, f = e.l, b, v, m, x, c, d, h, y, P, A, _, M, w, V, B;
+          var r = this._moreOptions.alignment.v, i = this._animatorsData, s = this._textData, n = this.mHelper, a = this._renderType, l = this.renderedLetters.length, o, p, u, S, f = e.l, b, v, m, x, c, d, h, y, P, A, _, T, w, V, B;
           if (this._hasMaskedPath) {
             if (B = this._pathData.m, !this._pathData.n || this._pathData._mdf) {
               var R = B.v;
@@ -4485,9 +4485,9 @@ function requireLottie() {
                 segments: []
               }, S = R._length - 1;
               var D;
-              for (M = 0, u = 0; u < S; u += 1)
-                D = bez.buildBezierData(R.v[u], R.v[u + 1], [R.o[u][0] - R.v[u][0], R.o[u][1] - R.v[u][1]], [R.i[u + 1][0] - R.v[u + 1][0], R.i[u + 1][1] - R.v[u + 1][1]]), b.tLength += D.segmentLength, b.segments.push(D), M += D.segmentLength;
-              u = S, B.v.c && (D = bez.buildBezierData(R.v[u], R.v[0], [R.o[u][0] - R.v[u][0], R.o[u][1] - R.v[u][1]], [R.i[0][0] - R.v[0][0], R.i[0][1] - R.v[0][1]]), b.tLength += D.segmentLength, b.segments.push(D), M += D.segmentLength), this._pathData.pi = b;
+              for (T = 0, u = 0; u < S; u += 1)
+                D = bez.buildBezierData(R.v[u], R.v[u + 1], [R.o[u][0] - R.v[u][0], R.o[u][1] - R.v[u][1]], [R.i[u + 1][0] - R.v[u + 1][0], R.i[u + 1][1] - R.v[u + 1][1]]), b.tLength += D.segmentLength, b.segments.push(D), T += D.segmentLength;
+              u = S, B.v.c && (D = bez.buildBezierData(R.v[u], R.v[0], [R.o[u][0] - R.v[u][0], R.o[u][1] - R.v[u][1]], [R.i[0][0] - R.v[0][0], R.i[0][1] - R.v[0][1]]), b.tLength += D.segmentLength, b.segments.push(D), T += D.segmentLength), this._pathData.pi = b;
             }
             if (b = this._pathData.pi, v = this._pathData.f.v, h = 0, d = 1, x = 0, c = !0, A = b.segments, v < 0 && B.v.c)
               for (b.tLength < Math.abs(v) && (v = -Math.abs(v) % b.tLength), h = A.length - 1, P = A[h].points, d = P.length - 1; v < 0; )
@@ -4495,11 +4495,11 @@ function requireLottie() {
             P = A[h].points, y = P[d - 1], m = P[d], _ = m.partialLength;
           }
           S = f.length, o = 0, p = 0;
-          var N = e.finalSize * 1.2 * 0.714, I = !0, C, T, g, E, F;
+          var N = e.finalSize * 1.2 * 0.714, I = !0, C, M, g, E, F;
           E = i.length;
-          var k, L = -1, O, G, W, q = v, Y = h, ee = d, te = -1, j, $, K, U, H, se, le, ne, re = "", ie = this.defaultPropsArray, J;
+          var k, L = -1, O, G, W, q = v, Y = h, ee = d, te = -1, j, $, K, U, H, se, le, ne, re = "", ie = this.defaultPropsArray, X;
           if (e.j === 2 || e.j === 1) {
-            var z = 0, Z = 0, X = e.j === 2 ? -0.5 : -1, Q = 0, ae = !0;
+            var z = 0, Z = 0, J = e.j === 2 ? -0.5 : -1, Q = 0, ae = !0;
             for (u = 0; u < S; u += 1)
               if (f[u].n) {
                 for (z && (z += Z); Q < u; )
@@ -4507,7 +4507,7 @@ function requireLottie() {
                 z = 0, ae = !0;
               } else {
                 for (g = 0; g < E; g += 1)
-                  C = i[g].a, C.t.propType && (ae && e.j === 2 && (Z += C.t.v * X), T = i[g].s, k = T.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? z += C.t.v * k[0] * X : z += C.t.v * k * X);
+                  C = i[g].a, C.t.propType && (ae && e.j === 2 && (Z += C.t.v * J), M = i[g].s, k = M.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? z += C.t.v * k[0] * J : z += C.t.v * k * J);
                 ae = !1;
               }
             for (z && (z += Z); Q < u; )
@@ -4515,16 +4515,16 @@ function requireLottie() {
           }
           for (u = 0; u < S; u += 1) {
             if (n.reset(), j = 1, f[u].n)
-              o = 0, p += e.yOffset, p += I ? 1 : 0, v = q, I = !1, this._hasMaskedPath && (h = Y, d = ee, P = A[h].points, y = P[d - 1], m = P[d], _ = m.partialLength, x = 0), re = "", ne = "", se = "", J = "", ie = this.defaultPropsArray;
+              o = 0, p += e.yOffset, p += I ? 1 : 0, v = q, I = !1, this._hasMaskedPath && (h = Y, d = ee, P = A[h].points, y = P[d - 1], m = P[d], _ = m.partialLength, x = 0), re = "", ne = "", se = "", X = "", ie = this.defaultPropsArray;
             else {
               if (this._hasMaskedPath) {
                 if (te !== f[u].line) {
                   switch (e.j) {
                     case 1:
-                      v += M - e.lineWidths[f[u].line];
+                      v += T - e.lineWidths[f[u].line];
                       break;
                     case 2:
-                      v += (M - e.lineWidths[f[u].line]) / 2;
+                      v += (T - e.lineWidths[f[u].line]) / 2;
                       break;
                   }
                   te = f[u].line;
@@ -4532,20 +4532,20 @@ function requireLottie() {
                 L !== f[u].ind && (f[L] && (v += f[L].extra), v += f[u].an / 2, L = f[u].ind), v += r[0] * f[u].an * 5e-3;
                 var oe = 0;
                 for (g = 0; g < E; g += 1)
-                  C = i[g].a, C.p.propType && (T = i[g].s, k = T.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? oe += C.p.v[0] * k[0] : oe += C.p.v[0] * k), C.a.propType && (T = i[g].s, k = T.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? oe += C.a.v[0] * k[0] : oe += C.a.v[0] * k);
-                for (c = !0, this._pathData.a.v && (v = f[0].an * 0.5 + (M - this._pathData.f.v - f[0].an * 0.5 - f[f.length - 1].an * 0.5) * L / (S - 1), v += this._pathData.f.v); c; )
+                  C = i[g].a, C.p.propType && (M = i[g].s, k = M.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? oe += C.p.v[0] * k[0] : oe += C.p.v[0] * k), C.a.propType && (M = i[g].s, k = M.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? oe += C.a.v[0] * k[0] : oe += C.a.v[0] * k);
+                for (c = !0, this._pathData.a.v && (v = f[0].an * 0.5 + (T - this._pathData.f.v - f[0].an * 0.5 - f[f.length - 1].an * 0.5) * L / (S - 1), v += this._pathData.f.v); c; )
                   x + _ >= v + oe || !P ? (w = (v + oe - x) / m.partialLength, G = y.point[0] + (m.point[0] - y.point[0]) * w, W = y.point[1] + (m.point[1] - y.point[1]) * w, n.translate(-r[0] * f[u].an * 5e-3, -(r[1] * N) * 0.01), c = !1) : P && (x += m.partialLength, d += 1, d >= P.length && (d = 0, h += 1, A[h] ? P = A[h].points : B.v.c ? (d = 0, h = 0, P = A[h].points) : (x -= m.partialLength, P = null)), P && (y = m, m = P[d], _ = m.partialLength));
                 O = f[u].an / 2 - f[u].add, n.translate(-O, 0, 0);
               } else
                 O = f[u].an / 2 - f[u].add, n.translate(-O, 0, 0), n.translate(-r[0] * f[u].an * 5e-3, -r[1] * N * 0.01, 0);
               for (g = 0; g < E; g += 1)
-                C = i[g].a, C.t.propType && (T = i[g].s, k = T.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), (o !== 0 || e.j !== 0) && (this._hasMaskedPath ? k.length ? v += C.t.v * k[0] : v += C.t.v * k : k.length ? o += C.t.v * k[0] : o += C.t.v * k));
+                C = i[g].a, C.t.propType && (M = i[g].s, k = M.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), (o !== 0 || e.j !== 0) && (this._hasMaskedPath ? k.length ? v += C.t.v * k[0] : v += C.t.v * k : k.length ? o += C.t.v * k[0] : o += C.t.v * k));
               for (e.strokeWidthAnim && (K = e.sw || 0), e.strokeColorAnim && (e.sc ? $ = [e.sc[0], e.sc[1], e.sc[2]] : $ = [0, 0, 0]), e.fillColorAnim && e.fc && (U = [e.fc[0], e.fc[1], e.fc[2]]), g = 0; g < E; g += 1)
-                C = i[g].a, C.a.propType && (T = i[g].s, k = T.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? n.translate(-C.a.v[0] * k[0], -C.a.v[1] * k[1], C.a.v[2] * k[2]) : n.translate(-C.a.v[0] * k, -C.a.v[1] * k, C.a.v[2] * k));
+                C = i[g].a, C.a.propType && (M = i[g].s, k = M.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? n.translate(-C.a.v[0] * k[0], -C.a.v[1] * k[1], C.a.v[2] * k[2]) : n.translate(-C.a.v[0] * k, -C.a.v[1] * k, C.a.v[2] * k));
               for (g = 0; g < E; g += 1)
-                C = i[g].a, C.s.propType && (T = i[g].s, k = T.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? n.scale(1 + (C.s.v[0] - 1) * k[0], 1 + (C.s.v[1] - 1) * k[1], 1) : n.scale(1 + (C.s.v[0] - 1) * k, 1 + (C.s.v[1] - 1) * k, 1));
+                C = i[g].a, C.s.propType && (M = i[g].s, k = M.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), k.length ? n.scale(1 + (C.s.v[0] - 1) * k[0], 1 + (C.s.v[1] - 1) * k[1], 1) : n.scale(1 + (C.s.v[0] - 1) * k, 1 + (C.s.v[1] - 1) * k, 1));
               for (g = 0; g < E; g += 1) {
-                if (C = i[g].a, T = i[g].s, k = T.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), C.sk.propType && (k.length ? n.skewFromAxis(-C.sk.v * k[0], C.sa.v * k[1]) : n.skewFromAxis(-C.sk.v * k, C.sa.v * k)), C.r.propType && (k.length ? n.rotateZ(-C.r.v * k[2]) : n.rotateZ(-C.r.v * k)), C.ry.propType && (k.length ? n.rotateY(C.ry.v * k[1]) : n.rotateY(C.ry.v * k)), C.rx.propType && (k.length ? n.rotateX(C.rx.v * k[0]) : n.rotateX(C.rx.v * k)), C.o.propType && (k.length ? j += (C.o.v * k[0] - j) * k[0] : j += (C.o.v * k - j) * k), e.strokeWidthAnim && C.sw.propType && (k.length ? K += C.sw.v * k[0] : K += C.sw.v * k), e.strokeColorAnim && C.sc.propType)
+                if (C = i[g].a, M = i[g].s, k = M.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), C.sk.propType && (k.length ? n.skewFromAxis(-C.sk.v * k[0], C.sa.v * k[1]) : n.skewFromAxis(-C.sk.v * k, C.sa.v * k)), C.r.propType && (k.length ? n.rotateZ(-C.r.v * k[2]) : n.rotateZ(-C.r.v * k)), C.ry.propType && (k.length ? n.rotateY(C.ry.v * k[1]) : n.rotateY(C.ry.v * k)), C.rx.propType && (k.length ? n.rotateX(C.rx.v * k[0]) : n.rotateX(C.rx.v * k)), C.o.propType && (k.length ? j += (C.o.v * k[0] - j) * k[0] : j += (C.o.v * k - j) * k), e.strokeWidthAnim && C.sw.propType && (k.length ? K += C.sw.v * k[0] : K += C.sw.v * k), e.strokeColorAnim && C.sc.propType)
                   for (H = 0; H < 3; H += 1)
                     k.length ? $[H] += (C.sc.v[H] - $[H]) * k[0] : $[H] += (C.sc.v[H] - $[H]) * k;
                 if (e.fillColorAnim && e.fc) {
@@ -4556,7 +4556,7 @@ function requireLottie() {
                 }
               }
               for (g = 0; g < E; g += 1)
-                C = i[g].a, C.p.propType && (T = i[g].s, k = T.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), this._hasMaskedPath ? k.length ? n.translate(0, C.p.v[1] * k[0], -C.p.v[2] * k[1]) : n.translate(0, C.p.v[1] * k, -C.p.v[2] * k) : k.length ? n.translate(C.p.v[0] * k[0], C.p.v[1] * k[1], -C.p.v[2] * k[2]) : n.translate(C.p.v[0] * k, C.p.v[1] * k, -C.p.v[2] * k));
+                C = i[g].a, C.p.propType && (M = i[g].s, k = M.getMult(f[u].anIndexes[g], s.a[g].s.totalChars), this._hasMaskedPath ? k.length ? n.translate(0, C.p.v[1] * k[0], -C.p.v[2] * k[1]) : n.translate(0, C.p.v[1] * k, -C.p.v[2] * k) : k.length ? n.translate(C.p.v[0] * k[0], C.p.v[1] * k[1], -C.p.v[2] * k[2]) : n.translate(C.p.v[0] * k, C.p.v[1] * k, -C.p.v[2] * k));
               if (e.strokeWidthAnim && (se = K < 0 ? 0 : K), e.strokeColorAnim && (le = "rgb(" + Math.round($[0] * 255) + "," + Math.round($[1] * 255) + "," + Math.round($[2] * 255) + ")"), e.fillColorAnim && e.fc && (ne = "rgb(" + Math.round(U[0] * 255) + "," + Math.round(U[1] * 255) + "," + Math.round(U[2] * 255) + ")"), this._hasMaskedPath) {
                 if (n.translate(0, -e.ls), n.translate(0, r[1] * N * 0.01 + p, 0), this._pathData.p.v) {
                   V = (m.point[1] - y.point[1]) / (m.point[0] - y.point[0]);
@@ -4575,9 +4575,9 @@ function requireLottie() {
                 }
                 n.translate(0, -e.ls), n.translate(O, 0, 0), n.translate(r[0] * f[u].an * 5e-3, r[1] * N * 0.01, 0), o += f[u].l + e.tr * 1e-3 * e.finalSize;
               }
-              a === "html" ? re = n.toCSS() : a === "svg" ? re = n.to2dCSS() : ie = [n.props[0], n.props[1], n.props[2], n.props[3], n.props[4], n.props[5], n.props[6], n.props[7], n.props[8], n.props[9], n.props[10], n.props[11], n.props[12], n.props[13], n.props[14], n.props[15]], J = j;
+              a === "html" ? re = n.toCSS() : a === "svg" ? re = n.to2dCSS() : ie = [n.props[0], n.props[1], n.props[2], n.props[3], n.props[4], n.props[5], n.props[6], n.props[7], n.props[8], n.props[9], n.props[10], n.props[11], n.props[12], n.props[13], n.props[14], n.props[15]], X = j;
             }
-            l <= u ? (F = new LetterProps(J, se, le, ne, re, ie), this.renderedLetters.push(F), l += 1, this.lettersChangedFlag = !0) : (F = this.renderedLetters[u], this.lettersChangedFlag = F.update(J, se, le, ne, re, ie) || this.lettersChangedFlag);
+            l <= u ? (F = new LetterProps(X, se, le, ne, re, ie), this.renderedLetters.push(F), l += 1, this.lettersChangedFlag = !0) : (F = this.renderedLetters[u], this.lettersChangedFlag = F.update(X, se, le, ne, re, ie) || this.lettersChangedFlag);
           }
         }
       }, TextAnimatorProperty.prototype.getValue = function() {
@@ -4701,8 +4701,8 @@ function requireLottie() {
                 y.data && y.data.shapes && (_ = this.buildShapeData(y.data, r.finalSize)), A = new SVGShapeElement(_, this.globalData, this);
               }
               if (this.textSpans[e].glyph) {
-                var M = this.textSpans[e].glyph;
-                this.textSpans[e].childSpan.removeChild(M.layerElement), M.destroy();
+                var T = this.textSpans[e].glyph;
+                this.textSpans[e].childSpan.removeChild(T.layerElement), T.destroy();
               }
               this.textSpans[e].glyph = A, A._debug = !0, A.prepareFrame(0), A.renderFrame(), this.textSpans[e].childSpan.appendChild(A.layerElement), y.t === 1 && this.textSpans[e].childSpan.setAttribute("transform", "scale(" + r.finalSize / 100 + "," + r.finalSize / 100 + ")");
             } else
@@ -5322,12 +5322,12 @@ function requireLottie() {
         var o, p, u, S, f, b, v, m, x, c, d = this.data.singleShape, h = e.tr * 1e-3 * e.finalSize, y = 0, P = 0, A = !0, _ = 0;
         for (s = 0; s < n; s += 1) {
           o = this.globalData.fontManager.getCharData(e.finalText[s], i.fStyle, this.globalData.fontManager.getFontByName(e.f).fFamily), p = o && o.data || {}, l.reset(), d && a[s].n && (y = -h, P += e.yOffset, P += A ? 1 : 0, A = !1), f = p.shapes ? p.shapes[0].it : [], v = f.length, l.scale(e.finalSize / 100, e.finalSize / 100), d && this.applyTextPropertiesToMatrix(e, l, a[s].line, y, P), x = createSizedArray(v - 1);
-          var M = 0;
+          var T = 0;
           for (b = 0; b < v; b += 1)
             if (f[b].ty === "sh") {
               for (S = f[b].ks.k.i.length, m = f[b].ks.k, c = [], u = 1; u < S; u += 1)
                 u === 1 && c.push(l.applyToX(m.v[0][0], m.v[0][1], 0), l.applyToY(m.v[0][0], m.v[0][1], 0)), c.push(l.applyToX(m.o[u - 1][0], m.o[u - 1][1], 0), l.applyToY(m.o[u - 1][0], m.o[u - 1][1], 0), l.applyToX(m.i[u][0], m.i[u][1], 0), l.applyToY(m.i[u][0], m.i[u][1], 0), l.applyToX(m.v[u][0], m.v[u][1], 0), l.applyToY(m.v[u][0], m.v[u][1], 0));
-              c.push(l.applyToX(m.o[u - 1][0], m.o[u - 1][1], 0), l.applyToY(m.o[u - 1][0], m.o[u - 1][1], 0), l.applyToX(m.i[0][0], m.i[0][1], 0), l.applyToY(m.i[0][0], m.i[0][1], 0), l.applyToX(m.v[0][0], m.v[0][1], 0), l.applyToY(m.v[0][0], m.v[0][1], 0)), x[M] = c, M += 1;
+              c.push(l.applyToX(m.o[u - 1][0], m.o[u - 1][1], 0), l.applyToY(m.o[u - 1][0], m.o[u - 1][1], 0), l.applyToX(m.i[0][0], m.i[0][1], 0), l.applyToY(m.i[0][0], m.i[0][1], 0), l.applyToX(m.v[0][0], m.v[0][1], 0), l.applyToY(m.v[0][0], m.v[0][1], 0)), x[T] = c, T += 1;
             }
           d && (y += a[s].l, y += h), this.textSpans[_] ? this.textSpans[_].elem = x : this.textSpans[_] = {
             elem: x
@@ -6073,30 +6073,30 @@ function requireLottie() {
           y = y === !0 ? {
             entropy: !0
           } : y || {};
-          var _ = x(m(y.entropy ? [h, d(e)] : h === null ? c() : h, 3), A), M = new b(A), w = function() {
-            for (var B = M.g(s), R = l, D = 0; B < o; )
-              B = (B + D) * i, R *= i, D = M.g(1);
+          var _ = x(m(y.entropy ? [h, d(e)] : h === null ? c() : h, 3), A), T = new b(A), w = function() {
+            for (var B = T.g(s), R = l, D = 0; B < o; )
+              B = (B + D) * i, R *= i, D = T.g(1);
             for (; B >= p; )
               B /= 2, R /= 2, D >>>= 1;
             return (B + D) / R;
           };
           return w.int32 = function() {
-            return M.g(4) | 0;
+            return T.g(4) | 0;
           }, w.quick = function() {
-            return M.g(4) / 4294967296;
-          }, w.double = w, x(d(M.S), e), (y.pass || P || function(V, B, R, D) {
-            return D && (D.S && v(D, M), V.state = function() {
-              return v(M, {});
+            return T.g(4) / 4294967296;
+          }, w.double = w, x(d(T.S), e), (y.pass || P || function(V, B, R, D) {
+            return D && (D.S && v(D, T), V.state = function() {
+              return v(T, {});
             }), R ? (t[a] = V, B) : V;
           })(w, _, "global" in y ? y.global : this == t, y.state);
         }
         t["seed" + a] = f;
         function b(h) {
-          var y, P = h.length, A = this, _ = 0, M = A.i = A.j = 0, w = A.S = [];
+          var y, P = h.length, A = this, _ = 0, T = A.i = A.j = 0, w = A.S = [];
           for (P || (h = [P++]); _ < i; )
             w[_] = _++;
           for (_ = 0; _ < i; _++)
-            w[_] = w[M = u & M + h[_ % P] + (y = w[_])], w[M] = y;
+            w[_] = w[T = u & T + h[_ % P] + (y = w[_])], w[T] = y;
           A.g = function(V) {
             for (var B, R = 0, D = A.i, N = A.j, I = A.S; V--; )
               B = I[D = u & D + 1], R = R * i + I[u & (I[D] = I[N = u & N + B]) + (I[N] = B)];
@@ -6970,16 +6970,16 @@ function requireLottie() {
         }
         function a(v, m, x) {
           var c = propertyGroupFactory(_, x), d = propertyGroupFactory(A, c);
-          function h(M) {
-            Object.defineProperty(A, v.d[M].nm, {
-              get: ExpressionPropertyInterface(m.d.dataProps[M].p)
+          function h(T) {
+            Object.defineProperty(A, v.d[T].nm, {
+              get: ExpressionPropertyInterface(m.d.dataProps[T].p)
             });
           }
           var y, P = v.d ? v.d.length : 0, A = {};
           for (y = 0; y < P; y += 1)
             h(y), m.d.dataProps[y].p.setGroupProperty(d);
-          function _(M) {
-            return M === "Color" || M === "color" ? _.color : M === "Opacity" || M === "opacity" ? _.opacity : M === "Stroke Width" || M === "stroke width" ? _.strokeWidth : null;
+          function _(T) {
+            return T === "Color" || T === "color" ? _.color : T === "Opacity" || T === "opacity" ? _.opacity : T === "Stroke Width" || T === "stroke width" ? _.strokeWidth : null;
           }
           return Object.defineProperties(_, {
             color: {
@@ -7311,13 +7311,13 @@ function requireLottie() {
             if (_ % 2 !== 0)
               return this.getValueAtTime((d - (m - h) % d + h) / this.comp.globalData.frameRate, 0);
           } else if (f === "offset") {
-            var M = this.getValueAtTime(h / this.comp.globalData.frameRate, 0), w = this.getValueAtTime(c / this.comp.globalData.frameRate, 0), V = this.getValueAtTime(((m - h) % d + h) / this.comp.globalData.frameRate, 0), B = Math.floor((m - h) / d);
+            var T = this.getValueAtTime(h / this.comp.globalData.frameRate, 0), w = this.getValueAtTime(c / this.comp.globalData.frameRate, 0), V = this.getValueAtTime(((m - h) % d + h) / this.comp.globalData.frameRate, 0), B = Math.floor((m - h) / d);
             if (this.pv.length) {
-              for (A = new Array(M.length), P = A.length, y = 0; y < P; y += 1)
-                A[y] = (w[y] - M[y]) * B + V[y];
+              for (A = new Array(T.length), P = A.length, y = 0; y < P; y += 1)
+                A[y] = (w[y] - T[y]) * B + V[y];
               return A;
             }
-            return (w - M) * B + V;
+            return (w - T) * B + V;
           } else if (f === "continue") {
             var R = this.getValueAtTime(c / this.comp.globalData.frameRate, 0), D = this.getValueAtTime((c - 1e-3) / this.comp.globalData.frameRate, 0);
             if (this.pv.length) {
@@ -7344,13 +7344,13 @@ function requireLottie() {
             if (_ % 2 === 0)
               return this.getValueAtTime(((c - m) % d + c) / this.comp.globalData.frameRate, 0);
           } else if (f === "offset") {
-            var M = this.getValueAtTime(c / this.comp.globalData.frameRate, 0), w = this.getValueAtTime(h / this.comp.globalData.frameRate, 0), V = this.getValueAtTime((d - (c - m) % d + c) / this.comp.globalData.frameRate, 0), B = Math.floor((c - m) / d) + 1;
+            var T = this.getValueAtTime(c / this.comp.globalData.frameRate, 0), w = this.getValueAtTime(h / this.comp.globalData.frameRate, 0), V = this.getValueAtTime((d - (c - m) % d + c) / this.comp.globalData.frameRate, 0), B = Math.floor((c - m) / d) + 1;
             if (this.pv.length) {
-              for (A = new Array(M.length), P = A.length, y = 0; y < P; y += 1)
-                A[y] = V[y] - (w[y] - M[y]) * B;
+              for (A = new Array(T.length), P = A.length, y = 0; y < P; y += 1)
+                A[y] = V[y] - (w[y] - T[y]) * B;
               return A;
             }
-            return V - (w - M) * B;
+            return V - (w - T) * B;
           } else if (f === "continue") {
             var R = this.getValueAtTime(c / this.comp.globalData.frameRate, 0), D = this.getValueAtTime((c + 1e-3) / this.comp.globalData.frameRate, 0);
             if (this.pv.length) {
@@ -7409,12 +7409,12 @@ function requireLottie() {
             b.rotateZ(-h * this.rz.mult).rotateY(y * this.ry.mult).rotateX(P * this.rx.mult).rotateZ(-A[2] * this.or.mult).rotateY(A[1] * this.or.mult).rotateX(A[0] * this.or.mult);
           }
           if (this.data.p && this.data.p.s) {
-            var _ = this.px.getValueAtTime(f), M = this.py.getValueAtTime(f);
+            var _ = this.px.getValueAtTime(f), T = this.py.getValueAtTime(f);
             if (this.data.p.z) {
               var w = this.pz.getValueAtTime(f);
-              b.translate(_ * this.px.mult, M * this.py.mult, -w * this.pz.mult);
+              b.translate(_ * this.px.mult, T * this.py.mult, -w * this.pz.mult);
             } else
-              b.translate(_ * this.px.mult, M * this.py.mult, 0);
+              b.translate(_ * this.px.mult, T * this.py.mult, 0);
           } else {
             var V = this.p.getValueAtTime(f);
             b.translate(V[0] * this.p.mult, V[1] * this.p.mult, -V[2] * this.p.mult);
@@ -7477,8 +7477,8 @@ function requireLottie() {
             v !== void 0 && (m = this.getValueAtTime(v, 0)), this._segmentsLength || (this._segmentsLength = bez.getSegmentsLength(m));
             for (var x = this._segmentsLength, c = x.lengths, d = x.totalLength * b, h = 0, y = c.length, P = 0, A; h < y; ) {
               if (P + c[h].addedLength > d) {
-                var _ = h, M = m.c && h === y - 1 ? 0 : h + 1, w = (d - P) / c[h].addedLength;
-                A = bez.getPointInSegment(m.v[_], m.v[M], m.o[_], m.i[M], w, c[h]);
+                var _ = h, T = m.c && h === y - 1 ? 0 : h + 1, w = (d - P) / c[h].addedLength;
+                A = bez.getPointInSegment(m.v[_], m.v[T], m.o[_], m.i[T], w, c[h]);
                 break;
               } else
                 P += c[h].addedLength;
@@ -7859,7 +7859,7 @@ function _unsupportedIterableToArray(e, t) {
 var _excluded$1 = ["animationData", "loop", "autoplay", "initialSegment", "onComplete", "onLoopComplete", "onEnterFrame", "onSegmentStart", "onConfigReady", "onDataReady", "onDataFailed", "onLoadedImages", "onDOMLoaded", "onDestroy", "lottieRef", "renderer", "name", "assetsPath", "rendererSettings"], useLottie = function e(t, r) {
   var i = t.animationData, s = t.loop, n = t.autoplay, a = t.initialSegment, l = t.onComplete, o = t.onLoopComplete, p = t.onEnterFrame, u = t.onSegmentStart, S = t.onConfigReady, f = t.onDataReady, b = t.onDataFailed, v = t.onLoadedImages, m = t.onDOMLoaded, x = t.onDestroy;
   t.lottieRef, t.renderer, t.name, t.assetsPath, t.rendererSettings;
-  var c = _objectWithoutProperties(t, _excluded$1), d = useState(!1), h = _slicedToArray(d, 2), y = h[0], P = h[1], A = useRef(), _ = useRef(null), M = function() {
+  var c = _objectWithoutProperties(t, _excluded$1), d = useState(!1), h = _slicedToArray(d, 2), y = h[0], P = h[1], A = useRef(), _ = useRef(null), T = function() {
     var L;
     (L = A.current) === null || L === void 0 || L.play();
   }, w = function() {
@@ -7886,7 +7886,7 @@ var _excluded$1 = ["animationData", "loop", "autoplay", "initialSegment", "onCom
   }, C = function(L) {
     var O;
     (O = A.current) === null || O === void 0 || O.setSubframe(L);
-  }, T = function(L) {
+  }, M = function(L) {
     var O;
     return (O = A.current) === null || O === void 0 ? void 0 : O.getDuration(L);
   }, g = function() {
@@ -7982,7 +7982,7 @@ var _excluded$1 = ["animationData", "loop", "autoplay", "initialSegment", "onCom
   }, c));
   return {
     View: F,
-    play: M,
+    play: T,
     stop: w,
     pause: V,
     setSpeed: B,
@@ -7991,7 +7991,7 @@ var _excluded$1 = ["animationData", "loop", "autoplay", "initialSegment", "onCom
     setDirection: N,
     playSegments: I,
     setSubframe: C,
-    getDuration: T,
+    getDuration: M,
     destroy: g,
     animationContainerRef: _,
     animationLoaded: y,
@@ -8347,27 +8347,27 @@ function useGazeBehavior({
     const u = t.current, S = r.current, f = e.current;
     if (s === "none" || !n || !u || !S || !f)
       return;
-    let b = !1, v = browserPrefersReducedMotion$1(), m = browserHasFinePointer(), x = null, c = !1, d = !1, h = !0, y = typeof document < "u" && document.hidden, P = null, A = null, _ = null, M = null, w = !1, V = null, B = createGazeWanderState(Date.now(), Math.random, o.current), R = createBlinkState(Date.now(), Math.random, o.current);
+    let b = !1, v = browserPrefersReducedMotion$1(), m = browserHasFinePointer(), x = null, c = !1, d = !1, h = !0, y = typeof document < "u" && document.hidden, P = null, A = null, _ = null, T = null, w = !1, V = null, B = createGazeWanderState(Date.now(), Math.random, o.current), R = createBlinkState(Date.now(), Math.random, o.current);
     const D = () => b || v || y || !h, N = (z, Z) => {
       if (!n)
         return;
-      const { dx: X, dy: Q } = applyGazeTravel(z, n.travel);
-      u.style.transition = v ? "none" : `transform ${Z}ms ${o.current.easing}`, u.style.transform = `translate(${X}px, ${Q}px)`;
+      const { dx: J, dy: Q } = applyGazeTravel(z, n.travel);
+      u.style.transition = v ? "none" : `transform ${Z}ms ${o.current.easing}`, u.style.transform = `translate(${J}px, ${Q}px)`;
     }, I = (z, Z) => {
       if (!n)
         return;
-      const X = applyBlinkScale(z, n.blinkClosedScaleY);
-      S.style.transition = v ? "none" : `transform ${Z}ms ${o.current.easing}`, S.style.transform = `scaleY(${X})`;
-    }, C = (z) => N(NEUTRAL_GAZE_VECTOR, z), T = () => {
+      const J = applyBlinkScale(z, n.blinkClosedScaleY);
+      S.style.transition = v ? "none" : `transform ${Z}ms ${o.current.easing}`, S.style.transform = `scaleY(${J})`;
+    }, C = (z) => N(NEUTRAL_GAZE_VECTOR, z), M = () => {
       P !== null && (clearTimeout(P), P = null);
     }, g = () => {
       A !== null && (clearTimeout(A), A = null);
     }, E = () => {
       _ !== null && (clearTimeout(_), _ = null);
     }, F = () => {
-      M !== null && (clearTimeout(M), M = null);
+      T !== null && (clearTimeout(T), T = null);
     }, k = () => {
-      T(), P = setTimeout(() => {
+      M(), P = setTimeout(() => {
         P = null, c = !1, D() || C(o.current.driftBackMs), Y();
       }, o.current.pointerRestMs);
     }, L = () => {
@@ -8384,7 +8384,7 @@ function useGazeBehavior({
       const Z = f.getBoundingClientRect();
       N(computePointerGazeVector(Z, x), o.current.trackMs), c = !0, k();
     }, W = () => {
-      x = null, c = !1, T(), !D() && s === "pointer" && (C(o.current.driftBackMs), Y());
+      x = null, c = !1, M(), !D() && s === "pointer" && (C(o.current.driftBackMs), Y());
     }, q = () => {
       const z = Date.now();
       B = advanceGazeWander(B, z, Math.random, o.current), D() || N(B.vector, o.current.wanderHoldMs);
@@ -8402,8 +8402,8 @@ function useGazeBehavior({
     const ee = () => {
       const z = Date.now();
       if (R = advanceBlinkState(R, z, Math.random, o.current), !D()) {
-        const X = R.phase === "closing" ? o.current.blinkCloseMs : R.phase === "opening" ? o.current.blinkOpenMs : o.current.blinkCloseMs;
-        I(R.eyelid, X);
+        const J = R.phase === "closing" ? o.current.blinkCloseMs : R.phase === "opening" ? o.current.blinkOpenMs : o.current.blinkCloseMs;
+        I(R.eyelid, J);
       }
       const Z = Math.max(16, R.nextChangeAt - z);
       _ = setTimeout(ee, Z);
@@ -8421,7 +8421,7 @@ function useGazeBehavior({
     }, K = n.bodyFlinch ? (i == null ? void 0 : i.current) ?? null : null, U = (z) => {
       if (!K || w || D() || !n)
         return;
-      const Z = K.getBoundingClientRect(), X = computePointerGazeVector(Z, { x: z.clientX, y: z.clientY }), Q = { x: -X.x, y: -X.y };
+      const Z = K.getBoundingClientRect(), J = computePointerGazeVector(Z, { x: z.clientX, y: z.clientY }), Q = { x: -J.x, y: -J.y };
       w = !0;
       const ae = buildBodyFlinchSteps(o.current), oe = (he) => {
         if (he >= ae.length) {
@@ -8438,31 +8438,31 @@ function useGazeBehavior({
           );
           K.style.transition = v ? "none" : `transform ${fe.durationMs}ms ${o.current.easing}`, K.style.transform = `translate(${pe}px, ${ce}px) rotate(${ue}deg) scale(${fe.scale})`;
         }
-        M = setTimeout(() => {
-          M = null, oe(he + 1);
+        T = setTimeout(() => {
+          T = null, oe(he + 1);
         }, fe.waitMs);
       };
       oe(0);
     }, H = () => {
       d = !1, S.style.transition = "none", S.style.transform = "scaleY(1)", K && (K.style.transition = "none", K.style.transform = "translate(0px, 0px) rotate(0deg) scale(1)");
     }, se = (z) => {
-      v = z.matches, v ? (T(), g(), E(), F(), w = !1, u.style.transition = "none", u.style.transform = "translate(0px, 0px)", H()) : (Y(), te());
+      v = z.matches, v ? (M(), g(), E(), F(), w = !1, u.style.transition = "none", u.style.transform = "translate(0px, 0px)", H()) : (Y(), te());
     }, le = (z) => {
       m = z.matches, Y();
     }, ne = () => {
-      y = typeof document < "u" && document.hidden, y ? (T(), g(), E(), F(), w = !1) : (Y(), te());
+      y = typeof document < "u" && document.hidden, y ? (M(), g(), E(), F(), w = !1) : (Y(), te());
     };
     let re = null;
     typeof IntersectionObserver == "function" && (re = new IntersectionObserver(
       (z) => {
         const Z = z[z.length - 1];
-        h = (Z == null ? void 0 : Z.isIntersecting) ?? !0, h ? (Y(), te()) : (T(), g(), E(), F(), w = !1);
+        h = (Z == null ? void 0 : Z.isIntersecting) ?? !0, h ? (Y(), te()) : (M(), g(), E(), F(), w = !1);
       },
       { threshold: 0 }
     ), re.observe(f));
-    const ie = typeof window.matchMedia == "function" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null, J = typeof window.matchMedia == "function" ? window.matchMedia("(pointer: fine)") : null;
-    return ie == null || ie.addEventListener("change", se), J == null || J.addEventListener("change", le), window.addEventListener("pointermove", O, { passive: !0 }), window.addEventListener("pointerdown", G, { passive: !0 }), document.addEventListener("mouseleave", W), document.addEventListener("visibilitychange", ne), f.addEventListener("pointerenter", j), f.addEventListener("pointerleave", $), K && K.addEventListener("click", U), isFixedVector(s) ? N(s, o.current.trackMs) : C(0), I(0, 0), v ? H() : (Y(), te()), () => {
-      b = !0, T(), g(), E(), F(), V !== null && (typeof cancelAnimationFrame == "function" ? cancelAnimationFrame(V) : clearTimeout(V)), re == null || re.disconnect(), ie == null || ie.removeEventListener("change", se), J == null || J.removeEventListener("change", le), window.removeEventListener("pointermove", O), window.removeEventListener("pointerdown", G), document.removeEventListener("mouseleave", W), document.removeEventListener("visibilitychange", ne), f.removeEventListener("pointerenter", j), f.removeEventListener("pointerleave", $), K && K.removeEventListener("click", U);
+    const ie = typeof window.matchMedia == "function" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null, X = typeof window.matchMedia == "function" ? window.matchMedia("(pointer: fine)") : null;
+    return ie == null || ie.addEventListener("change", se), X == null || X.addEventListener("change", le), window.addEventListener("pointermove", O, { passive: !0 }), window.addEventListener("pointerdown", G, { passive: !0 }), document.addEventListener("mouseleave", W), document.addEventListener("visibilitychange", ne), f.addEventListener("pointerenter", j), f.addEventListener("pointerleave", $), K && K.addEventListener("click", U), isFixedVector(s) ? N(s, o.current.trackMs) : C(0), I(0, 0), v ? H() : (Y(), te()), () => {
+      b = !0, M(), g(), E(), F(), V !== null && (typeof cancelAnimationFrame == "function" ? cancelAnimationFrame(V) : clearTimeout(V)), re == null || re.disconnect(), ie == null || ie.removeEventListener("change", se), X == null || X.removeEventListener("change", le), window.removeEventListener("pointermove", O), window.removeEventListener("pointerdown", G), document.removeEventListener("mouseleave", W), document.removeEventListener("visibilitychange", ne), f.removeEventListener("pointerenter", j), f.removeEventListener("pointerleave", $), K && K.removeEventListener("click", U);
     };
   }, [
     s === "none" ? "none" : s === "auto" ? "auto" : s === "pointer" ? "pointer" : p,
@@ -8531,13 +8531,13 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
       ease: "sine.inOut",
       onUpdate: () => {
         var w, V;
-        const M = _.value;
+        const T = _.value;
         (w = e.leftEyePathElementRef.current) == null || w.setAttribute(
           "d",
-          interpolateNumericValuesBetweenPathStrings(d, h, M)
+          interpolateNumericValuesBetweenPathStrings(d, h, T)
         ), (V = e.rightEyePathElementRef.current) == null || V.setAttribute(
           "d",
-          interpolateNumericValuesBetweenPathStrings(y, P, M)
+          interpolateNumericValuesBetweenPathStrings(y, P, T)
         );
       }
     });
@@ -8725,12 +8725,12 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
   focusElement: f = null
 }) => {
   var te;
-  const b = isBotAvatarState(t) ? t : "neutral", m = `bot-avatar-head-clip-${useId().replace(/:/g, "")}`, x = useRef(null), c = useRef(null), d = useRef(null), h = useRef(null), y = useRef(null), P = useRef(null), A = useRef(null), _ = useRef(null), M = useRef(null), w = useRef(null), V = useRef(null), B = useRef(null), R = useRef(computeAllFacialPathsForState(e, b)), D = u !== "none" && !!e.gaze, N = D && !!((te = e.gaze) != null && te.bodyFlinch);
+  const b = isBotAvatarState(t) ? t : "neutral", m = `bot-avatar-head-clip-${useId().replace(/:/g, "")}`, x = useRef(null), c = useRef(null), d = useRef(null), h = useRef(null), y = useRef(null), P = useRef(null), A = useRef(null), _ = useRef(null), T = useRef(null), w = useRef(null), V = useRef(null), B = useRef(null), R = useRef(computeAllFacialPathsForState(e, b)), D = u !== "none" && !!e.gaze, N = D && !!((te = e.gaze) != null && te.bodyFlinch);
   useGazeBehavior({
     svgElementRef: x,
     gazeGroupElementRef: A,
     eyelidGroupElementRef: _,
-    bodyElementRef: M,
+    bodyElementRef: T,
     gaze: u,
     geometry: e.gaze,
     config: S,
@@ -8751,12 +8751,12 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
       leftEyePathString: j.leftEyePathElementRef.current.getAttribute("d") ?? "",
       rightEyePathString: j.rightEyePathElementRef.current.getAttribute("d") ?? "",
       mouthPathString: ((ie = j.mouthPathElementRef.current) == null ? void 0 : ie.getAttribute("d")) ?? ""
-    }, K = computeAllFacialPathsForState(e, b), U = (J, z) => {
+    }, K = computeAllFacialPathsForState(e, b), U = (X, z) => {
       B.current && clearTimeout(B.current), B.current = setTimeout(() => {
         B.current = null, z();
-      }, J);
+      }, X);
     }, H = () => {
-      const J = () => {
+      const X = () => {
         const z = pickRandomDurationMilliseconds(
           DEFAULT_NEUTRAL_BORED_INTERVAL_MIN_MS,
           DEFAULT_NEUTRAL_BORED_INTERVAL_MAX_MS
@@ -8766,14 +8766,14 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
           const Z = pickRandomDurationMilliseconds(
             DEFAULT_NEUTRAL_BORED_VARIANT_DURATION_MIN_MS,
             DEFAULT_NEUTRAL_BORED_VARIANT_DURATION_MAX_MS
-          ), X = pickRandomNeutralBoredAnimationBuilder();
-          (Q = V.current) == null || Q.kill(), V.current = X(j, Z), U(Z, () => {
+          ), J = pickRandomNeutralBoredAnimationBuilder();
+          (Q = V.current) == null || Q.kill(), V.current = J(j, Z), U(Z, () => {
             var ae;
-            (ae = V.current) == null || ae.kill(), V.current = null, j.innerHeadGroupElementRef.current && gsap.set(j.innerHeadGroupElementRef.current, { clearProps: "transform" }), j.antennaCircleElementRef.current && gsap.set(j.antennaCircleElementRef.current, { clearProps: "transform" }), J();
+            (ae = V.current) == null || ae.kill(), V.current = null, j.innerHeadGroupElementRef.current && gsap.set(j.innerHeadGroupElementRef.current, { clearProps: "transform" }), j.antennaCircleElementRef.current && gsap.set(j.antennaCircleElementRef.current, { clearProps: "transform" }), X();
           });
         });
       };
-      J();
+      X();
     }, se = () => {
       if (browserPrefersReducedMotion()) {
         V.current = null;
@@ -8787,20 +8787,20 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
         H();
         return;
       }
-      const J = idleAnimationBuildersByStateKey[b];
-      V.current = J(j);
+      const X = idleAnimationBuildersByStateKey[b];
+      V.current = X(j);
     };
     if ($.leftEyePathString === K.leftEyePathString && $.rightEyePathString === K.rightEyePathString && $.mouthPathString === K.mouthPathString)
       se();
     else {
-      const J = { easedProgress: 0 };
-      w.current = gsap.to(J, {
+      const X = { easedProgress: 0 };
+      w.current = gsap.to(X, {
         easedProgress: 1,
         duration: s,
         ease: "power3.inOut",
         onUpdate: () => {
-          var Z, X, Q;
-          const z = J.easedProgress;
+          var Z, J, Q;
+          const z = X.easedProgress;
           (Z = j.leftEyePathElementRef.current) == null || Z.setAttribute(
             "d",
             interpolateNumericValuesBetweenPathStrings(
@@ -8808,7 +8808,7 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
               K.leftEyePathString,
               z
             )
-          ), (X = j.rightEyePathElementRef.current) == null || X.setAttribute(
+          ), (J = j.rightEyePathElementRef.current) == null || J.setAttribute(
             "d",
             interpolateNumericValuesBetweenPathStrings(
               $.rightEyePathString,
@@ -8828,15 +8828,15 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
       });
     }
     return () => {
-      var J, z;
-      (J = w.current) == null || J.kill(), (z = V.current) == null || z.kill(), B.current && (clearTimeout(B.current), B.current = null);
+      var X, z;
+      (X = w.current) == null || X.kill(), (z = V.current) == null || z.kill(), B.current && (clearTimeout(B.current), B.current = null);
     };
   }, [e, b, r, p, s]);
-  const I = R.current, C = o ?? `Bot avatar - ${b} state`, T = { shadowColor: n, lightColor: a, accentColor: l }, [g, E, F, k] = e.viewBox, L = `${g} ${E} ${F} ${k}`, O = e.body.map(
-    (j, $) => renderProceduralShape(j, $, T, y)
+  const I = R.current, C = o ?? `Bot avatar - ${b} state`, M = { shadowColor: n, lightColor: a, accentColor: l }, [g, E, F, k] = e.viewBox, L = `${g} ${E} ${F} ${k}`, O = e.body.map(
+    (j, $) => renderProceduralShape(j, $, M, y)
   ), G = (e.features.leftEye.cx + e.features.rightEye.cx) / 2, W = (e.features.leftEye.cy + e.features.rightEye.cy) / 2, q = /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx("path", { ref: c, d: I.leftEyePathString, fill: resolveFillColor(e.features.leftEye.fillRole, T) }),
-    /* @__PURE__ */ jsx("path", { ref: d, d: I.rightEyePathString, fill: resolveFillColor(e.features.rightEye.fillRole, T) })
+    /* @__PURE__ */ jsx("path", { ref: c, d: I.leftEyePathString, fill: resolveFillColor(e.features.leftEye.fillRole, M) }),
+    /* @__PURE__ */ jsx("path", { ref: d, d: I.rightEyePathString, fill: resolveFillColor(e.features.rightEye.fillRole, M) })
   ] }), Y = /* @__PURE__ */ jsxs(Fragment, { children: [
     D ? /* @__PURE__ */ jsx(
       "g",
@@ -8860,19 +8860,19 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
       {
         ref: h,
         d: I.mouthPathString,
-        fill: resolveFillColor(e.features.mouth.fillRole, T)
+        fill: resolveFillColor(e.features.mouth.fillRole, M)
       }
     ) : null
   ] }), ee = N ? /* @__PURE__ */ jsxs(Fragment, { children: [
-    e.body.filter((j) => j.slot !== "flinchBody").map((j, $) => renderProceduralShape(j, $, T, y)),
+    e.body.filter((j) => j.slot !== "flinchBody").map((j, $) => renderProceduralShape(j, $, M, y)),
     /* @__PURE__ */ jsxs(
       "g",
       {
-        ref: M,
+        ref: T,
         className: "vultus-flinch-body",
         style: { transformBox: "view-box", transformOrigin: `${G}px ${W}px` },
         children: [
-          e.body.filter((j) => j.slot === "flinchBody").map((j, $) => renderProceduralShape(j, $, T, y)),
+          e.body.filter((j) => j.slot === "flinchBody").map((j, $) => renderProceduralShape(j, $, M, y)),
           Y
         ]
       }
@@ -8903,10 +8903,10 @@ const DEFAULT_BOT_AVATAR_SHADOW_COLOR_NAME = "dimgray", DEFAULT_BOT_AVATAR_LIGHT
       ) : { display: "block" },
       children: [
         e.clipShape ? /* @__PURE__ */ jsx("defs", { children: /* @__PURE__ */ jsx("clipPath", { id: m, children: /* @__PURE__ */ jsx("circle", { cx: e.clipShape.cx, cy: e.clipShape.cy, r: e.clipShape.r }) }) }) : null,
-        e.background ? /* @__PURE__ */ jsx("rect", { width: F, height: k, fill: resolveFillColor(e.background, T) }) : null,
+        e.background ? /* @__PURE__ */ jsx("rect", { width: F, height: k, fill: resolveFillColor(e.background, M) }) : null,
         /* @__PURE__ */ jsxs("g", { ref: P, children: [
           (e.underlayShapes ?? []).map(
-            (j, $) => renderProceduralShape(j, $, T, y)
+            (j, $) => renderProceduralShape(j, $, M, y)
           ),
           e.clipShape ? /* @__PURE__ */ jsx("g", { clipPath: `url(#${m})`, children: ee }) : ee
         ] })
@@ -9359,16 +9359,76 @@ const INK = "#11130f", PAPER = "#f2efe7", SIGNAL = "#b8f34a", CLAY = "#ef6a47", 
   ],
   colors: { body: SEA, eye: INK, accent: AMBER },
   temperament: 1
+}, producerSpec = {
+  id: "creative-producer",
+  name: "Producer",
+  viewBoxSize: 28,
+  body: { width: 24, height: 14, roundness: 0.3, sharpCorner: "topRight", sharpCornerRadius: 2 },
+  eyes: { radiusX: 2, radiusY: 2, spacing: 10, offsetY: 0 },
+  accessories: [
+    // A headset-mic bar angled toward the mouth.
+    { kind: "rect", x: 20, y: 13, width: 5, height: 1.4, rx: 0.7, fillRole: "accent" }
+  ],
+  colors: { body: AMBER, eye: INK, accent: CLAY },
+  temperament: 1.15
+  // brisk, always coordinating something
+}, researcherSpec = {
+  id: "creative-researcher",
+  name: "Researcher",
+  viewBoxSize: 28,
+  body: { width: 14, height: 24, roundness: 1, sharpCorner: "none", sharpCornerRadius: 0 },
+  eyes: { radiusX: 1.8, radiusY: 1.8, spacing: 7, offsetY: -2 },
+  accessories: [
+    // A magnifying-glass lens held up beside the head.
+    { kind: "circle", cx: 22, cy: 9, r: 2.4, fillRole: "accent" },
+    { kind: "rect", x: 22.8, y: 11, width: 1.1, height: 4, rx: 0.5, fillRole: "accent" }
+  ],
+  colors: { body: COBALT, eye: PAPER, accent: AMBER },
+  temperament: 0.9
+}, archivistSpec = {
+  id: "creative-archivist",
+  name: "Archivist",
+  viewBoxSize: 28,
+  body: { width: 20, height: 18, roundness: 0.2, sharpCorner: "topLeft", sharpCornerRadius: 2.5 },
+  eyes: { radiusX: 2, radiusY: 2, spacing: 9, offsetY: 0.5 },
+  accessories: [
+    // A filed-tab marker along the top edge.
+    { kind: "rect", x: 7, y: 4, width: 6, height: 1.6, rx: 0.4, fillRole: "accent" }
+  ],
+  colors: { body: CLAY, eye: INK, accent: PAPER },
+  temperament: 0.8
+  // unhurried, methodical
+}, analystSpec = {
+  id: "creative-analyst",
+  name: "Analyst",
+  viewBoxSize: 28,
+  body: { width: 18, height: 18, roundness: 0.15, sharpCorner: "bottomRight", sharpCornerRadius: 1.2 },
+  eyes: { radiusX: 1.8, radiusY: 1.8, spacing: 8, offsetY: 0 },
+  accessories: [
+    // A small ascending bar-chart tick near the corner.
+    { kind: "rect", x: 19, y: 18, width: 1.6, height: 3, fillRole: "accent" },
+    { kind: "rect", x: 21.2, y: 15.5, width: 1.6, height: 5.5, fillRole: "accent" }
+  ],
+  colors: { body: INK, eye: SIGNAL, accent: PAPER },
+  temperament: 1.05
 }, specsByRole = {
   Editor: editorSpec,
   Reporter: reporterSpec,
   "Copy Writer": copyWriterSpec,
-  Illustrator: illustratorSpec
+  Illustrator: illustratorSpec,
+  Producer: producerSpec,
+  Researcher: researcherSpec,
+  Archivist: archivistSpec,
+  Analyst: analystSpec
 }, modelsByRole = {
   Editor: buildCharacterModel(editorSpec),
   Reporter: buildCharacterModel(reporterSpec),
   "Copy Writer": buildCharacterModel(copyWriterSpec),
-  Illustrator: buildCharacterModel(illustratorSpec)
+  Illustrator: buildCharacterModel(illustratorSpec),
+  Producer: buildCharacterModel(producerSpec),
+  Researcher: buildCharacterModel(researcherSpec),
+  Archivist: buildCharacterModel(archivistSpec),
+  Analyst: buildCharacterModel(analystSpec)
 };
 function creativeCharacterSpecForRole(e) {
   return specsByRole[e];
